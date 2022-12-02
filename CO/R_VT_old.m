@@ -20,7 +20,7 @@ switch P.name
         ind_p=5;
 end
 num_v_l=M.num_vibr_levels(ind_e);
-k_down=kvt_fho_CO(T, M.ev_i{ind_e}, num_v_l, ind_p)';
+k_down=kvt_fho_old(T, M, P, ind_e)';
 k_up=k_down.*exp((M.ev_i{ind_e}(1:end-1)-M.ev_i{ind_e}(2:end))/k/T)';
 % disp(Kvt(1))
     % заполняем серединку
