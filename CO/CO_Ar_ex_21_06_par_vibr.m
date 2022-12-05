@@ -1,9 +1,9 @@
 function out=CO_Ar_ex_21_06_par_vibr
-% Программа для расчёта смесей CO и Ar с учётом CO* и C2 с целью выявить
-% задержку диссоциации. На базе кода для параллельных расчётов смеси CO/Ar
-% CO_Ar_mixure_20_04_par.m, модификация кода CO_Ar_ex_20_10_par_vibr с 
-% учётом диссоциации по Алиату и колебательных уровней CO*, + диссоциация
-% по Савельеву и прочие дополнения для Алушты
+% ГЏГ°Г®ГЈГ°Г Г¬Г¬Г  Г¤Г«Гї Г°Г Г±Г·ВёГІГ  Г±Г¬ГҐГ±ГҐГ© CO ГЁ Ar Г± ГіГ·ВёГІГ®Г¬ CO* ГЁ C2 Г± Г¶ГҐГ«ГјГѕ ГўГ»ГїГўГЁГІГј
+% Г§Г Г¤ГҐГ°Г¦ГЄГі Г¤ГЁГ±Г±Г®Г¶ГЁГ Г¶ГЁГЁ. ГЌГ  ГЎГ Г§ГҐ ГЄГ®Г¤Г  Г¤Г«Гї ГЇГ Г°Г Г«Г«ГҐГ«ГјГ­Г»Гµ Г°Г Г±Г·ВёГІГ®Гў Г±Г¬ГҐГ±ГЁ CO/Ar
+% CO_Ar_mixure_20_04_par.m, Г¬Г®Г¤ГЁГґГЁГЄГ Г¶ГЁГї ГЄГ®Г¤Г  CO_Ar_ex_20_10_par_vibr Г± 
+% ГіГ·ВёГІГ®Г¬ Г¤ГЁГ±Г±Г®Г¶ГЁГ Г¶ГЁГЁ ГЇГ® ГЂГ«ГЁГ ГІГі ГЁ ГЄГ®Г«ГҐГЎГ ГІГҐГ«ГјГ­Г»Гµ ГіГ°Г®ГўГ­ГҐГ© CO*, + Г¤ГЁГ±Г±Г®Г¶ГЁГ Г¶ГЁГї
+% ГЇГ® Г‘Г ГўГҐГ«ГјГҐГўГі ГЁ ГЇГ°Г®Г·ГЁГҐ Г¤Г®ГЇГ®Г«Г­ГҐГ­ГЁГї Г¤Г«Гї ГЂГ«ГіГёГІГ»
 % 23.06.2021
 
 %% warnings
@@ -31,13 +31,13 @@ function out=CO_Ar_ex_21_06_par_vibr
 % warning('CO+C->C2+O is under the test')
 
 tic
-for i_ini=[2 8 9]  % initial conditions test cases
+for i_ini=[3]  % initial conditions test cases
                 % 2 -- Fairbairn 8a,    3 -- Aliat's test case,
                 % 4 -- Mick's fig 3a,   5 -- Appleton fig 3.
                 % 6 -- mod Aliat low p, 7 -- mod Fairbairn 8a, high p
                 % 8 -- Fairbairn 8f,    9 -- Fairbairn 8e
 %  for i_exc=0%:1   % is electronic excitation on?
-  for i_dis=1:4     % 1 -- Marrone-Treanor wo e exc., 2 -- MT with E exc.,
+  for i_dis=1     % 1 -- Marrone-Treanor wo e exc., 2 -- MT with E exc.,
                         % 3 -- Aliat model, 4 -- Savelev model
    for i_U=3      % U parameter in MT and Aliat models
                         % 2 -- D/6k, 3 -- 3T, 4 -- Inf
@@ -52,7 +52,7 @@ for i_ini=[2 8 9]  % initial conditions test cases
     V_PI = 3.14159265358979323846; 
 %     V_C = 299792458; % speed of light
 %     V_HBAR = 1.054571800e-34; V_R = 8.3144621;
-%     checkX=1e-3;  % был такой параметр для вывода промежуточных значений
+%     checkX=1e-3;  % ГЎГ»Г« ГІГ ГЄГ®Г© ГЇГ Г°Г Г¬ГҐГІГ° Г¤Г«Гї ГўГ»ГўГ®Г¤Г  ГЇГ°Г®Г¬ГҐГ¦ГіГІГ®Г·Г­Г»Гµ Г§Г­Г Г·ГҐГ­ГЁГ©
 
     particles_data_ini;   % initialisation of particles and collisions 
                                     %   data
@@ -63,39 +63,39 @@ if ind_exc==0
  CO.num_elex_levels=1;
 end
 
-    % сохраняем все частицы, чтобы передать скопом
+    % Г±Г®ГµГ°Г Г­ГїГҐГ¬ ГўГ±ГҐ Г·Г Г±ГІГЁГ¶Г», Г·ГІГ®ГЎГ» ГЇГҐГ°ГҐГ¤Г ГІГј Г±ГЄГ®ГЇГ®Г¬
 Prcl.CO=CO; Prcl.C=C; Prcl.O=O; Prcl.C2=C2; Prcl.Ar=Ar; 
     
-    % сохраняем все столкновения, чтобы передать скопом
+    % Г±Г®ГµГ°Г Г­ГїГҐГ¬ ГўГ±ГҐ Г±ГІГ®Г«ГЄГ­Г®ГўГҐГ­ГЁГї, Г·ГІГ®ГЎГ» ГЇГҐГ°ГҐГ¤Г ГІГј Г±ГЄГ®ГЇГ®Г¬
     Coll.CO_CO=Coll_CO_CO; Coll.CO_C=Coll_CO_C; Coll.CO_O=Coll_CO_O;
     Coll.CO_C2=Coll_CO_C2; Coll.CO_Ar=Coll_CO_Ar; Coll.C2=Coll_C2;
     Coll.CO_C__C2_O=Coll_CO_C__C2_O;
     
     Torr = 133.322368;
-% переопределяем всё под Фейрбарна
+% ГЇГҐГ°ГҐГ®ГЇГ°ГҐГ¤ГҐГ«ГїГҐГ¬ ГўГ±Вё ГЇГ®Г¤ Г”ГҐГ©Г°ГЎГ Г°Г­Г 
         %   f       p0, Torr     v0, m/sec       T0, K      T2, K
 init_c=[    
-                % 1, высокотемпературный случай для чистого СО
+                % 1, ГўГ»Г±Г®ГЄГ®ГІГҐГ¬ГЇГҐГ°Г ГІГіГ°Г­Г»Г© Г±Г«ГіГ·Г Г© Г¤Г«Гї Г·ГЁГ±ГІГ®ГЈГ® Г‘ГЋ
             1       0.8         4746.548838     299.1113007914224 -1
-                % 2, случай с аргоном на базе 8a Fairbairn. Для
-                %   серьёзных моделирований температуру вычислить
-                %   перед УВ
+                % 2, Г±Г«ГіГ·Г Г© Г± Г Г°ГЈГ®Г­Г®Г¬ Г­Г  ГЎГ Г§ГҐ 8a Fairbairn. Г„Г«Гї
+                %   Г±ГҐГ°ГјВёГ§Г­Г»Гµ Г¬Г®Г¤ГҐГ«ГЁГ°Г®ГўГ Г­ГЁГ© ГІГҐГ¬ГЇГҐГ°Г ГІГіГ°Гі ГўГ»Г·ГЁГ±Г«ГЁГІГј
+                %   ГЇГҐГ°ГҐГ¤ Г“Г‚
             0.01    10          2860            317.4471    7600
-                % 3, случай статьи Алиата
+                % 3, Г±Г«ГіГ·Г Г© Г±ГІГ ГІГјГЁ ГЂГ«ГЁГ ГІГ 
             1       500/Torr    5200            300         -1
-                % 4, пытаемся повторить тесткейс Мика для фиг3а
+                % 4, ГЇГ»ГІГ ГҐГ¬Г±Гї ГЇГ®ГўГІГ®Г°ГЁГІГј ГІГҐГ±ГІГЄГҐГ©Г± ГЊГЁГЄГ  Г¤Г«Гї ГґГЁГЈ3Г 
             0.001   5.7         2735            260         -1
                 % 5, Appleton case for fig 3, T is approximate
             0.01    10          2090            300         -1
-                % 6, случай статьи Алиата, но поменьше числовая
-                %   плотность
+                % 6, Г±Г«ГіГ·Г Г© Г±ГІГ ГІГјГЁ ГЂГ«ГЁГ ГІГ , Г­Г® ГЇГ®Г¬ГҐГ­ГјГёГҐ Г·ГЁГ±Г«Г®ГўГ Гї
+                %   ГЇГ«Г®ГІГ­Г®Г±ГІГј
             1       0.04        5200            300         -1
-                % 7, случай с аргоном на базе 8a Fairbairn, но сильно
-                %   больше давление
+                % 7, Г±Г«ГіГ·Г Г© Г± Г Г°ГЈГ®Г­Г®Г¬ Г­Г  ГЎГ Г§ГҐ 8a Fairbairn, Г­Г® Г±ГЁГ«ГјГ­Г®
+                %   ГЎГ®Г«ГјГёГҐ Г¤Г ГўГ«ГҐГ­ГЁГҐ
             0.01    100         2860            320         7600
-                % 8, Fairbairn, случай 8f (T0 не точно)
+                % 8, Fairbairn, Г±Г«ГіГ·Г Г© 8f (T0 Г­ГҐ ГІГ®Г·Г­Г®)
             0.1     5.4         3260            300         9000
-                % 8, Fairbairn, случай 8e (T0 не точно)
+                % 8, Fairbairn, Г±Г«ГіГ·Г Г© 8e (T0 Г­ГҐ ГІГ®Г·Г­Г®)
             0.001   10          3080            297         8800
         ];
 %% easy access variables
@@ -119,9 +119,9 @@ num_T=num_v+1;
     Tv0=T0;
     n0=p0/V_K/T0;
     NN = in_con_Ar([CO.mass, v0, T0, Ar.mass, f]);
-    n1 = NN(1);     % безразмерные
-    T1 = NN(2);     % безразмерные
-    v1 = NN(3);     % безразмерные
+    n1 = NN(1);     % ГЎГҐГ§Г°Г Г§Г¬ГҐГ°Г­Г»ГҐ
+    T1 = NN(2);     % ГЎГҐГ§Г°Г Г§Г¬ГҐГ°Г­Г»ГҐ
+    v1 = NN(3);     % ГЎГҐГ§Г°Г Г§Г¬ГҐГ°Г­Г»ГҐ
     disp([num2str(ind_c) ': T1=' num2str(T1*T0) ', T0=' num2str(T0) ...
             ', v1=' num2str(v1*v0) ', n1=' num2str(n1*n0, '%1.3e')])
 %         pause
@@ -226,7 +226,7 @@ out=res;
 toc
 end
 
-    % для УВ
+    % Г¤Г«Гї Г“Г‚
 function out=Rpart_s(t, y, n0, T0, v0, Delta, Prcl, Coll, ind_Arr,...
                                 ind_U, i_dis, ind_exc, setup) %#ok<INUSL>
 ind_Aliat=0;
@@ -259,7 +259,7 @@ nm_b = sum(ni_b);
 v_b = y(num_v);
 T_b = y(num_T);
 
-    % выделяем память
+    % ГўГ»Г¤ГҐГ«ГїГҐГ¬ ГЇГ Г¬ГїГІГј
 R=zeros(num_T,1);
 COnl0=sum(Prcl.CO.num_vibr_levels);
 R_d_CO_CO=zeros(COnl0,1);   R_d_CO_C=zeros(COnl0,1);        %#ok<PREALL>
@@ -282,16 +282,16 @@ R_VE_CO_toCOa=zeros(num_vibr_levels,...
 R_VE_CO_toCOA=zeros(num_vibr_levels,1);                     
 R_VE_dis=0;                                                 %#ok<NASGU>
 R_d_CO_C2_A=0;                                              %#ok<NASGU>
-    % Перечень учтённых процессов. 
-    % Чтобы отключить, просто закомментировать.
+    % ГЏГҐГ°ГҐГ·ГҐГ­Гј ГіГ·ГІВёГ­Г­Г»Гµ ГЇГ°Г®Г¶ГҐГ±Г±Г®Гў. 
+    % Г—ГІГ®ГЎГ» Г®ГІГЄГ«ГѕГ·ГЁГІГј, ГЇГ°Г®Г±ГІГ® Г§Г ГЄГ®Г¬Г¬ГҐГ­ГІГЁГ°Г®ГўГ ГІГј.
     % CO dissociation
 if i_dis<4
     R_d_CO_CO=R_diss_Aliat_onoff(Prcl.CO, [ni_b; nCOa_b; nCOA_b], ...
             nac_b, nao_b, nm_b+sum(nCOa_b)+sum(nCOA_b), Coll.CO_CO, ...
                                  T_b*T0, n0, ind_Arr, ind_U, ind_Aliat);
 else
- ind_exc_Savelev=3; % 1 - только диссоциирующий атом возбуждён
-                    % 2 - ещё + партнёр, 3 - ещё + продукт
+ ind_exc_Savelev=3; % 1 - ГІГ®Г«ГјГЄГ® Г¤ГЁГ±Г±Г®Г¶ГЁГЁГ°ГіГѕГ№ГЁГ© Г ГІГ®Г¬ ГўГ®Г§ГЎГіГ¦Г¤ВёГ­
+                    % 2 - ГҐГ№Вё + ГЇГ Г°ГІГ­ВёГ°, 3 - ГҐГ№Вё + ГЇГ°Г®Г¤ГіГЄГІ
     R_d_CO_CO_Savelev=R_diss_Savelev(Prcl.CO, [ni_b; nCOa_b; nCOA_b], ...
         nac_b, nao_b, nm_b+sum(nCOa_b)+sum(nCOA_b), Coll.CO_CO, ...
                             T_b*T0, n0, ind_Arr, ind_U, ind_exc_Savelev);
@@ -301,7 +301,7 @@ else
 % for ind_exc_Savelev=2
 % R_VE_dis=-sum(R_d_CO_CO_Savelev, [1, 3])';
 % R_VE_dis(1)=R_VE_dis(1)+sum(R_d_CO_CO_Savelev, [1, 2]);
-%     так, нет, ind_Aliat = 0 или 1. Нужно передавать i_dis всё таки
+%     ГІГ ГЄ, Г­ГҐГІ, ind_Aliat = 0 ГЁГ«ГЁ 1. ГЌГіГ¦Г­Г® ГЇГҐГ°ГҐГ¤Г ГўГ ГІГј i_dis ГўГ±Вё ГІГ ГЄГЁ
 end
 R_d_CO_C= R_diss_Aliat_onoff(Prcl.CO, [ni_b; nCOa_b; nCOA_b], nac_b, ...
         nao_b, nac_b, Coll.CO_C, T_b*T0, n0, ind_Arr, ind_U, ind_Aliat);
@@ -437,20 +437,20 @@ R(1:num_COA+Prcl.CO.num_vibr_levels(3)-1)=...
 
 R=R*n0*Delta/v0;
 
-    % неразрывность
+    % Г­ГҐГ°Г Г§Г°Г»ГўГ­Г®Г±ГІГј
 M=zeros(num_T);
 for i=1:num_Ar
     M(i,i)=v_b;
 end
 % M(1:num_vibr_levels,num_v)=ni_b';
 M(1:num_Ar, num_v)=y(1:num_Ar)';
-    % импульс
+    % ГЁГ¬ГЇГіГ«ГјГ±
 M(num_v,1:num_Ar)=T_b;
 M(num_v,num_v)=(Prcl.CO.mass*(nm_b+sum(nCOa_b)+sum(nCOA_b))+...
     Prcl.C.mass*nac_b+Prcl.O.mass*nao_b+...
     Prcl.C2.mass*nC2_b+Prcl.Ar.mass*naAr_b)*v_b*v0^2/k/T0;
 M(num_v,num_T)=nm_b+sum(nCOa_b)+sum(nCOA_b)+nac_b+nao_b+nC2_b+naAr_b;
-    % энергия
+    % ГЅГ­ГҐГ°ГЈГЁГї
 M(num_T,1:num_vibr_levels) = 2.5*T_b+e_i+Prcl.CO.form_e/k/T0;
 M(num_T,num_COa:num_COa+Prcl.CO.num_vibr_levels(2)-1)=...
                     2.5*T_b+e_ia+Prcl.CO.form_e/k/T0+Prcl.CO.e_E(2)/k/T0;

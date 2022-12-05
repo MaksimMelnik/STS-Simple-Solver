@@ -2,23 +2,28 @@ h = 6.626070041e-34;      % Plank constant, J*sec
 N_a=6.02214076e23;          % Avogadro constant
 c = 299792458;            % speed of light
 k = 1.380649e-23;         % Boltzmann constant, J/K
-    % объявляем переменные частиц
+warning('Only anharmonic oscillator parameters are used.')
+    % initialization of particles variables
 C.name='C';
-C.mass=1.994473440944e-26;  C.diameter=3.298e-10;   C.s_e=1;
+C.mass=1.994473440944e-26;          % kg
+C.diameter=3.298e-10;   C.s_e=1;
 C.m_mass=12.01;                     % molar mass
 C.form_e=4.97472e-19;               % online table for kappa
 C.form_e=1.180914618115280e-18;     % by Alena Kosareva
 C.fr_deg_c=3;                       % freedom degree for room temperature
+C.EM=71.4;                          % Parameter ε/k (Lennard-Jones), К
 
 O.name='O';
-O.mass=2.6567628316576e-26; O.diameter=2.75e-10;    O.s_e=9;
+O.mass=2.6567628316576e-26;         % kg
+O.diameter=2.75e-10;    O.s_e=9;
 O.m_mass=16;                        % molar mass
 O.form_e= 4.098045681049634e-19;    % online table for kappa
 O.form_e= 4.098111014876693e-19;    % by Alena Kosareva
 O.fr_deg_c=3;                       % freedom degree for room temperature
+O.EM=80;                            % Parameter ε/k (Lennard-Jones), К
 
 CO.name='CO';
-CO.mass=4.651236272601599e-26;            % molecular mass
+CO.mass=4.651236272601599e-26;            % molecular mass, kg
 CO.m_mass=C.m_mass+O.m_mass;              % molar mass
 CO.red_osc_mass=C.mass*O.mass/(C.mass+O.mass);    
 % CO.diss_e=1.77716869535000e-18;         % dissociation energy
@@ -34,29 +39,27 @@ CO.sigma=1;
 CO.Be=[193.128087 169.124 161.15];        % спектроскопическая постоянная
 CO.moment_I=1.4560E-46;
 CO.mltpl_atoms_mass=C.mass*O.mass;        % произведение масс атомов
-CO.mltpl_atoms_s_e=C.s_e*O.s_e;        % произведение статвесов атомов
+CO.mltpl_atoms_s_e=C.s_e*O.s_e;           % произведение статвесов атомов
 CO.s_e=[1 6 2];                           % electronic statistical weight2
     % спектроскопические постоянные
-CO.we = [216981.358 174341 151824];       % БД, м-1
+CO.we = [216981.358 174341 151824];       % DB, м-1
 CO.wexe=[1328.831 1436 1940]; 
 CO.weye=[1.0511 -4.5 76.6];         
     % electronic excitation energy, Krupenie
 CO.e_E=[0  4868740*h*c  6507460*h*c];
     % vibrational levels energy
-e_i=levels_e_ex(CO, 1);  
-% CO.e_0(1)=e_i(1);  CO.e_i=e_i-e_i(1);       % old e_vibr
+e_i=levels_e_ex(CO, 1);
 CO.ev_0(1)=e_i(1);  CO.ev_i{1}=e_i-e_i(1);  % the new e_vibr standart
-% CO.e_i(2:3, :)=0;
-e_i=levels_e_ex(CO, 2);  
-% CO.e_0(2)=e_i(1);   CO.e_i(2,1:CO.num_vibr_levels(2))=e_i-e_i(1);
+e_i=levels_e_ex(CO, 2);
 CO.ev_0(2)=e_i(1);  CO.ev_i{2}=e_i-e_i(1);  % the new e_vibr standart
-e_i=levels_e_ex(CO, 3);  
-% CO.e_0(3)=e_i(1);   CO.e_i(3,1:CO.num_vibr_levels(3))=e_i-e_i(1);
+e_i=levels_e_ex(CO, 3);
 CO.ev_0(3)=e_i(1);  CO.ev_i{3}=e_i-e_i(1);  % the new e_vibr standart
 CO.C_VE=[0 13.58e-2 5.49e-2];                   % VE-exchange parameters
 CO.S_VE=[0 5e-13 9.94e-13]/1e6;                 % in SI
 CO.mA_mAB=0.42880501528003884;  CO.mB_mAB=0.5711949847199612;  % FHO param
 CO.fr_deg_c=5;                      % freedom degree for room temperature
+CO.EM=98.1;                         % Parameter ε/k (Lennard-Jones), К
+CO.r_e=1.128323e-10;                % internuclear distance, r_e, m
 
 C2.name='C2';
 C2.mass=3.988946881888e-26;         C2.diameter=3.621e-10; 
@@ -66,7 +69,7 @@ C2.diss_e=9.949436628352846e-19;    C2.ev_i{1}=0;      C2.ev_0=0;
 C2.e_E=0;
 C2.Be=181.98399999999998;   C2.sigma=2;     C2.mltpl_atoms_mass=C.mass^2;
 C2.s_e=1;   C2.e_E=0;   C2.num_elex_levels=1;   C2.num_vibr_levels=1;
-C2.fr_deg_c=5;                      % freedom degree for room temperature
+C2.fr_deg_c=5;                         % freedom degree for room temperature
 C2.mltpl_atoms_mass=C.mass*C.mass;     % произведение масс атомов
 C2.mltpl_atoms_s_e=C.s_e*C.s_e;        % произведение статвесов атомов
 C2.form_e=0;                           % Formation energy
@@ -78,6 +81,29 @@ Ar.mass=6.633521356992e-26; Ar.diameter=3.33e-10;
 Ar.m_mass=39.95;                    % molar mass
 Ar.fr_deg_c=3;                      % freedom degree for room temperature
 
+O2.name='O2';
+O2.mass=5.31353E-26;                % kg
+O2.num_elex_levels=1;               % number of electronical levels
+O2.num_vibr_levels=33;              % number of vibrational levels
+O2.diss_e=[ 8.19609E-19 6.63036E-19 5.73147E-19 1.78601E-19 1.46163E-19...
+            1.32119E-19 5.50047E-20 1.59798E-19 7.56180E-20 5.23826E-20...
+            2.35592E-20 1.78005E-19 1.44991E-19 7.00222E-20 3.14057E-20...
+            4.39024E-19 4.22517E-19 3.47191E-19 ...
+                                            2.64853E-19]; % DB work-v5, J
+O2.we=[     158019      148350      143277      79429       85000 ...
+            79907       20000       70931       53700       20000 ...
+            20000       162640      70560       49950       20000 ...
+            195700      192700      254700   79240];     % DB work-v5, m-1
+O2.wexe=[   1198        1290        1400        1273.6      2000 ...
+            1216        0           1065        1373        0 ...
+            0           16370       960         1350        0 ...
+            1970        1900        0        770];       % DB work-v5, m-1
+O2.weye=[   4.747       0           0           -24.44      0 ...
+            -55         0           -13.9       0           0 ...
+            0           0           0           0           0 ...
+            0           0           0        0];         % DB work-v5, m-1
+O2.r_e=1.20752e-10;                 % internuclear distance, r_e, m
+O2=ev_i_ini(O2);                    % vibr energy
 
 
     % объявляем столкновения
@@ -142,3 +168,13 @@ Ar.fr_deg_c=3;                      % freedom degree for room temperature
 save par_data CO C O Ar C2 ...
     Coll_CO_CO Coll_CO_C Coll_CO_O Coll_CO_C2 Coll_CO_Ar Coll_C2 ...
     Coll_CO_C__C2_O
+
+function out=ev_i_ini(M)
+% automatic vibrational energy calculation
+    for i_e=1:M.num_elex_levels
+        e_i=levels_e_ex(M, i_e);
+        M.ev_0(i_e)=e_i(1);
+        M.ev_i{i_e}=e_i-e_i(1);
+    end
+    out=M;
+end
