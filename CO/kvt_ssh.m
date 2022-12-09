@@ -46,6 +46,9 @@ chi = (pi^2*om0^2/2/k*(mu./a.^2)*t^(-1)).^(1/3);% dim-less
 r = r0 .* (0.5 * sqrt(1+(chi*t)./em) + 0.5).^(-1/6);
 % steric factor
 Z_0 = (a .* M1.r_e).^2 .* exp(-((3*a .* M1.r_e.^2)./(8*r)));
+    
+%     disp((-((3*a .* M1.r_e.^2)./(8*r)))')
+%     disp(M1.r_e)
 
 Const = 1.294./Z_0*4*pi^2*om0/h_bar*sqrt(4*pi/3);
 %

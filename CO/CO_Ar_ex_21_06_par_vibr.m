@@ -1,9 +1,9 @@
 function out=CO_Ar_ex_21_06_par_vibr
-% Ïðîãðàììà äëÿ ðàñ÷¸òà ñìåñåé CO è Ar ñ ó÷¸òîì CO* è C2 ñ öåëüþ âûÿâèòü
-% çàäåðæêó äèññîöèàöèè. Íà áàçå êîäà äëÿ ïàðàëëåëüíûõ ðàñ÷¸òîâ ñìåñè CO/Ar
-% CO_Ar_mixure_20_04_par.m, ìîäèôèêàöèÿ êîäà CO_Ar_ex_20_10_par_vibr ñ 
-% ó÷¸òîì äèññîöèàöèè ïî Àëèàòó è êîëåáàòåëüíûõ óðîâíåé CO*, + äèññîöèàöèÿ
-% ïî Ñàâåëüåâó è ïðî÷èå äîïîëíåíèÿ äëÿ Àëóøòû
+% Программа для расчёта смесей CO и Ar с учётом CO* и C2 с целью выявить
+% задержку диссоциации. На базе кода для параллельных расчётов смеси CO/Ar
+% CO_Ar_mixure_20_04_par.m, модификация кода CO_Ar_ex_20_10_par_vibr с 
+% учётом диссоциации по Алиату и колебательных уровней CO*, + диссоциация
+% по Савельеву и прочие дополнения для Алушты
 % 23.06.2021
 
 %% warnings
@@ -176,7 +176,7 @@ num_T=num_v+1;
  disp(['Dissociation model by ' struct_Aliat(i_dis).text '.'])
  disp('VT probabilities obtained using probably old FHO code.')
  disp(['CO(X)' ind_exc*', CO(a) and CO(A)' ' states are included.'])
- setup.C2=1;        % is C2 included?
+ setup.C2=0;        % is C2 included?
  [X, Y]=ode15s(@(t, y) Rpart_s(t, y, n0, T0, v0, Delta, Prcl, Coll, ...
                ind_Arr, ind_U, i_dis, ind_exc, setup),...
                                                 xspan, ys, options_s);
@@ -226,13 +226,14 @@ out=res;
 toc
 end
 
-    % äëÿ ÓÂ
+    % for SW
 function out=Rpart_s(t, y, n0, T0, v0, Delta, Prcl, Coll, ind_Arr,...
                                 ind_U, i_dis, ind_exc, setup) %#ok<INUSL>
 ind_Aliat=0;
 if i_dis>2
     ind_Aliat=1;
 end
+model_VT='FHO';
 % disp(t)
 num_vibr_levels=Prcl.CO.num_vibr_levels(1);
 num_COa=num_vibr_levels+1;
@@ -259,7 +260,7 @@ nm_b = sum(ni_b);
 v_b = y(num_v);
 T_b = y(num_T);
 
-    % âûäåëÿåì ïàìÿòü
+    % memory allocation
 R=zeros(num_T,1);
 COnl0=sum(Prcl.CO.num_vibr_levels);
 R_d_CO_CO=zeros(COnl0,1);   R_d_CO_C=zeros(COnl0,1);        %#ok<PREALL>
@@ -346,14 +347,14 @@ end
 % Old version of FHO kVT using solver for non-linear equations. Code
 % provided by Olga Kunova.
 R_VT_CO_CO=R_VT_old(Prcl.CO, ni_b, Prcl.CO, ...
-                              nm_b+sum(nCOa_b)+sum(nCOA_b), T_b*T0, 1);
-R_VT_CO_C =R_VT_old(Prcl.CO, ni_b, Prcl.C,  nac_b,  T_b*T0, 1);
-R_VT_CO_O =R_VT_old(Prcl.CO, ni_b, Prcl.O,  nao_b,  T_b*T0, 1);
+                      nm_b+sum(nCOa_b)+sum(nCOA_b), T_b*T0, 1, model_VT);
+R_VT_CO_C =R_VT_old(Prcl.CO, ni_b, Prcl.C,  nac_b,  T_b*T0, 1, model_VT);
+R_VT_CO_O =R_VT_old(Prcl.CO, ni_b, Prcl.O,  nao_b,  T_b*T0, 1, model_VT);
 if naAr_b>0
- R_VT_CO_Ar=R_VT_old(Prcl.CO, ni_b, Prcl.Ar, naAr_b, T_b*T0, 1);
+ R_VT_CO_Ar=R_VT_old(Prcl.CO, ni_b, Prcl.Ar, naAr_b, T_b*T0, 1, model_VT);
 end
 if setup.C2
- R_VT_CO_C2=R_VT_old(Prcl.CO, ni_b, Prcl.C2, nC2_b, T_b*T0, 1);
+ R_VT_CO_C2=R_VT_old(Prcl.CO, ni_b, Prcl.C2, nC2_b, T_b*T0, 1, model_VT);
 end
 
 R_VT_data=R_VT_CO_CO+R_VT_CO_C+R_VT_CO_O+R_VT_CO_C2+R_VT_CO_Ar;
@@ -367,17 +368,17 @@ R_VT_data=R_VT_CO_CO+R_VT_CO_C+R_VT_CO_O+R_VT_CO_C2+R_VT_CO_Ar;
 % pause
 if ind_exc
  R_VT_data_COa=R_VT_old(Prcl.CO, nCOa_b, Prcl.CO, ...         CO, COa, COA
-                            nm_b+sum(nCOa_b)+sum(nCOA_b), T_b*T0, 2)...
-           +R_VT_old(Prcl.CO, nCOa_b, Prcl.C, nac_b, T_b*T0, 2)...   C
-           +R_VT_old(Prcl.CO, nCOa_b, Prcl.O, nao_b, T_b*T0, 2)...   O
-           ;
+                    nm_b+sum(nCOa_b)+sum(nCOA_b), T_b*T0, 2, model_VT)...
+       +R_VT_old(Prcl.CO, nCOa_b, Prcl.C, nac_b, T_b*T0, 2, model_VT)... C
+       +R_VT_old(Prcl.CO, nCOa_b, Prcl.O, nao_b, T_b*T0, 2, model_VT)... O
+       ;
  if naAr_b>0
   R_VT_data_COa=R_VT_data_COa...
-           +R_VT_old(Prcl.CO, nCOa_b, Prcl.Ar, naAr_b, T_b*T0, 2);
+       +R_VT_old(Prcl.CO, nCOa_b, Prcl.Ar, naAr_b, T_b*T0, 2, model_VT);
  end
  if setup.C2
   R_VT_data_COa=R_VT_data_COa+...
-                    R_VT_old(Prcl.CO, nCOa_b, Prcl.C2, nC2_b, T_b*T0, 2);
+        R_VT_old(Prcl.CO, nCOa_b, Prcl.C2, nC2_b, T_b*T0, 2, model_VT);
  end
 % R_VT_data_COA=R_VT_exc(Prcl.CO, nCOA_b, Prcl.CO, ...        CO, COa, COA
 %                             nm_b+sum(nCOa_b)+sum(nCOA_b), T_b*T0, 3)...
@@ -387,17 +388,17 @@ if ind_exc
 %            +R_VT_exc(Prcl.CO, nCOA_b, Prcl.Ar, naAr_b, T_b*T0, 3)... Ar
 %            ;
  R_VT_data_COA=R_VT_old(Prcl.CO, nCOA_b, Prcl.CO, ...         CO, COa, COA
-                            nm_b+sum(nCOa_b)+sum(nCOA_b), T_b*T0, 3)...
-           +R_VT_old(Prcl.CO, nCOA_b, Prcl.C, nac_b, T_b*T0, 3)...   C
-           +R_VT_old(Prcl.CO, nCOA_b, Prcl.O, nao_b, T_b*T0, 3)...   O
-           ;
+                    nm_b+sum(nCOa_b)+sum(nCOA_b), T_b*T0, 3, model_VT)...
+    +R_VT_old(Prcl.CO, nCOA_b, Prcl.C, nac_b, T_b*T0, 3, model_VT)... C
+    +R_VT_old(Prcl.CO, nCOA_b, Prcl.O, nao_b, T_b*T0, 3, model_VT)... O
+    ;
  if naAr_b>0
   R_VT_data_COA=R_VT_data_COA...
-           +R_VT_old(Prcl.CO, nCOA_b, Prcl.Ar, naAr_b, T_b*T0, 3);
+       +R_VT_old(Prcl.CO, nCOA_b, Prcl.Ar, naAr_b, T_b*T0, 3, model_VT);
  end
  if setup.C2
   R_VT_data_COA=R_VT_data_COA+...
-                    R_VT_old(Prcl.CO, nCOA_b, Prcl.C2, nC2_b, T_b*T0, 3);
+        R_VT_old(Prcl.CO, nCOA_b, Prcl.C2, nC2_b, T_b*T0, 3, model_VT);
  end
 
     % CO VE

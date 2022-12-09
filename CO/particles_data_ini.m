@@ -3,32 +3,39 @@ N_a=6.02214076e23;          % Avogadro constant
 c = 299792458;            % speed of light
 k = 1.380649e-23;         % Boltzmann constant, J/K
 warning('Only anharmonic oscillator parameters are used.')
+
+
     % initialization of particles variables
 C.name='C';
 C.mass=1.994473440944e-26;          % kg
 C.diameter=3.298e-10;   C.s_e=1;
-C.m_mass=12.01;                     % molar mass
+C.m_mass=12.011;                    % molar mass
 C.form_e=4.97472e-19;               % online table for kappa
 C.form_e=1.180914618115280e-18;     % by Alena Kosareva
 C.fr_deg_c=3;                       % freedom degree for room temperature
 C.EM=71.4;                          % Parameter ε/k (Lennard-Jones), К
 
+
 O.name='O';
 O.mass=2.6567628316576e-26;         % kg
-O.diameter=2.75e-10;    O.s_e=9;
-O.m_mass=16;                        % molar mass
+O.diameter=2.75e-10;
+O.s_e=5;                            % from DB, Capitelli
+O.s_e=9;                            % staticsical weigth
+O.m_mass=15.999;                    % molar mass
 O.form_e= 4.098045681049634e-19;    % online table for kappa
 O.form_e= 4.098111014876693e-19;    % by Alena Kosareva
 O.fr_deg_c=3;                       % freedom degree for room temperature
 O.EM=80;                            % Parameter ε/k (Lennard-Jones), К
 
+
 CO.name='CO';
 CO.mass=4.651236272601599e-26;            % molecular mass, kg
-CO.m_mass=C.m_mass+O.m_mass;              % molar mass
+CO.m_mass=28.0104;                        % molar mass
 CO.red_osc_mass=C.mass*O.mass/(C.mass+O.mass);    
 % CO.diss_e=1.77716869535000e-18;         % dissociation energy
-CO.diss_e=[89460 41121 24848]*100*h*c; % dissociation energy, Krupenie
-CO.form_e=-1.8349e-19;                    % online table for kappa
+CO.diss_e=[89460 41121 24848]*100*h*c;    % dissociation energy for each 
+                                          %           el. state, Krupenie
+CO.form_e=-1.8349e-19;                    % DB
 CO.form_e=-1.864225959573993e-19;         % by Alena Kosareva
 CO.form_e_atoms_sum=C.form_e+O.form_e;
 CO.num_elex_levels=3;                     % number of electronical levels
@@ -45,8 +52,8 @@ CO.s_e=[1 6 2];                           % electronic statistical weight2
 CO.we = [216981.358 174341 151824];       % DB, м-1
 CO.wexe=[1328.831 1436 1940]; 
 CO.weye=[1.0511 -4.5 76.6];         
-    % electronic excitation energy, Krupenie
-CO.e_E=[0  4868740*h*c  6507460*h*c];
+CO.e_E=[0  4868740*h*c  6507460*h*c];     % electronic excitation 
+                                          %             energy, Krupenie
     % vibrational levels energy
 e_i=levels_e_ex(CO, 1);
 CO.ev_0(1)=e_i(1);  CO.ev_i{1}=e_i-e_i(1);  % the new e_vibr standart
@@ -61,13 +68,14 @@ CO.fr_deg_c=5;                      % freedom degree for room temperature
 CO.EM=98.1;                         % Parameter ε/k (Lennard-Jones), К
 CO.r_e=1.128323e-10;                % internuclear distance, r_e, m
 
+
 C2.name='C2';
 C2.mass=3.988946881888e-26;         C2.diameter=3.621e-10; 
-C2.m_mass=2*C.m_mass;               % molar mass
-C2.diss_e=9.949436628352846e-19;    C2.ev_i{1}=0;      C2.ev_0=0;
-% C2.e_i=0; 
+C2.m_mass=2*C.m_mass;                  % molar mass
+C2.diss_e=9.949436628352846e-19;
+C2.ev_i{1}=0;      C2.ev_0=0;
 C2.e_E=0;
-C2.Be=181.98399999999998;   C2.sigma=2;     C2.mltpl_atoms_mass=C.mass^2;
+C2.Be=181.98399999999998;   C2.sigma=2;
 C2.s_e=1;   C2.e_E=0;   C2.num_elex_levels=1;   C2.num_vibr_levels=1;
 C2.fr_deg_c=5;                         % freedom degree for room temperature
 C2.mltpl_atoms_mass=C.mass*C.mass;     % произведение масс атомов
@@ -75,35 +83,63 @@ C2.mltpl_atoms_s_e=C.s_e*C.s_e;        % произведение статвес
 C2.form_e=0;                           % Formation energy
 C2.form_e_atoms_sum=C.form_e+C.form_e;
 C2.CO_C_C2_O_e=58000*k;
+C2.EM=97.53;                           % DB
+
 
 Ar.name='Ar';
 Ar.mass=6.633521356992e-26; Ar.diameter=3.33e-10;
-Ar.m_mass=39.95;                    % molar mass
+Ar.m_mass=39.948;                   % molar mass
 Ar.fr_deg_c=3;                      % freedom degree for room temperature
+Ar.EM=136.5;                        % DB
 
-O2.name='O2';
+
+O2.name='O2';                       % data from DB work-v5
 O2.mass=5.31353E-26;                % kg
+O2.diameter=3.5155E-10;             % m
 O2.num_elex_levels=1;               % number of electronical levels
 O2.num_vibr_levels=33;              % number of vibrational levels
 O2.diss_e=[ 8.19609E-19 6.63036E-19 5.73147E-19 1.78601E-19 1.46163E-19...
             1.32119E-19 5.50047E-20 1.59798E-19 7.56180E-20 5.23826E-20...
             2.35592E-20 1.78005E-19 1.44991E-19 7.00222E-20 3.14057E-20...
-            4.39024E-19 4.22517E-19 3.47191E-19 ...
-                                            2.64853E-19]; % DB work-v5, J
-O2.we=[     158019      148350      143277      79429       85000 ...
-            79907       20000       70931       53700       20000 ...
-            20000       162640      70560       49950       20000 ...
-            195700      192700      254700   79240];     % DB work-v5, m-1
-O2.wexe=[   1198        1290        1400        1273.6      2000 ...
-            1216        0           1065        1373        0 ...
-            0           16370       960         1350        0 ...
-            1970        1900        0        770];       % DB work-v5, m-1
-O2.weye=[   4.747       0           0           -24.44      0 ...
-            -55         0           -13.9       0           0 ...
-            0           0           0           0           0 ...
-            0           0           0        0];         % DB work-v5, m-1
-O2.r_e=1.20752e-10;                 % internuclear distance, r_e, m
+            4.39024E-19 4.22517E-19 3.47191E-19 2.64853E-19];   % J
+O2.we=[     158019.00   148350.00   143277.00   79429.00    85000.00 ...
+            79907.00    20000.00    70931.00    53700.00    20000.00 ...
+            20000.00    162640.00   70560.00    49950.00    20000.00 ...
+            195700.00   192700.00   254700.00   79240.00];      % m-1
+O2.wexe=[   1198.00     1290.00     1400.00     1273.60     2000.00 ...
+            1216.00     0.00        1065.00     1373.00     0.00 ...
+            0.00        16370.00    960.00      1350.00     0.00 ...
+            1970.00     1900.00     0.00        770.00];        % m-1
+O2.weye=[   4.747       0.000       0.000       -24.440     0.000 ...
+            -55.000     0.000       -13.900     0.000       0.000 ...
+            0.000       0.000       0.000       0.000       0.000 ...
+            0.000       0.000       0.000       0.000];         % m-1
+O2.r_e=1.20752e-10;                 % internuclear distance, m
 O2=ev_i_ini(O2);                    % vibr energy
+O2.EM=107.4;                        % Parameter ε/k (Lennard-Jones), К
+
+
+N2.name='N2';                       % data from DB work-v5
+N2.mass=4.65173E-26;                % kg
+N2.diameter=3.4039E-10;             % m
+N2.num_elex_levels=1;               % number of electronical levels
+N2.num_vibr_levels=47;              % number of vibrational levels
+N2.diss_e=[ 1.56362E-18 5.89862E-19 7.84447E-19 7.80693E-19 8.43286E-19...
+            9.96818E-19 9.74372E-19 9.18473E-19 6.84927E-20 2.22661E-19...
+            1.98088E-19];           % J
+N2.we=[     235857      146064      173339      150140      151688 ...
+            153025      169420      155926      66700       74249 ...
+            204718];                % m-1
+N2.wexe=[   1432.40     1387.00     1412.20     1160.00     1218.00 ...
+            1207.00     1394.90     1163.00     0.00        1185.00 ...
+            2844.50];               % m-1
+N2.weye=[   -0.226      1.030       -5.690      0.000       4.186 ...
+            4.129       0.794       0.000       0.000       0.000 ...
+            208.833];               % m-1
+N2.r_e=1.09768E-10;                 % internuclear distance, m
+N2=ev_i_ini(N2);                    % vibr energy
+N2.EM=97.53;                        % Parameter ε/k (Lennard-Jones), К
+
 
 
     % объявляем столкновения
