@@ -1,14 +1,14 @@
-function R=Rci(y, T0, n0, Prcl, Coll, setup, ind_exc, i_dis, ind_Arr, ...
-                                                        ind_U, ind_Aliat)
+function R=Rci(y, Prcl, setup, ind_exc, kinetics)
 % Universal function for relaxation terms R_{c\alpha i}.
-% y is the vector of gas macroparameters on the current solving step,
-% T0 is the characteristic temperature; n0 is the characteristic number 
-% density; Prcl is the container for all particles; Coll is the container
+% y is the vector of gas macroparameters on the current solving step;
+% Prcl is the container for all particles; Coll is the container
 % for all collision parameters; setup is the problem setup;
 % ind_exc indicates if CO is excited; i_dis is the dissociation model 
 % indicator; ind_Arr is the Arrenius constants indicator;
 % ind_U is the U parameter indicator in dissociation models;
 % ind_Aliat is the Aliat or MT switcher.
+%  Test variables: Ps is the particles array, kinetics is the big 
+% structure with all kinetics.
 % 09.12.2022 by Maksim Melnik.
 
 num_vibr_levels=Prcl.CO.num_vibr_levels(1);
@@ -18,8 +18,6 @@ num_C=num_COA+Prcl.CO.num_vibr_levels(3);
 num_O=num_C+1;
 num_C2=num_O+1;
 num_Ar=num_C2+1;
-num_v=num_Ar+1;
-num_T=num_v+1;
 R=zeros(num_Ar, 1);
 ni_b = y(1:num_vibr_levels);
 nCOa_b = y(num_COa:num_COa+Prcl.CO.num_vibr_levels(2)-1);
@@ -28,110 +26,131 @@ nac_b = y(num_C);
 nao_b = y(num_O);
 nC2_b = y(num_C2);
 naAr_b = y(num_Ar);
-nm_b = sum(ni_b);
-T_b = y(num_T);
 
-    % all zero
-R_VT_CO_C2=0;   R_VT_CO_Ar=0;   R_VT_data_COa=0;    R_VT_data_COA=0;
-R_VE_CO_toCOa=0;    R_VE_CO_toCOA=0;    R_d_CO_CO=0;    R_d_CO_C2=0;
-R_d_CO_Ar=0;    R_d_C2=0;   R_exch_CO_C_C2_O=0;
-
-if i_dis<4
-    R_d_CO_CO=R_diss_Aliat_onoff(Prcl.CO, [ni_b; nCOa_b; nCOA_b], ...
-            nac_b, nao_b, nm_b+sum(nCOa_b)+sum(nCOA_b), Coll.CO_CO, ...
-                                 T_b*T0, n0, ind_Arr, ind_U, ind_Aliat);
-else
- ind_exc_Savelev=3; % 1 - только диссоциирующий атом возбуждён
-                    % 2 - ещё + партнёр, 3 - ещё + продукт
-    R_d_CO_CO_Savelev=R_diss_Savelev(Prcl.CO, [ni_b; nCOa_b; nCOA_b], ...
-        nac_b, nao_b, nm_b+sum(nCOa_b)+sum(nCOA_b), Coll.CO_CO, ...
-                            T_b*T0, n0, ind_Arr, ind_U, ind_exc_Savelev);
-    R_d_CO_CO=sum(R_d_CO_CO_Savelev, [2, 3]);
-end
-R_d_CO_C= R_diss_Aliat_onoff(Prcl.CO, [ni_b; nCOa_b; nCOA_b], nac_b, ...
-        nao_b, nac_b, Coll.CO_C, T_b*T0, n0, ind_Arr, ind_U, ind_Aliat);
-R_d_CO_O= R_diss_Aliat_onoff(Prcl.CO, [ni_b; nCOa_b; nCOA_b], nac_b, ...
-        nao_b, nao_b, Coll.CO_O, T_b*T0, n0, ind_Arr, ind_U, ind_Aliat);
-if naAr_b>0
- R_d_CO_Ar=R_diss_Aliat_onoff(Prcl.CO, [ni_b; nCOa_b; nCOA_b], nac_b,...
-      nao_b, naAr_b, Coll.CO_Ar, T_b*T0, n0, ind_Arr, ind_U, ind_Aliat);
-end
-if setup.C2
- R_d_CO_C2=R_diss_Aliat_onoff(Prcl.CO, [ni_b; nCOa_b; nCOA_b], nac_b,...
-      nao_b, nC2_b, Coll.CO_C2, T_b*T0, n0, ind_Arr, ind_U, ind_Aliat);
-end
-R_d_data=R_d_CO_CO+R_d_CO_C+R_d_CO_O+R_d_CO_C2+R_d_CO_Ar;
-    % COa dissociation
-R_d_COa=R_d_data(num_COa:num_COa+Prcl.CO.num_vibr_levels(2)-1);
-    % COA dissociation
-R_d_COA=R_d_data(num_COA:num_COA+Prcl.CO.num_vibr_levels(3)-1);
-    % C2 dissociation
-if setup.C2
- R_d_C2=R_diss_Aliat_onoff(Prcl.C2, nC2_b, nac_b, nac_b, ...
-      nm_b+sum(nCOa_b)+sum(nCOA_b)+nac_b+nao_b+nC2_b+naAr_b, ...
-                        Coll.C2, T_b*T0, n0, ind_Arr, ind_U, ind_Aliat);
- R_exch_CO_C_C2_O=R_exch_CO_C__C2_O(Prcl.C2, Prcl.CO, ...
-     [ni_b; nCOa_b; nCOA_b], nac_b, nao_b, nC2_b, Coll.CO_C__C2_O, ...
-                                                       T_b*T0, ind_Arr);
-end
-
-R_VT_CO_CO=R_VT_old(Prcl.CO, ni_b, Prcl.CO, ...
-              nm_b+sum(nCOa_b)+sum(nCOA_b), T_b*T0, 1, setup.model_VT);
-R_VT_CO_C = ...
-    R_VT_old(Prcl.CO, ni_b, Prcl.C,  nac_b,  T_b*T0, 1, setup.model_VT);
-R_VT_CO_O = ...
-    R_VT_old(Prcl.CO, ni_b, Prcl.O,  nao_b,  T_b*T0, 1, setup.model_VT);
-if naAr_b>0
- R_VT_CO_Ar= ...
-     R_VT_old(Prcl.CO, ni_b, Prcl.Ar, naAr_b, T_b*T0, 1, setup.model_VT);
-end
-if setup.C2
- R_VT_CO_C2= ...
-     R_VT_old(Prcl.CO, ni_b, Prcl.C2, nC2_b, T_b*T0, 1, setup.model_VT);
-end
-R_VT_data=R_VT_CO_CO+R_VT_CO_C+R_VT_CO_O+R_VT_CO_C2+R_VT_CO_Ar;
-
+% the new format
+T=y(end)*setup.T0;
+n0=setup.n0;
+R_VT_data2=zeros(kinetics.num_eq, 1);
+R_diss_data2=zeros(kinetics.num_eq, 1);
+R_VE_data2=zeros(kinetics.num_eq, 1);
+y2=ni_b;
 if ind_exc
- R_VT_data_COa=R_VT_old(Prcl.CO, nCOa_b, Prcl.CO, ...         CO, COa, COA
-            nm_b+sum(nCOa_b)+sum(nCOA_b), T_b*T0, 2, setup.model_VT) ...
-  +R_VT_old(Prcl.CO, nCOa_b, Prcl.C, nac_b, T_b*T0, 2, setup.model_VT)...C
-  +R_VT_old(Prcl.CO, nCOa_b, Prcl.O, nao_b, T_b*T0, 2, setup.model_VT)...O
-  ;
- if naAr_b>0
-  R_VT_data_COa=R_VT_data_COa...
-   +R_VT_old(Prcl.CO, nCOa_b, Prcl.Ar, naAr_b, T_b*T0, 2, setup.model_VT);
- end
- if setup.C2
-  R_VT_data_COa=R_VT_data_COa+...
-    R_VT_old(Prcl.CO, nCOa_b, Prcl.C2, nC2_b, T_b*T0, 2, setup.model_VT);
- end
- R_VT_data_COA=R_VT_old(Prcl.CO, nCOA_b, Prcl.CO, ...         CO, COa, COA
-            nm_b+sum(nCOa_b)+sum(nCOA_b), T_b*T0, 3, setup.model_VT)...
-  +R_VT_old(Prcl.CO, nCOA_b, Prcl.C, nac_b, T_b*T0, 3, setup.model_VT)...C
-  +R_VT_old(Prcl.CO, nCOA_b, Prcl.O, nao_b, T_b*T0, 3, setup.model_VT)...O
-  ;
- if naAr_b>0
-  R_VT_data_COA=R_VT_data_COA...
-   +R_VT_old(Prcl.CO, nCOA_b, Prcl.Ar, naAr_b, T_b*T0, 3, setup.model_VT);
- end
- if setup.C2
-  R_VT_data_COA=R_VT_data_COA+...
-     R_VT_old(Prcl.CO, nCOA_b, Prcl.C2, nC2_b, T_b*T0, 3, setup.model_VT);
- end
-
-    % CO VE
- R_VE_CO_toCOa=R_VE_m(Prcl.CO, ni_b, nCOa_b, ...
-    nm_b+sum(nCOa_b)+sum(nCOA_b)+nac_b+nao_b+nC2_b+naAr_b, T_b*T0, 2);
- R_VE_CO_toCOA=R_VE_m(Prcl.CO, ni_b, nCOA_b, ...
-    nm_b+sum(nCOa_b)+sum(nCOA_b)+nac_b+nao_b+nC2_b+naAr_b, T_b*T0, 3);
+    y2=[y2; nCOa_b; nCOA_b];
 end
+y2=[y2; nac_b; nao_b];
+if setup.C2
+    y2=[y2; nC2_b];
+end
+if setup.f<1
+    y2=[y2; naAr_b];
+%     disp('Ar is here')
+end
+y2=[y2; y(end-1:end)];
+if isKey(kinetics.reactions, 'Exch')
+    error('Exchange reactions are still not implemented.')
+end
+for indM1=1:kinetics.num_Ps     % considering each particle
+ M1=kinetics.Ps{indM1};
+ i1=kinetics.index{indM1};      % pointer on ni of M1
+ if M1.fr_deg_c>3
 
-R(1:num_vibr_levels)=R_VT_data + R_d_data(1:num_vibr_levels)+...
-     sum(R_VE_CO_toCOa,2)+sum(R_VE_CO_toCOA,2);
-R(num_COa:num_COa+Prcl.CO.num_vibr_levels(2)-1)= R_d_COa +R_VT_data_COa...
-                                                -sum(R_VE_CO_toCOa,1)';
-R(num_COA:num_COA+Prcl.CO.num_vibr_levels(3)-1)= R_d_COA +R_VT_data_COA...
-                                                -sum(R_VE_CO_toCOA,1)';
-R(num_C)=-sum(R_d_data)-2*R_d_C2+sum(R_exch_CO_C_C2_O);
-R(num_O)=-sum(R_d_data)-sum(R_exch_CO_C_C2_O);
+  if M1.num_vibr_levels(1)>1     % should we consider vibr processes?
+   if isKey(kinetics.reactions, 'VT')
+    for indM2=1:kinetics.num_Ps
+     M2=kinetics.Ps{indM2};
+     i2=kinetics.index{indM2};
+     for ind_e=1:M1.num_elex_levels
+      i1_e=i1(1+sum(M1.num_vibr_levels(1:ind_e-1)):...
+                                        sum(M1.num_vibr_levels(1:ind_e)));
+      R_VT_data_temp=R_VT_old(M1, y2(i1_e), M2, ...
+                        sum(y2(i2)), T, ind_e, kinetics.reactions('VT'));
+      R_VT_data2(i1_e)=R_VT_data2(i1_e)+R_VT_data_temp;
+     end
+    end
+   end
+   
+   if isKey(kinetics.reactions, 'VV')
+       error('VV is still not implemented.')
+   end
+  end
+  
+  if M1.num_elex_levels>1
+   if isKey(kinetics.reactions, 'VE')
+%     error('VE is still not implemented.')
+    i1_e1=i1(1:M1.num_vibr_levels(1));
+    np=0;
+    for indM2=1:kinetics.num_Ps
+     np=np+sum(y2(kinetics.index{indM2}));
+    end
+    for ind_e=2:M1.num_elex_levels
+     i1_e2=i1(1+sum(M1.num_vibr_levels(1:ind_e-1)):...
+                                        sum(M1.num_vibr_levels(1:ind_e)));
+     R_VE_temp=R_VE_m(M1, y2(i1_e1), y2(i1_e2), np, T, ind_e);
+     R_VE_data2(i1_e1)=R_VE_data2(i1_e1)+sum(R_VE_temp, 2);
+     R_VE_data2(i1_e2)=R_VE_data2(i1_e2)-sum(R_VE_temp, 1)';
+    end
+   end
+  end
+  
+  if isKey(kinetics.reactions, 'Diss')
+   for indM3=1:kinetics.num_Ps     % finding indexes of diss parts of M1
+    if kinetics.Ps{indM3}.name==M1.diss_parts(1)
+     indP1=indM3;
+    end
+    if kinetics.Ps{indM3}.name==M1.diss_parts(2)
+     indP2=indM3;
+    end
+   end
+   iP1=kinetics.index{indP1};
+   iP2=kinetics.index{indP2};
+   nP1=sum(y2(iP1));
+   nP2=sum(y2(iP2));
+%    что-то с диссоциацией С2 всё равно не так
+%    disp(kinetics.Ps{indM1}.name)
+   for indM2=1:kinetics.num_Ps
+    M2=kinetics.Ps{indM2};
+    i2=kinetics.index{indM2};
+    coll2.ArrA=M1.diss_Arrhenius_A(M2.name);
+    coll2.ArrN=M1.diss_Arrhenius_n(M2.name);
+    y_diss=y2(i1);
+    if kinetics.Ps{indM1}.name=="CO"
+       if ind_exc==0
+           y_diss=[y_diss; zeros(120-68, 1)];
+       end
+    end
+    switch kinetics.reactions('Diss').NEmodel
+     case {'MT', 'Aliat'}
+      R_diss_data_temp=R_diss_Aliat_onoff(M1, y_diss, nP1, nP2, ...
+           sum(y2(i2)), coll2, T, n0, setup.ind_Arr, setup.ind_U, ...
+                                                        setup.ind_Aliat);
+       if kinetics.Ps{indM1}.name=="CO"
+        if ind_exc==0
+           R_diss_data_temp=R_diss_data_temp(1:68);
+        end
+       end
+     case 'Savelev21'
+       error("Savelev's diss model is still not implemented")
+    end
+    R_diss_data2(i1)=R_diss_data2(i1)+R_diss_data_temp;
+   end
+   R_diss_data2(iP1)=R_diss_data2(iP1)-sum(R_diss_data2(i1));
+   R_diss_data2(iP2)=R_diss_data2(iP2)-sum(R_diss_data2(i1));
+  end
+  
+ end
+end
+R2=R_VT_data2+R_diss_data2+R_VE_data2;
+
+R(1:num_vibr_levels)=R2(1:num_vibr_levels);
+if ind_exc
+    R(num_COa:num_COa+Prcl.CO.num_vibr_levels(2)-1)=...
+        R2(num_COa:num_COa+Prcl.CO.num_vibr_levels(2)-1);
+    R(num_COA:num_COA+Prcl.CO.num_vibr_levels(3)-1)=...
+        R2(num_COA:num_COA+Prcl.CO.num_vibr_levels(3)-1);
+end
+R(num_C)=R2(kinetics.index{2});
+R(num_O)=R2(kinetics.index{3});
+if setup.C2
+    R(num_C2)=R2(kinetics.index{4});
+end
 end

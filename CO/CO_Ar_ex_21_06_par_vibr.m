@@ -16,32 +16,27 @@ function out=CO_Ar_ex_21_06_par_vibr
 % warning('CO+C->C2+O is under the test')
 
 tic
-for i_ini=[3]  % initial conditions test cases
+for i_ini=[8]  % initial conditions test cases
                 % 2 -- Fairbairn 8a,    3 -- Aliat's test case,
                 % 4 -- Mick's fig 3a,   5 -- Appleton fig 3.
                 % 6 -- mod Aliat low p, 7 -- mod Fairbairn 8a, high p
                 % 8 -- Fairbairn 8f,    9 -- Fairbairn 8e
 %  for i_exc=0%:1   % is electronic excitation on?
-  for i_dis=1     % 1 -- Marrone-Treanor wo e exc., 2 -- MT with E exc.,
+  for i_dis=3     % 1 -- Marrone-Treanor wo e exc., 2 -- MT with E exc.,
                         % 3 -- Aliat model, 4 -- Savelev model
    for i_U=3      % U parameter in MT and Aliat models
                         % 2 -- D/6k, 3 -- 3T, 4 -- Inf
 %% variables 
+particles_data_ini;   % initialisation of particles and collisions data
+load par_data.mat       % load of saved particle data
 % is electronic excitaion on?
  ind_exc=1;      % COa and COA included (1), only CO(X) (0)
  if i_dis==1
   ind_exc=0;
  end
-%     V_H = 6.626070041e-34;      % Plank constant, J*sec
     V_K = 1.380649e-23;         % Boltzmann constant, J/K
-    V_PI = 3.14159265358979323846; 
-%     V_C = 299792458; % speed of light
-%     V_HBAR = 1.054571800e-34; V_R = 8.3144621;
-%     checkX=1e-3;  % áûë òàêîé ïàðàìåòð äëÿ âûâîäà ïðîìåæóòî÷íûõ çíà÷åíèé
-
-    particles_data_ini;   % initialisation of particles and collisions 
-                                    %   data
-    load par_data.mat       % load of saved particle data
+    V_PI = 3.14159265358979323846;
+%     checkX=1e-3;  % был такой параметр для вывода промежуточных значений
 
     % number of electronic states
 if ind_exc==0
@@ -160,9 +155,10 @@ num_T=num_v+1;
                                                struct_U(ind_U).text '.'])
  disp(['Dissociation model by ' struct_Aliat(i_dis).text '.'])
  disp(['CO(X)' ind_exc*', CO(a) and CO(A)' ' states are included.'])
- setup.C2=0;        % is C2 included?
+ setup.C2=1;        % is C2 included?
  setup.model_VT='FHO';
  setup.model_VT='SSH';
+ setup.f=f;
  switch setup.model_VT
      case 'FHO'
          disp('VT rates by old FHO code.')
@@ -254,12 +250,100 @@ nm_b = sum(ni_b);
 v_b = y(num_v);
 T_b = y(num_T);
 
+% working on universal Rci
+N_a=6.02214076e23;          % Avogadro constant
+switch ind_Arr
+    case 1
+        Diss.Arrhenius='Park';
+        keys={'CO', 'C', 'O', 'Ar', 'C2'};
+        val_A={2.3e20/N_a*1e-6, 3.4e20/N_a*1e-6, 3.4e20/N_a*1e-6, ...
+                                    2.3e19/N_a*1e-6, 2.3e20/N_a*1e-6};
+        val_n={-1, -1, -1, -1, -1};
+        diss_Arrhenius_A_CO=containers.Map(keys, val_A);
+        diss_Arrhenius_n_CO=containers.Map(keys, val_n);
+        val_A={3.7e14/N_a*1e-6, 3.7e14/N_a*1e-6, 3.7e14/N_a*1e-6, ...
+                                    3.7e14/N_a*1e-6, 3.7e14/N_a*1e-6};
+        val_n={0, 0, 0, 0, 0};
+        diss_Arrhenius_A_C2=containers.Map(keys, val_A);
+        diss_Arrhenius_n_C2=containers.Map(keys, val_n);
+    case 2
+        Diss.Arrhenius='Ibraguimova';
+    case 3
+        Diss.Arrhenius='McKenzie';
+    case 4
+        Diss.Arrhenius='Fairbairn';
+end
+mix.num=0;
+CO=Prcl.CO;
+CO.diss_Arrhenius_A=diss_Arrhenius_A_CO;
+CO.diss_Arrhenius_n=diss_Arrhenius_n_CO;
+Ps={mix, CO, Prcl.C, Prcl.O};
+if setup.C2
+    C2=Prcl.C2;
+    C2.diss_Arrhenius_A=diss_Arrhenius_A_C2;
+    C2.diss_Arrhenius_n=diss_Arrhenius_n_C2;
+    Ps{length(Ps)+1}=C2;
+end
+if setup.f<1
+    Ps{length(Ps)+1}=Prcl.Ar;
+end
+num=0;
+index{1}=0;
+for ind=2:length(Ps)
+    num_states=sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
+    num=num+num_states;
+    first=index{ind-1}(end)+1;
+    index{ind}=first:first+num_states-1;
+end
+Ps{1}.num=num;
+
     % memory allocation
 R=zeros(num_T,1);
 
     % call of relaxation terms Rci
-R(1:num_Ar)=Rci(y, T0, n0, Prcl, Coll, setup, ind_exc, ...
-                                        i_dis, ind_Arr, ind_U, ind_Aliat);
+setupV2=setup;
+setupV2.T0=T0;
+setupV2.n0=n0;
+setupV2.ind_Arr=ind_Arr;
+setupV2.ind_U=ind_U;
+setupV2.ind_Aliat=ind_Aliat;
+Reacs_keys={'Diss', 'VT'};  % VE?
+if ind_exc
+    Reacs_keys=[Reacs_keys, 'VE'];
+end
+Diss.rec=true;              % Is recombination included?
+switch i_dis
+    case 1
+        Diss.NEmodel='MT';
+    case 2
+        Diss.NEmodel='MT';
+    case 3
+        Diss.NEmodel='Aliat';
+    case 4
+        Diss.NEmodel='Savelev21';
+end
+switch ind_U
+    case 2
+        Diss.U='D/6k';
+    case 3
+        Diss.U='3T';
+    case 4
+        Diss.U='inf';
+end
+% Reacs=containers.Map(Reacs_keys,);
+% Ps
+kinetics.Ps=Ps(2:end);
+% disp(kinetics.Ps)
+% pause
+kinetics.num_Ps=length(kinetics.Ps);
+kinetics.num_eq=num;
+reacs_val={Diss, setup.model_VT};
+if ind_exc
+    reacs_val=[reacs_val, 'VE'];
+end
+kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
+kinetics.index=index(2:end);
+R(1:num_Ar)=Rci(y, Prcl, setupV2, ind_exc, kinetics);
     % dimensionlessness
 R=R*n0*Delta/v0;
 
