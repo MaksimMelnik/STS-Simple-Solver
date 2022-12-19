@@ -22,7 +22,7 @@ for i_ini=[8]  % initial conditions test cases
                 % 6 -- mod Aliat low p, 7 -- mod Fairbairn 8a, high p
                 % 8 -- Fairbairn 8f,    9 -- Fairbairn 8e
 %  for i_exc=0%:1   % is electronic excitation on?
-  for i_dis=3     % 1 -- Marrone-Treanor wo e exc., 2 -- MT with E exc.,
+  for i_dis=1     % 1 -- Marrone-Treanor wo e exc., 2 -- MT with E exc.,
                         % 3 -- Aliat model, 4 -- Savelev model
    for i_U=3      % U parameter in MT and Aliat models
                         % 2 -- D/6k, 3 -- 3T, 4 -- Inf
@@ -73,9 +73,9 @@ init_c=[
                 % 7, ñëó÷àé ñ àðãîíîì íà áàçå 8a Fairbairn, íî ñèëüíî
                 %   áîëüøå äàâëåíèå
             0.01    100         2860            320         7600
-                % 8, Fairbairn, ñëó÷àé 8f (T0 íå òî÷íî)
+                % 8, Fairbairn, случай 8f (T0 не точно)
             0.1     5.4         3260            300         9000
-                % 8, Fairbairn, ñëó÷àé 8e (T0 íå òî÷íî)
+                % 9, Fairbairn, случай 8e (T0 не точно)
             0.001   10          3080            297         8800
         ];
 %% easy access variables
@@ -330,11 +330,7 @@ switch ind_U
     case 4
         Diss.U='inf';
 end
-% Reacs=containers.Map(Reacs_keys,);
-% Ps
 kinetics.Ps=Ps(2:end);
-% disp(kinetics.Ps)
-% pause
 kinetics.num_Ps=length(kinetics.Ps);
 kinetics.num_eq=num;
 reacs_val={Diss, setup.model_VT};
@@ -343,7 +339,45 @@ if ind_exc
 end
 kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
 kinetics.index=index(2:end);
-R(1:num_Ar)=Rci(y, Prcl, setupV2, ind_exc, kinetics);
+kinetics.T0=T0;
+kinetics.n0=n0;
+% R(1:num_Ar)=Rci(y, setupV2, kinetics);
+
+y2=ni_b;
+if ind_exc
+    y2=[y2; nCOa_b; nCOA_b];
+end
+y2=[y2; nac_b; nao_b];
+if setup.C2
+    y2=[y2; nC2_b];
+end
+if setup.f<1
+    y2=[y2; naAr_b];
+end
+y2=[y2; y(end-1:end)];
+R2=Rci(y2, kinetics);
+if ind_exc
+    R(1:num_C-1)=R2(kinetics.index{1});
+else
+    R(1:num_vibr_levels)=R2(1:num_vibr_levels);
+end
+R(num_C)=R2(kinetics.index{2});
+R(num_O)=R2(kinetics.index{3});
+if setup.C2
+    for ind=4:kinetics.num_Ps
+        if kinetics.Ps{ind}.name=="C2"
+            R(num_C2)=R2(kinetics.index{ind});
+        end
+    end
+end
+if setup.f<1
+    for ind=4:kinetics.num_Ps
+        if kinetics.Ps{ind}.name=="Ar"
+            R(num_Ar)=R2(kinetics.index{ind});
+        end
+    end
+end
+
     % dimensionlessness
 R=R*n0*Delta/v0;
 
