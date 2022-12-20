@@ -1,12 +1,9 @@
 function R2=Rci(y, kinetics)
 % Universal function for relaxation terms R_{c\alpha i}.
 % y is the vector of gas macroparameters on the current solving step;
-% Prcl is the container for all particles; setup is the structure with 
-% some functions parameters; ind_exc indicates if CO is excited.
-%  Test variables: kinetics is the big structure with all kinetics.
+% kinetics is the big structure with all kinetics.
 % 09.12.2022 by Maksim Melnik.
 
-% the new format
 T=y(end)*kinetics.T0;
 n0=kinetics.n0;
 R_VT_data2=zeros(kinetics.num_eq, 1);
