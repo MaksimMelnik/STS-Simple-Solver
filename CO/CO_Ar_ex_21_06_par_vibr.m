@@ -22,7 +22,7 @@ for i_ini=[8]  % initial conditions test cases
                 % 6 -- mod Aliat low p, 7 -- mod Fairbairn 8a, high p
                 % 8 -- Fairbairn 8f,    9 -- Fairbairn 8e
 %  for i_exc=0%:1   % is electronic excitation on?
-  for i_dis=1     % 1 -- Marrone-Treanor wo e exc., 2 -- MT with E exc.,
+  for i_dis=2     % 1 -- Marrone-Treanor wo e exc., 2 -- MT with E exc.,
                         % 3 -- Aliat model, 4 -- Savelev model
    for i_U=3      % U parameter in MT and Aliat models
                         % 2 -- D/6k, 3 -- 3T, 4 -- Inf

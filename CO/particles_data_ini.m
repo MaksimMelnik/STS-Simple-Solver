@@ -14,6 +14,7 @@ C.form_e=4.97472e-19;               % online table for kappa
 C.form_e=1.180914618115280e-18;     % by Alena Kosareva
 C.num_elex_levels=1;                % number of electronic levels
 C.num_vibr_levels=1;                % actually atom has no vibr levels
+C.e_E=0;                            % electronic excitation energy
 C.fr_deg_c=3;                       % freedom degree for room temperature
 C.EM=71.4;                          % Parameter ε/k (Lennard-Jones), К
 
@@ -28,6 +29,7 @@ O.form_e= 4.098045681049634e-19;    % online table for kappa
 O.form_e= 4.098111014876693e-19;    % by Alena Kosareva
 O.num_elex_levels=1;                % number of electronic levels
 O.num_vibr_levels=1;                % actually atom has no vibr levels
+O.e_E=0;                            % electronic excitation energy
 O.fr_deg_c=3;                       % freedom degree for room temperature
 O.EM=80;                            % Parameter ε/k (Lennard-Jones), К
 
@@ -108,7 +110,9 @@ Ar.mass=6.633521356992e-26; Ar.diameter=3.33e-10;
 Ar.m_mass=39.948;                   % molar mass
 Ar.num_elex_levels=1;               % number of electronic levels
 Ar.num_vibr_levels=1;               % actually atom has no vibr levels
+Ar.e_E=0;                           % electronic excitation energy
 Ar.fr_deg_c=3;                      % freedom degree for room temperature
+Ar.form_e=0;                        % Formation energy
 Ar.EM=136.5;                        % DB
 
 
@@ -134,6 +138,7 @@ O2.weye=[   4.747       0.000       0.000       -24.440     0.000 ...
             -55.000     0.000       -13.900     0.000       0.000 ...
             0.000       0.000       0.000       0.000       0.000 ...
             0.000       0.000       0.000       0.000];         % m-1
+O2.e_E=0;
 O2.r_e=1.20752e-10;                 % internuclear distance, m
 O2=ev_i_ini(O2);                    % vibr energy
 O2.EM=107.4;                        % Parameter ε/k (Lennard-Jones), К
@@ -157,6 +162,7 @@ N2.wexe=[   1432.40     1387.00     1412.20     1160.00     1218.00 ...
 N2.weye=[   -0.226      1.030       -5.690      0.000       4.186 ...
             4.129       0.794       0.000       0.000       0.000 ...
             208.833];               % m-1
+N2.e_E=0;
 N2.r_e=1.09768E-10;                 % internuclear distance, m
 N2=ev_i_ini(N2);                    % vibr energy
 N2.EM=97.53;                        % Parameter ε/k (Lennard-Jones), К

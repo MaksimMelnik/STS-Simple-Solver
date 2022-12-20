@@ -23,13 +23,7 @@ num_C=num_COA+Prcl.CO.num_vibr_levels(3);
 num_O=num_C+1;
 num_C2=num_O+1;
 num_Ar=num_C2+1;
-num_v=num_Ar+1;
-num_T=num_v+1;
 k=1.380648528e-23;
-e_i =(Prcl.CO.ev_i{1}+Prcl.CO.ev_0(1))/k/T0; 
-e_ia=(Prcl.CO.ev_i{2}+Prcl.CO.ev_0(2))/k/T0;
-e_iA=(Prcl.CO.ev_i{3}+Prcl.CO.ev_0(3))/k/T0;
-                                    % levels_e(num_vibr_levels)'/k/T0;
 ni_b = y(1:num_vibr_levels);
 nCOa_b = y(num_COa:num_COa+Prcl.CO.num_vibr_levels(2)-1);
 nCOA_b = y(num_COA:num_COA+Prcl.CO.num_vibr_levels(3)-1);
@@ -37,9 +31,6 @@ nac_b = y(num_C);
 nao_b = y(num_O);
 nC2_b = y(num_C2);
 naAr_b = y(num_Ar);
-nm_b = sum(ni_b);
-v_b = y(num_v);
-T_b = y(num_T);
 
 % working on universal Rci
 N_a=6.02214076e23;          % Avogadro constant
@@ -87,9 +78,6 @@ for ind=2:length(Ps)
     index{ind}=first:first+num_states-1;
 end
 Ps{1}.num=num;
-
-    % memory allocation
-R=zeros(num_T,1);
 
     % call of relaxation terms Rci
 setupV2=setup;
@@ -146,60 +134,51 @@ if setup.f<1
 end
 y2=[y2; y(end-1:end)];
 R2=Rci(y2, kinetics);
-if ind_exc
-    R(1:num_C-1)=R2(kinetics.index{1});
-else
-    R(1:num_vibr_levels)=R2(1:num_vibr_levels);
-end
-R(num_C)=R2(kinetics.index{2});
-R(num_O)=R2(kinetics.index{3});
-if setup.C2
-    for ind=4:kinetics.num_Ps
-        if kinetics.Ps{ind}.name=="C2"
-            R(num_C2)=R2(kinetics.index{ind});
-        end
-    end
-end
-if setup.f<1
-    for ind=4:kinetics.num_Ps
-        if kinetics.Ps{ind}.name=="Ar"
-            R(num_Ar)=R2(kinetics.index{ind});
-        end
-    end
-end
 
-    % dimensionlessness
-R=R*n0*Delta/v0;
-
-    % неразрывность
-M=zeros(num_T);
-for i=1:num_Ar
-    M(i,i)=v_b;
+v_DN=y2(end-1);     % dimentionless gas velocity
+T_DN=y2(end);
+    % number densities equations
+M2 = diag([ones(1, kinetics.num_eq)*v_DN 0 0]);
+M2(1:end-2, end-1) = y2(1:end-2);
+    % momentum equation
+M2(end-1, 1:kinetics.num_eq) = T_DN;
+rho=0;
+for ind=1:kinetics.num_Ps
+    rho = rho + kinetics.Ps{ind}.mass*sum(y2(kinetics.index{ind}));
 end
-M(1:num_Ar, num_v)=y(1:num_Ar)';
-    % импульс
-M(num_v,1:num_Ar)=T_b;
-M(num_v,num_v)=(Prcl.CO.mass*(nm_b+sum(nCOa_b)+sum(nCOA_b))+...
-    Prcl.C.mass*nac_b+Prcl.O.mass*nao_b+...
-    Prcl.C2.mass*nC2_b+Prcl.Ar.mass*naAr_b)*v_b*v0^2/k/T0;
-M(num_v,num_T)=nm_b+sum(nCOa_b)+sum(nCOA_b)+nac_b+nao_b+nC2_b+naAr_b;
-    % энергия
-M(num_T,1:num_vibr_levels) = 2.5*T_b+e_i+Prcl.CO.form_e/k/T0;
-M(num_T,num_COa:num_COa+Prcl.CO.num_vibr_levels(2)-1)=...
-                    2.5*T_b+e_ia+Prcl.CO.form_e/k/T0+Prcl.CO.e_E(2)/k/T0;
-M(num_T,num_COA:num_COA+Prcl.CO.num_vibr_levels(3)-1)=...
-                    2.5*T_b+e_iA+Prcl.CO.form_e/k/T0+Prcl.CO.e_E(3)/k/T0;
-M(num_T,num_C)=1.5*T_b+Prcl.C.form_e/k/T0;
-M(num_T,num_O)=1.5*T_b+Prcl.O.form_e/k/T0;
-M(num_T,num_C2)=2.5*T_b;
-M(num_T,num_Ar)=1.5*T_b;
-M(num_T,num_v)=1/v_b*(3.5*(nm_b+sum(nCOa_b)+sum(nCOA_b)+nC2_b)*T_b...
-    +2.5*(nac_b+nao_b+naAr_b)*T_b+e_i*ni_b+e_ia*nCOa_b+e_iA*nCOA_b...
-    +(nm_b+sum(nCOa_b)+sum(nCOA_b))*Prcl.CO.form_e/k/T0...
-    +nac_b*Prcl.C.form_e/k/T0+nao_b*Prcl.O.form_e/k/T0...
-    +sum(nCOa_b)*Prcl.CO.e_E(2)/k/T0+sum(nCOA_b)*Prcl.CO.e_E(3)/k/T0);
-M(num_T,num_T)=2.5*(nm_b+sum(nCOa_b)+sum(nCOA_b)+nC2_b)...
-                                                +1.5*(nac_b+nao_b+naAr_b);
-AA = sparse(M);
-    out=AA^(-1)*R;
+M2(end-1, end-1) = rho*v_DN*v0^2/k/T0;
+M2(end-1, end)   = sum(y2(1:end-2));
+    % energy equation
+nm=0;   % number density of molecules
+for ind=1:kinetics.num_Ps
+ if kinetics.Ps{ind}.fr_deg_c>3
+  e_i=[];
+  for ind_e=1:kinetics.Ps{ind}.num_elex_levels
+   e_i=[e_i, kinetics.Ps{ind}.ev_i{ind_e}+kinetics.Ps{ind}.ev_0(ind_e)+...
+       kinetics.Ps{ind}.e_E(ind_e)];
+  end
+  M2(end, kinetics.index{ind}) = (e_i +kinetics.Ps{ind}.form_e)/k/T0 ...
+                                                                +2.5*T_DN;
+  M2(end, end-1)=M2(end, end-1)+((e_i +kinetics.Ps{ind}.form_e)/k/T0)*...
+      y2(kinetics.index{ind})+3.5*sum(y2(kinetics.index{ind}))*T_DN;
+  nm=nm+sum(y2(kinetics.index{ind}));
+ else
+  M2(end, kinetics.index{ind}) = (kinetics.Ps{ind}.form_e ...
+      + kinetics.Ps{ind}.e_E(1:kinetics.Ps{ind}.num_elex_levels))/k/T0 ...
+                                                                +1.5*T_DN;
+  M2(end, end-1)=M2(end, end-1)+2.5*sum(y2(kinetics.index{ind}))*T_DN+...
+      (kinetics.Ps{ind}.e_E+kinetics.Ps{ind}.form_e)/k/T0*...
+      y2(kinetics.index{ind});
+ end
+end
+M2(end, end-1)=M2(end, end-1)/v_DN;
+M2(end, end)=1.5*sum(y2(1:end-2))+nm;
+M2sp=sparse(M2);
+R2=[R2; 0; 0]*n0*Delta/v0;
+out_temp=M2sp^(-1)*R2;
+if ind_exc==0
+    out_temp=[out_temp(1:68); zeros(120-68, 1); out_temp(69:end)];
+end
+out=out_temp;
+
 end
