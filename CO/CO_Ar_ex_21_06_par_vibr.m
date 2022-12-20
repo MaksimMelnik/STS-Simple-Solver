@@ -17,6 +17,7 @@ function out=CO_Ar_ex_21_06_par_vibr
 
     % constants
 N_a=6.02214076e23;          % Avogadro constant
+k=1.380649e-23;             % Boltzmann constant, J/K
 
 tic
 for i_ini=[3]  % initial conditions test cases
@@ -100,7 +101,7 @@ num_T=num_v+1;
 
     T0=init_c(ind_c, 4);
     Tv0=T0;
-    n0=p0/V_K/T0;
+    n0=p0/k/T0;
     NN = in_con_Ar([CO.mass, v0, T0, Ar.mass, f]);
     n1 = NN(1);     % áåçðàçìåðíûå
     T1 = NN(2);     % áåçðàçìåðíûå
@@ -261,8 +262,7 @@ if i_dis==1
  ys2(end)=T1;
  options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, ...
                         'NonNegative', 1:kinetics.num_eq+2); %%#ok<NASGU>
- [X2, Y2]=ode15s(@(t, y) Rpart_ODE_SW(t, y, Prcl, ...
-                            ind_exc, setup, kinetics),...
+ [X2, Y2]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
                                                 xspan, ys2, options_s);
 else
  ys2=zeros(kinetics.num_eq+2, 1);
@@ -274,8 +274,7 @@ else
  ys2(end)=T1;
  options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, ...
                         'NonNegative', 1:kinetics.num_eq+2); %%#ok<NASGU>
- [X2, Y2]=ode15s(@(t, y) Rpart_ODE_SW(t, y, Prcl, ...
-                            ind_exc, setup, kinetics),...
+ [X2, Y2]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
                                                 xspan, ys2, options_s);
 end
 X=X2;
@@ -294,10 +293,6 @@ if setup.f<1
     Y(:, num_Ar)=Y2(:, kinetics.index{end});
 end
 Y(:, end-1:end)=Y2(:, end-1:end);
-
-% [X, Y]=ode15s(@(t, y) Rpart_ODE_SW(t, y, Prcl, ...
-%                             ind_exc, setup, kinetics),...
-%                                                 xspan, ys, options_s);
                                             
  X=X*Delta;
  Y(:,end)=Y(:,end)*T0;
@@ -322,6 +317,43 @@ Y(:, end-1:end)=Y2(:, end-1:end);
  rhov2p=rho.*Y(:, num_v).^2+pres;                            % rho*v^2+p
  disp([num2str(ind_c) ': rho*v^2+p max error '...
                         num2str(max(abs((rhov2p-rhov2p(1))/rhov2p(1))))])
+ En=2.5*(sum(Y(:,1:num_COA+CO.num_vibr_levels(3)-1), 2)...    % E
+                                                +Y(:,num_C2))*V_K.*T...
+    +1.5*(Y(:,num_C)+Y(:,num_O)+Y(:,num_Ar))*V_K.*T...
+    +Y(:,1:CO.num_vibr_levels(1))*(CO.ev_i{1}+CO.ev_0(1))'...
+    +Y(:,num_COa:num_COa+CO.num_vibr_levels(2)-1)...
+                                *(CO.ev_i{2}+CO.ev_0(2)+CO.e_E(2))'...
+	+Y(:,num_COA:num_COA+CO.num_vibr_levels(3)-1)...
+                                *(CO.ev_i{3}+CO.ev_0(3)+CO.e_E(3))'...
+    +sum(Y(:,1:num_COA+CO.num_vibr_levels(3)-1),2)*CO.form_e...
+    +Y(:,num_C)*C.form_e+Y(:,num_O)*O.form_e;
+ Ep=(En+pres)./rho+0.5*Y(:, num_v).^2;                  % E conservation
+ disp([num2str(ind_c) ': E cons max error ' ...
+                                    num2str(max(abs((Ep-Ep(1))/Ep(1))))])
+                                
+ X2=X2*Delta;
+ Y2(:, end-1) = Y2(:, end-1)*v0;
+ Y2(:, end) =   Y2(:, end)*T0;
+ Y2(:, 1:end-2)=Y2(:, 1:end-2)*n0;
+ T=Y2(:, end);
+ Tv = CO.ev_i{1}(2)./(k*log(Y2(:,1)./Y2(:,2)));
+ time_ms=X2./v0*1e6;
+ res(i_ini, i_dis, i_U).temp=[X, Y, Tv, time_ms]; %#ok<AGROW>
+ 
+ rho=0;
+ for ind=1:kinetics.num_Ps
+  rho=rho+sum(Y2(:, kinetics.index{ind}), 2)*kinetics.Ps{ind}.mass;
+ end
+ rhov=rho.*Y2(:, end-1);                                     % rho*v
+ rhov0=n0*(f*CO.mass+(1-f)*Ar.mass) * v0;                    % rho0*v0
+ disp([num2str(ind_c) ': rho*v max error ' ...
+                                num2str(max(abs((rhov-rhov0)/rhov0)))])
+ pres=sum(Y2(:, 1:end-2), 2)*k.*T;                           % p
+ rhov2p=rho.*Y2(:, end-1).^2+pres;                           % rho*v^2+p
+ rhov2p0=n0*(f*CO.mass+(1-f)*Ar.mass) * v0^2 + p0;
+ disp([num2str(ind_c) ': rho*v^2+p max error '...
+                            num2str(max(abs((rhov2p-rhov2p0)/rhov2p0)))])
+%                         доделать
  En=2.5*(sum(Y(:,1:num_COA+CO.num_vibr_levels(3)-1), 2)...    % E
                                                 +Y(:,num_C2))*V_K.*T...
     +1.5*(Y(:,num_C)+Y(:,num_O)+Y(:,num_Ar))*V_K.*T...
