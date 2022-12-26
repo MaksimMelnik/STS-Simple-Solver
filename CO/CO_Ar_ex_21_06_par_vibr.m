@@ -103,9 +103,9 @@ num_T=num_v+1;
     Tv0=T0;
     n0=p0/k/T0;
     NN = in_con_Ar([CO.mass, v0, T0, Ar.mass, f]);
-    n1 = NN(1);     % áåçðàçìåðíûå
-    T1 = NN(2);     % áåçðàçìåðíûå
-    v1 = NN(3);     % áåçðàçìåðíûå
+    n1 = NN(1);     % dimensionless
+    T1 = NN(2);     % dimensionless
+    v1 = NN(3);     % dimensionless
     disp([num2str(ind_c) ': T1=' num2str(T1*T0) ', T0=' num2str(T0) ...
             ', v1=' num2str(v1*v0) ', n1=' num2str(n1*n0, '%1.3e')])
     ys=zeros(num_T,1);
@@ -277,59 +277,6 @@ else
  [X2, Y2]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
                                                 xspan, ys2, options_s);
 end
-X=X2;
-Y=zeros(length(X), num_T);
-if ind_exc==0
-    Y(:, 1:68)= Y2(:, 1:68);
-else
-    Y(:, 1:120)=Y2(:, 1:120);
-end
-Y(:, num_C)=Y2(:, kinetics.index{2});
-Y(:, num_O)=Y2(:, kinetics.index{3});
-if setup.C2
-    Y(:, num_C2)=Y2(:, kinetics.index{4});
-end
-if setup.f<1
-    Y(:, num_Ar)=Y2(:, kinetics.index{end});
-end
-Y(:, end-1:end)=Y2(:, end-1:end);
-                                            
- X=X*Delta;
- Y(:,end)=Y(:,end)*T0;
- Y(:,end-1)=Y(:,end-1)*v0;
- Y(:,1:end-2)=Y(:,1:end-2)*n0;
- T=Y(:, end);
- Tv = CO.ev_i{1}(2)./(V_K*log(Y(:,1)./Y(:,2)));
- time_ms=X./v0*1e6;
- out=[X, Y, Tv, time_ms];
- temp=out;
- res(i_ini, i_dis, i_U).temp=temp; %#ok<AGROW>
-    
- nCO=sum(temp(:,2:1+CO.num_vibr_levels(1)),2);                   % n_CO
- rho=(nCO+sum(Y(:,num_COa:num_COa+CO.num_vibr_levels(2)-1),2)... % rho
-    +sum(Y(:,num_COA:num_COA+CO.num_vibr_levels(3)-1),2))*CO.mass...
-    +Y(:, num_C)*C.mass + Y(:,num_O)*O.mass + Y(:, num_C2)*C2.mass...
-                                                    +Y(:,num_Ar)*Ar.mass;
- pres=sum(Y(:,1:num_Ar),2)*V_K.*T;                           % p
- rhov=rho.*Y(:, num_v);                                      % rho*v
- disp([num2str(ind_c) ': rho*v max error ' ...
-                            num2str(max(abs((rhov-rhov(1))/rhov(1))))])
- rhov2p=rho.*Y(:, num_v).^2+pres;                            % rho*v^2+p
- disp([num2str(ind_c) ': rho*v^2+p max error '...
-                        num2str(max(abs((rhov2p-rhov2p(1))/rhov2p(1))))])
- En=2.5*(sum(Y(:,1:num_COA+CO.num_vibr_levels(3)-1), 2)...    % E
-                                                +Y(:,num_C2))*V_K.*T...
-    +1.5*(Y(:,num_C)+Y(:,num_O)+Y(:,num_Ar))*V_K.*T...
-    +Y(:,1:CO.num_vibr_levels(1))*(CO.ev_i{1}+CO.ev_0(1))'...
-    +Y(:,num_COa:num_COa+CO.num_vibr_levels(2)-1)...
-                                *(CO.ev_i{2}+CO.ev_0(2)+CO.e_E(2))'...
-	+Y(:,num_COA:num_COA+CO.num_vibr_levels(3)-1)...
-                                *(CO.ev_i{3}+CO.ev_0(3)+CO.e_E(3))'...
-    +sum(Y(:,1:num_COA+CO.num_vibr_levels(3)-1),2)*CO.form_e...
-    +Y(:,num_C)*C.form_e+Y(:,num_O)*O.form_e;
- Ep=(En+pres)./rho+0.5*Y(:, num_v).^2;                  % E conservation
- disp([num2str(ind_c) ': E cons max error ' ...
-                                    num2str(max(abs((Ep-Ep(1))/Ep(1))))])
                                 
  X2=X2*Delta;
  Y2(:, end-1) = Y2(:, end-1)*v0;
@@ -338,41 +285,16 @@ Y(:, end-1:end)=Y2(:, end-1:end);
  T=Y2(:, end);
  Tv = CO.ev_i{1}(2)./(k*log(Y2(:,1)./Y2(:,2)));
  time_ms=X2./v0*1e6;
- res(i_ini, i_dis, i_U).temp=[X, Y, Tv, time_ms]; %#ok<AGROW>
+ res(i_ini, i_dis, i_U).temp=[X2, Y2, Tv, time_ms]; %#ok<AGROW>
  
- rho=0;
- for ind=1:kinetics.num_Ps
-  rho=rho+sum(Y2(:, kinetics.index{ind}), 2)*kinetics.Ps{ind}.mass;
- end
- rhov=rho.*Y2(:, end-1);                                     % rho*v
- rhov0=n0*(f*CO.mass+(1-f)*Ar.mass) * v0;                    % rho0*v0
- disp([num2str(ind_c) ': rho*v max error ' ...
-                                num2str(max(abs((rhov-rhov0)/rhov0)))])
- pres=sum(Y2(:, 1:end-2), 2)*k.*T;                           % p
- rhov2p=rho.*Y2(:, end-1).^2+pres;                           % rho*v^2+p
- rhov2p0=n0*(f*CO.mass+(1-f)*Ar.mass) * v0^2 + p0;
- disp([num2str(ind_c) ': rho*v^2+p max error '...
-                            num2str(max(abs((rhov2p-rhov2p0)/rhov2p0)))])
-%                         доделать
- En=2.5*(sum(Y(:,1:num_COA+CO.num_vibr_levels(3)-1), 2)...    % E
-                                                +Y(:,num_C2))*V_K.*T...
-    +1.5*(Y(:,num_C)+Y(:,num_O)+Y(:,num_Ar))*V_K.*T...
-    +Y(:,1:CO.num_vibr_levels(1))*(CO.ev_i{1}+CO.ev_0(1))'...
-    +Y(:,num_COa:num_COa+CO.num_vibr_levels(2)-1)...
-                                *(CO.ev_i{2}+CO.ev_0(2)+CO.e_E(2))'...
-	+Y(:,num_COA:num_COA+CO.num_vibr_levels(3)-1)...
-                                *(CO.ev_i{3}+CO.ev_0(3)+CO.e_E(3))'...
-    +sum(Y(:,1:num_COA+CO.num_vibr_levels(3)-1),2)*CO.form_e...
-    +Y(:,num_C)*C.form_e+Y(:,num_O)*O.form_e;
- Ep=(En+pres)./rho+0.5*Y(:, num_v).^2;                  % E conservation
- disp([num2str(ind_c) ': E cons max error ' ...
-                                    num2str(max(abs((Ep-Ep(1))/Ep(1))))])
+ disp([num2str(ind_c) ': conservation laws check'])
+ check_CL_SW([rhov0 rhov2p0 Ep0], Y2, kinetics);
    end
   end
 %  end
 end
  figure
- semilogx(temp(:,1), T, temp(:,1), Tv)
+ semilogx(X2, T, X2, Tv)
 out=res;
 toc
 end
