@@ -287,6 +287,14 @@ end
  time_ms=X2./v0*1e6;
  res(i_ini, i_dis, i_U).temp=[X2, Y2, Tv, time_ms]; %#ok<AGROW>
  
+ rhov0=n0*(f*CO.mass+(1-f)*Ar.mass) * v0;                    % rho0*v0
+ rhov2p0=n0*(f*CO.mass+(1-f)*Ar.mass) * v0^2 + p0;
+ e_i=[];
+ for ind_e=1:CO.num_elex_levels
+  e_i=[e_i, CO.ev_i{ind_e}+CO.ev_0(ind_e)+CO.e_E(ind_e)];
+ end
+ En0=n0*n/n1*e_i'+n0*f*k*T0 + 1.5*n0*k*T0+n0*f*CO.form_e;
+ Ep0=(En0+p0)/(n0*(f*CO.mass+(1-f)*Ar.mass))+0.5*v0^2;
  disp([num2str(ind_c) ': conservation laws check'])
  check_CL_SW([rhov0 rhov2p0 Ep0], Y2, kinetics);
    end
