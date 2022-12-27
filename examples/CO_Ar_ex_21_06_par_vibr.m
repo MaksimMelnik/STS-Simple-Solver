@@ -19,6 +19,7 @@ function out=CO_Ar_ex_21_06_par_vibr
 N_a=6.02214076e23;          % Avogadro constant
 k=1.380649e-23;             % Boltzmann constant, J/K
 Torr = 133.322368;          % how much Pa in Torr
+addpath('../CO/')
 
 tic
 for i_ini=[8]  % initial conditions test cases
@@ -253,4 +254,5 @@ end
  semilogx(X2, T, X2, Tv)
 out=res;
 toc
+rmpath('../CO/')
 end
