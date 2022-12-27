@@ -20,6 +20,7 @@ N_a=6.02214076e23;          % Avogadro constant
 k=1.380649e-23;             % Boltzmann constant, J/K
 Torr = 133.322368;          % how much Pa in Torr
 addpath('../src/')
+addpath('../data/')
 
 tic
 for i_ini=[8]  % initial conditions test cases
@@ -34,7 +35,7 @@ for i_ini=[8]  % initial conditions test cases
                         % 2 -- D/6k, 3 -- 3T, 4 -- Inf
 %% variables 
 % particles_data_ini;   % initialisation of particles and collisions data
-load par_data.mat       % load of saved particle data
+load CO_C_O_Ar_C2.mat       % load of saved particle data
 % is electronic excitaion on?
  ind_exc=1;      % COa and COA included (1), only CO(X) (0)
  if i_dis==1
@@ -255,4 +256,5 @@ end
 out=res;
 toc
 rmpath('../src/')
+rmpath('../data/')
 end
