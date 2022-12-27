@@ -1,8 +1,9 @@
 h = 6.626070041e-34;      % Plank constant, J*sec
-N_a=6.02214076e23;          % Avogadro constant
+N_a=6.02214076e23;        % Avogadro constant
 c = 299792458;            % speed of light
 k = 1.380649e-23;         % Boltzmann constant, J/K
 warning('Only anharmonic oscillator parameters are used.')
+addpath('../src/')
 
 
     % initialization of particles variables
@@ -12,6 +13,9 @@ C.diameter=3.298e-10;   C.s_e=1;
 C.m_mass=12.011;                    % molar mass
 C.form_e=4.97472e-19;               % online table for kappa
 C.form_e=1.180914618115280e-18;     % by Alena Kosareva
+C.num_elex_levels=1;                % number of electronic levels
+C.num_vibr_levels=1;                % actually atom has no vibr levels
+C.e_E=0;                            % electronic excitation energy
 C.fr_deg_c=3;                       % freedom degree for room temperature
 C.EM=71.4;                          % Parameter ε/k (Lennard-Jones), К
 
@@ -24,6 +28,9 @@ O.s_e=9;                            % staticsical weigth
 O.m_mass=15.999;                    % molar mass
 O.form_e= 4.098045681049634e-19;    % online table for kappa
 O.form_e= 4.098111014876693e-19;    % by Alena Kosareva
+O.num_elex_levels=1;                % number of electronic levels
+O.num_vibr_levels=1;                % actually atom has no vibr levels
+O.e_E=0;                            % electronic excitation energy
 O.fr_deg_c=3;                       % freedom degree for room temperature
 O.EM=80;                            % Parameter ε/k (Lennard-Jones), К
 
@@ -35,6 +42,16 @@ CO.red_osc_mass=C.mass*O.mass/(C.mass+O.mass);
 % CO.diss_e=1.77716869535000e-18;         % dissociation energy
 CO.diss_e=[89460 41121 24848]*100*h*c;    % dissociation energy for each 
                                           %           el. state, Krupenie
+CO.diss_parts=["C", "O"];                 % dissociation products
+% keys_Park={'CO', 'C', 'O', 'Ar', 'C2'}; %writing down Arrhenius law params
+% val_Park_CO.A=2.3e20/N_a*1e-6;  val_Park_CO.N=-1;
+% val_Park_C.A=3.4e20/N_a*1e-6;   val_Park_C.N=-1;
+% val_Park_O.A=3.4e20/N_a*1e-6;   val_Park_O.N=-1;
+% val_Park_Ar.A=2.3e19/N_a*1e-6;  val_Park_Ar.N=-1;
+% val_Park_C2.A=2.3e20/N_a*1e-6;  val_Park_C2.N=-1;
+% Map_Park=containers.Map(keys_Park, );
+% CO.diss_Arrhenius=containers.Map(...
+%     {'Park', 'Ibraguimova', 'McKenzie', 'Fairbairn'}, );
 CO.form_e=-1.8349e-19;                    % DB
 CO.form_e=-1.864225959573993e-19;         % by Alena Kosareva
 CO.form_e_atoms_sum=C.form_e+O.form_e;
@@ -73,10 +90,13 @@ C2.name='C2';
 C2.mass=3.988946881888e-26;         C2.diameter=3.621e-10; 
 C2.m_mass=2*C.m_mass;                  % molar mass
 C2.diss_e=9.949436628352846e-19;
+C2.diss_parts=["C", "C"];
 C2.ev_i{1}=0;      C2.ev_0=0;
 C2.e_E=0;
 C2.Be=181.98399999999998;   C2.sigma=2;
-C2.s_e=1;   C2.e_E=0;   C2.num_elex_levels=1;   C2.num_vibr_levels=1;
+C2.s_e=1;   C2.e_E=0;   
+C2.num_elex_levels=1;   
+C2.num_vibr_levels=1;
 C2.fr_deg_c=5;                         % freedom degree for room temperature
 C2.mltpl_atoms_mass=C.mass*C.mass;     % произведение масс атомов
 C2.mltpl_atoms_s_e=C.s_e*C.s_e;        % произведение статвесов атомов
@@ -89,19 +109,44 @@ C2.EM=97.53;                           % DB
 Ar.name='Ar';
 Ar.mass=6.633521356992e-26; Ar.diameter=3.33e-10;
 Ar.m_mass=39.948;                   % molar mass
+Ar.num_elex_levels=1;               % number of electronic levels
+Ar.num_vibr_levels=1;               % actually atom has no vibr levels
+Ar.e_E=0;                           % electronic excitation energy
 Ar.fr_deg_c=3;                      % freedom degree for room temperature
+Ar.form_e=0;                        % Formation energy
 Ar.EM=136.5;                        % DB
 
 
 O2.name='O2';                       % data from DB work-v5
 O2.mass=5.31353E-26;                % kg
 O2.diameter=3.5155E-10;             % m
+O2.sigma=2;
+O2.Be=[     143.768,    142.64,     140.03699999999998, 91.55, 96.0, ...
+            91.06,      53.0,       81.89999999999999, 49.0, 71.17, ...
+            57.06,      81.89999999999999, 78.8, 54.7,      52.59, ...
+            173.0,      170.3,      146.38,     81.10000000000001]; % m-1
+O2.form_e=0;
+O2.form_e_atoms_sum=2*O.form_e;
 O2.num_elex_levels=1;               % number of electronical levels
 O2.num_vibr_levels=33;              % number of vibrational levels
 O2.diss_e=[ 8.19609E-19 6.63036E-19 5.73147E-19 1.78601E-19 1.46163E-19...
             1.32119E-19 5.50047E-20 1.59798E-19 7.56180E-20 5.23826E-20...
             2.35592E-20 1.78005E-19 1.44991E-19 7.00222E-20 3.14057E-20...
             4.39024E-19 4.22517E-19 3.47191E-19 2.64853E-19];   % J
+keys={'Ar', 'C', 'N', 'O', 'C2', 'N2', 'O2', 'CN', 'CO', 'NO', 'CO2'};
+val_A=[2e21, 1e22, 1e22, 1e22, 2e21, 2e21, 2e21, 2e21, 2e21, ...
+                                                    2e21, 2e21]/N_a*1e-6;
+val_n = num2cell(val_A*0 - 1.5);
+val_A = num2cell(val_A);
+O2.diss_Arrhenius_A=containers.Map(keys, val_A);
+O2.diss_Arrhenius_n=containers.Map(keys, val_n);
+O2.diss_parts=["O", "O"];
+O2.mltpl_atoms_mass=O.mass^2;
+O2.mltpl_atoms_s_e=O.s_e(1)^2;
+O2.s_e=[    3,          2,          1,          1,          6, ...
+            3,          10,         3,          3,          6, ...
+            6,          8,          8,          2,          2, ...
+            3,          1,          3,          1];
 O2.we=[     158019.00   148350.00   143277.00   79429.00    85000.00 ...
             79907.00    20000.00    70931.00    53700.00    20000.00 ...
             20000.00    162640.00   70560.00    49950.00    20000.00 ...
@@ -114,8 +159,10 @@ O2.weye=[   4.747       0.000       0.000       -24.440     0.000 ...
             -55.000     0.000       -13.900     0.000       0.000 ...
             0.000       0.000       0.000       0.000       0.000 ...
             0.000       0.000       0.000       0.000];         % m-1
+O2.e_E=0;
 O2.r_e=1.20752e-10;                 % internuclear distance, m
 O2=ev_i_ini(O2);                    % vibr energy
+O2.fr_deg_c=5;                      % freedom degree for room temperature
 O2.EM=107.4;                        % Parameter ε/k (Lennard-Jones), К
 
 
@@ -127,6 +174,7 @@ N2.num_vibr_levels=47;              % number of vibrational levels
 N2.diss_e=[ 1.56362E-18 5.89862E-19 7.84447E-19 7.80693E-19 8.43286E-19...
             9.96818E-19 9.74372E-19 9.18473E-19 6.84927E-20 2.22661E-19...
             1.98088E-19];           % J
+N2.diss_parts=["N", "N"];
 N2.we=[     235857      146064      173339      150140      151688 ...
             153025      169420      155926      66700       74249 ...
             204718];                % m-1
@@ -136,6 +184,7 @@ N2.wexe=[   1432.40     1387.00     1412.20     1160.00     1218.00 ...
 N2.weye=[   -0.226      1.030       -5.690      0.000       4.186 ...
             4.129       0.794       0.000       0.000       0.000 ...
             208.833];               % m-1
+N2.e_E=0;
 N2.r_e=1.09768E-10;                 % internuclear distance, m
 N2=ev_i_ini(N2);                    % vibr energy
 N2.EM=97.53;                        % Parameter ε/k (Lennard-Jones), К
@@ -201,9 +250,11 @@ N2.EM=97.53;                        % Parameter ε/k (Lennard-Jones), К
     Coll_CO_C__C2_O.ArrA(7)=6e-10/1e6;       Coll_CO_C__C2_O.ArrN(7)=0; 
 
     
-save par_data CO C O Ar C2 ...
-    Coll_CO_CO Coll_CO_C Coll_CO_O Coll_CO_C2 Coll_CO_Ar Coll_C2 ...
-    Coll_CO_C__C2_O
+% save par_data CO C O Ar C2 ...
+%     Coll_CO_CO Coll_CO_C Coll_CO_O Coll_CO_C2 Coll_CO_Ar Coll_C2 ...
+%     Coll_CO_C__C2_O
+
+addpath('../src/')
 
 function out=ev_i_ini(M)
 % automatic vibrational energy calculation
