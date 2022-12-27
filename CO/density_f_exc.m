@@ -6,7 +6,7 @@ k = 1.380649e-23;
 
 if M.num_elex_levels==1
  Zv=sum(exp(-M.ev_i{1}/T/k));
- n=n1/Zv.*exp(-M.ev_i{1}/T/k);
+ n=n1/Zv.*exp(-M.ev_i{1}/T/k)';
 else
  Zel=M.s_e*exp(-M.e_E/k/T)';
  Zvibr=[ sum(exp(-(M.ev_i{1}+M.ev_0(1))/k/T));
