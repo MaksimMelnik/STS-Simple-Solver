@@ -3,6 +3,7 @@ N_a=6.02214076e23;        % Avogadro constant
 c = 299792458;            % speed of light
 k = 1.380649e-23;         % Boltzmann constant, J/K
 warning('Only anharmonic oscillator parameters are used.')
+addpath('../src/')
 
 
     % initialization of particles variables
@@ -119,6 +120,13 @@ Ar.EM=136.5;                        % DB
 O2.name='O2';                       % data from DB work-v5
 O2.mass=5.31353E-26;                % kg
 O2.diameter=3.5155E-10;             % m
+O2.sigma=2;
+O2.Be=[     143.768,    142.64,     140.03699999999998, 91.55, 96.0, ...
+            91.06,      53.0,       81.89999999999999, 49.0, 71.17, ...
+            57.06,      81.89999999999999, 78.8, 54.7,      52.59, ...
+            173.0,      170.3,      146.38,     81.10000000000001]; % m-1
+O2.form_e=0;
+O2.form_e_atoms_sum=2*O.form_e;
 O2.num_elex_levels=1;               % number of electronical levels
 O2.num_vibr_levels=33;              % number of vibrational levels
 O2.diss_e=[ 8.19609E-19 6.63036E-19 5.73147E-19 1.78601E-19 1.46163E-19...
@@ -132,7 +140,13 @@ val_n = num2cell(val_A*0 - 1.5);
 val_A = num2cell(val_A);
 O2.diss_Arrhenius_A=containers.Map(keys, val_A);
 O2.diss_Arrhenius_n=containers.Map(keys, val_n);
-O2.diss_part=["O", "O"];
+O2.diss_parts=["O", "O"];
+O2.mltpl_atoms_mass=O.mass^2;
+O2.mltpl_atoms_s_e=O.s_e(1)^2;
+O2.s_e=[    3,          2,          1,          1,          6, ...
+            3,          10,         3,          3,          6, ...
+            6,          8,          8,          2,          2, ...
+            3,          1,          3,          1];
 O2.we=[     158019.00   148350.00   143277.00   79429.00    85000.00 ...
             79907.00    20000.00    70931.00    53700.00    20000.00 ...
             20000.00    162640.00   70560.00    49950.00    20000.00 ...
@@ -148,6 +162,7 @@ O2.weye=[   4.747       0.000       0.000       -24.440     0.000 ...
 O2.e_E=0;
 O2.r_e=1.20752e-10;                 % internuclear distance, m
 O2=ev_i_ini(O2);                    % vibr energy
+O2.fr_deg_c=5;                      % freedom degree for room temperature
 O2.EM=107.4;                        % Parameter ε/k (Lennard-Jones), К
 
 
@@ -235,9 +250,11 @@ N2.EM=97.53;                        % Parameter ε/k (Lennard-Jones), К
     Coll_CO_C__C2_O.ArrA(7)=6e-10/1e6;       Coll_CO_C__C2_O.ArrN(7)=0; 
 
     
-save par_data CO C O Ar C2 ...
-    Coll_CO_CO Coll_CO_C Coll_CO_O Coll_CO_C2 Coll_CO_Ar Coll_C2 ...
-    Coll_CO_C__C2_O
+% save par_data CO C O Ar C2 ...
+%     Coll_CO_CO Coll_CO_C Coll_CO_O Coll_CO_C2 Coll_CO_Ar Coll_C2 ...
+%     Coll_CO_C__C2_O
+
+addpath('../src/')
 
 function out=ev_i_ini(M)
 % automatic vibrational energy calculation
