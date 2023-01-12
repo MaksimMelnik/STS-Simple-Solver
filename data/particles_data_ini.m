@@ -120,6 +120,7 @@ Ar.EM=136.5;                        % DB
 O2.name='O2';                       % data from DB work-v5
 O2.mass=5.31353E-26;                % kg
 O2.m_mass=31.9988;                  % molar mass
+CO.red_osc_mass=0.5*O.mass;
 O2.diameter=3.5155E-10;             % m
 O2.sigma=2;
 O2.Be=[     143.768,    142.64,     140.03699999999998, 91.55, 96.0, ...
