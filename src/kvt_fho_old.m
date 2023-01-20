@@ -24,7 +24,7 @@ depth = 200.0;
 e_i=M1.ev_i{ind_e};
 % газокинетический радиус упругого столкновения, CO-CO
 % r0 = 3.65e-10; % m, для CO
-r0=(M1.diameter+M2.diameter);
+r0=(M1.diameter+M2.diameter)/2;
 % сечение столкновения
 sigma = pi*r0^2; % модель твердых сфер
 % reduced collision mass
@@ -56,7 +56,7 @@ theta1 = 4*pi^2*om.^2.*mu/alpha^2/k;    % K
 
 s = abs(i-f);
 sf=s;
-ns=i;
+ns=i-1;
 
 % эффективная скорость ЛТ
 vm0 = (2.*pi*om.*s*k*t/alpha./mu).^(1/3);
@@ -78,15 +78,14 @@ for jj=1:Lmax
 end
 
 delta = (1-Cvt.^3)./Cvt.^3 * 2*pi.*om/alpha./vm0./Cvt;
-    phi = 2/pi * atan(sqrt(2*k*depth/mu)./vm0(1,:));
+phi = 2/pi * atan(sqrt(2*k*depth/mu)./vm0(1,:));
 
 
 rate = ns.*sqrt(2*pi./(3+delta)).*s.^(1/3)./sf.^2;
-    rate(1,:) = rate(1,:) .* Cvt(1,:) .* (Svt.*theta1(1,:)./theta).^s...
+rate(1,:) = rate(1,:) .* Cvt(1,:) .* (Svt.*theta1(1,:)./theta).^s...
                                                  .*(theta1(1,:)/t).^(1/6);
 rate = rate.*exp(- s.^(2/3).*(theta1/t).^(1/3).*(0.5.*Cvt.^2+1./Cvt).*...
                                             (1-phi).^(2/3)-s.*(1-Cvt.^3));
 rate = rate .* exp(theta.*s/2/t);
     kvt(1,:) = rate(1,:) * Z;
 kvt=kvt/1e6;
-

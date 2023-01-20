@@ -25,7 +25,9 @@ init_c=[ % n0, m-3;   v0, m/s;   T0, K;   n1, DN;   v1, DN;   T1, DN
     6.950596402478228e+22	3070	2.778507787437617e+02 ...
      5.694648485891184e+00  1.756034639324195e-01   1.907439874030552e+01
      ];
-i_ini=1;
+for i_ini=1:5
+ for i_U=2:4
+  for i_vibr=2%1:2
 n0=init_c(i_ini, 1);   % m-3
 v0=init_c(i_ini, 2);   % m/s
 T0=init_c(i_ini, 3);   % K
@@ -48,11 +50,20 @@ end
 Diss.Arrhenius='Park';
 Diss.rec=true;
 Diss.NEmodel='MT';
-Diss.U='D/6k';
-Diss.U='3T';
-% Diss.U='inf';
-model_VT='FHO';
-model_VT='SSH';
+   switch i_U
+    case 2
+	 Diss.U='D/6k';
+	case 3
+	 Diss.U='3T';
+	case 4
+	 Diss.U='inf';
+   end
+   switch i_vibr
+    case 1
+	 model_VT='SSH';
+	case 2
+	 model_VT='FHO';
+   end
 Reacs_keys={'Diss', 'VT'};  % VV?
 reacs_val={Diss, model_VT};
 kinetics.Ps=Ps(2:end);
@@ -81,7 +92,7 @@ Y(:, end)=Y(:, end)*T0;
 T=Y(:, end);
 Tv = O2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
 time_ms=X./v0*1e6;
-out=[X, Y, Tv, time_ms];
+   out(i_ini, i_vibr, i_U).res=[X, Y, Tv, time_ms];
 
 rhov0=n0*O2.mass * v0;                    % rho0*v0
 rhov2p0=n0*O2.mass * v0^2 + n0*k*T0;      % rho0*v0^2+p0
@@ -93,6 +104,9 @@ En0=n0*e_i*n/n1 + n0*k*T0 + 1.5*n0*k*T0 + n0*O2.form_e;
 Ep0=(En0+n0*k*T0)/(n0*O2.mass)+0.5*v0^2;       % (E0+p0)/rho0+v0^2/2
 disp('Conservation laws check')
 check_CL_SW([rhov0 rhov2p0 Ep0], Y, kinetics);
+  end
+ end
+end
 
 figure
 semilogx(X, T, X, Tv, 'linewidth', 1.5)
