@@ -7,6 +7,7 @@ function R2=Rci(y, kinetics)
 T=y(end)*kinetics.T0;
 n0=kinetics.n0;
 R_VT_data2=zeros(kinetics.num_eq, 1);
+R_VV_data=zeros(kinetics.num_eq, 1);
 R_diss_data2=zeros(kinetics.num_eq, 1);
 R_VE_data2=zeros(kinetics.num_eq, 1);
 R_exch_data2=zeros(kinetics.num_eq, 1);
@@ -20,6 +21,7 @@ for indM1=1:kinetics.num_Ps     % considering each particle
  if M1.fr_deg_c>3
 
   if M1.num_vibr_levels(1)>1     % should we consider vibr processes?
+      
    if isKey(kinetics.reactions, 'VT')
     for indM2=1:kinetics.num_Ps
      M2=kinetics.Ps{indM2};
@@ -35,8 +37,29 @@ for indM1=1:kinetics.num_Ps     % considering each particle
    end
    
    if isKey(kinetics.reactions, 'VV')
-       error('VV is still not implemented.')
+    for indM2=indM1:kinetics.num_Ps
+     M2=kinetics.Ps{indM2};
+     if M2.num_vibr_levels(1)>1
+      i2=kinetics.index{indM2};
+      for ind_e1=1:M1.num_elex_levels
+       i1_e=i1(1+sum(M1.num_vibr_levels(1:ind_e1-1)):...
+                                       sum(M1.num_vibr_levels(1:ind_e1)));
+       for ind_e2=1:M2.num_elex_levels
+        i2_e=i2(1+sum(M2.num_vibr_levels(1:ind_e2-1)):...
+                                       sum(M2.num_vibr_levels(1:ind_e2))); 
+        R_VV_data_temp=R_VV_old(M1, y2(i1_e), M2, y2(i2_e), ...
+                            T, ind_e1, ind_e2, kinetics.reactions('VV'));
+        R_VV_data(i1_e)=R_VV_data(i1_e)+sum(R_VV_data_temp, 2);
+        if M2.name~=M1.name
+            warning("VV' is still not implemented")
+         R_VV_data(i2_e)=R_VV_data(i2_e)+sum(R_VV_data_temp, 1)';
+        end
+       end
+      end
+     end
+    end
    end
+   
   end
   
   if M1.num_elex_levels>1
@@ -98,6 +121,6 @@ for indM1=1:kinetics.num_Ps     % considering each particle
  end
 end
 
-R2=R_VT_data2+R_diss_data2+R_VE_data2+R_exch_data2;
+R2=R_VT_data2+R_VV_data+R_diss_data2+R_VE_data2+R_exch_data2;
 
 end

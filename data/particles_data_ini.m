@@ -34,6 +34,10 @@ O.e_E=0;                            % electronic excitation energy
 O.fr_deg_c=3;                       % freedom degree for room temperature
 O.EM=80;                            % Parameter ε/k (Lennard-Jones), К
 
+N.name='N';
+N.mass=2.32587E-26;
+N.diameter=3.29800E-10;
+
 
 CO.name='CO';
 CO.mass=4.651236272601599e-26;            % molecular mass, kg
@@ -120,7 +124,7 @@ Ar.EM=136.5;                        % DB
 O2.name='O2';                       % data from DB work-v5
 O2.mass=5.31353E-26;                % kg
 O2.m_mass=31.9988;                  % molar mass
-CO.red_osc_mass=0.5*O.mass;
+O2.red_osc_mass=0.5*O.mass;
 O2.diameter=3.5155E-10;             % m
 O2.sigma=2;
 O2.Be=[     143.768,    142.64,     140.03699999999998, 91.55, 96.0, ...
@@ -170,6 +174,7 @@ O2.EM=107.4;                        % Parameter ε/k (Lennard-Jones), К
 
 N2.name='N2';                       % data from DB work-v5
 N2.mass=4.65173E-26;                % kg
+N2.red_osc_mass=0.5*N.mass;
 N2.diameter=3.4039E-10;             % m
 N2.num_elex_levels=1;               % number of electronical levels
 N2.num_vibr_levels=47;              % number of vibrational levels

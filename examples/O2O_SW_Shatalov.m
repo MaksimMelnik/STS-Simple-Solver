@@ -27,13 +27,13 @@ init_c=[ % n0, m-3;   v0, m/s;   T0, K;   n1, DN;   v1, DN;   T1, DN
      ];
 for i_ini=1:5
  for i_U=2:4
-  for i_vibr=2%1:2
-n0=init_c(i_ini, 1);   % m-3
-v0=init_c(i_ini, 2);   % m/s
-T0=init_c(i_ini, 3);   % K
-n1=init_c(i_ini, 4);   % DN
-v1=init_c(i_ini, 5);   % DN
-T1=init_c(i_ini, 6);   % DN
+  for i_vibr=1%:2
+   n0=init_c(i_ini, 1);   % m-3
+   v0=init_c(i_ini, 2);   % m/s
+   T0=init_c(i_ini, 3);   % K
+   n1=init_c(i_ini, 4);   % DN
+   v1=init_c(i_ini, 5);   % DN
+   T1=init_c(i_ini, 6);   % DN
 
 sigma0 = pi*O2.diameter^2;
 Delta = 1 / sqrt(2) / n0 / sigma0;
@@ -65,7 +65,9 @@ Diss.NEmodel='MT';
 	 model_VT='FHO';
    end
 Reacs_keys={'Diss', 'VT'};  % VV?
+Reacs_keys={'Diss', 'VT', 'VV'};
 reacs_val={Diss, model_VT};
+reacs_val={Diss, model_VT, model_VT};
 kinetics.Ps=Ps(2:end);
 kinetics.num_Ps=length(kinetics.Ps);
 kinetics.num_eq=num;
@@ -81,7 +83,7 @@ y0=zeros(kinetics.num_eq+2, 1);
 y0(1:length(n))=n;
 y0(end-1)=v1;
 y0(end)=T1;
- options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, ...
+ options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
                                     'NonNegative', 1:kinetics.num_eq+2); 
 [X, Y]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics), xspan, y0, options_s);
 

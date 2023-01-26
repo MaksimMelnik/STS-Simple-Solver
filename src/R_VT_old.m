@@ -1,7 +1,5 @@
 function out=R_VT_old(M1, n_m, M2, n_M2, T, ind_e, model)
-% (T, n1, n3, n4, n5)
-% универсальная функция расчёта релаксационных членов R_VT, но пока только
-% для CO, потому что там k_VT для CO только подходит.
+% Универсальная функция расчёта релаксационных членов R_VT.
 % 11.10.2020
 % M1 is the first molecule, n_m is the array of M1's number
 % densities (n_i), M2 is the collision partner, n_M2 is the number density
@@ -28,8 +26,8 @@ R(core)=n_M2*(k_down(core).*n_m(core+1)+k_up(core-1).*n_m(core-1)...
                        -k_down(core-1).*n_m(core)-k_up(core).*n_m(core));
     % заполняем для первого и последнего уровней
 R(1)=n_M2*(k_down(1)*n_m(2)-k_up(1)*n_m(1));
-R(M1.num_vibr_levels(ind_e))=...
-  n_M2*(k_up(M1.num_vibr_levels(ind_e)-1)*n_m(M1.num_vibr_levels(ind_e)-1)...
-    -k_down(M1.num_vibr_levels(ind_e)-1)*n_m(M1.num_vibr_levels(ind_e)));
+R(M1.num_vibr_levels(ind_e))= n_M2* ...
+    (k_up(M1.num_vibr_levels(ind_e)-1)*n_m(M1.num_vibr_levels(ind_e)-1)...
+     -k_down(M1.num_vibr_levels(ind_e)-1)*n_m(M1.num_vibr_levels(ind_e)));
 out=R;
 end
