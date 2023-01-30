@@ -88,7 +88,7 @@ init_c=[
     v1 = NN(3);     % dimensionless
  disp([num2str(i_ini) ': T1=' num2str(T1*T0) ', T0=' num2str(T0) ...
                 ', v1=' num2str(v1*v0) ', n1=' num2str(n1*n0, '%1.3e')])
-    sigma0 = pi*Coll_CO_CO.coll_diameter^2;
+    sigma0 = pi*CO.diameter^2;%Coll_CO_CO.coll_diameter^2;
     Delta = 1 / sqrt(2) / n0 / sigma0;
  xspan=[0 1e0]/Delta; % 1e5, 4e1 for tc7 test
     disp([num2str(i_ini) ': xspan=' num2str(xspan(2),'%.2e')])
@@ -246,7 +246,7 @@ kinetics.Delta=Delta;
  En0=n0*e_i*n/n1+n0*f*k*T0 + 1.5*n0*k*T0+n0*f*CO.form_e;
  Ep0=(En0+p0)/(n0*(f*CO.mass+(1-f)*Ar.mass))+0.5*v0^2;
  disp([num2str(i_ini) ': conservation laws check'])
- check_CL_SW([rhov0 rhov2p0 Ep0], Y2, kinetics);
+ check_CL_SW([rhov0 rhov2p0 Ep0], Y2, kinetics, 0);
    end
   end
 %  end
