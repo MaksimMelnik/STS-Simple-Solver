@@ -105,7 +105,7 @@ end
 En0=n0*e_i*n/n1 + n0*k*T0 + 1.5*n0*k*T0 + n0*O2.form_e;
 Ep0=(En0+n0*k*T0)/(n0*O2.mass)+0.5*v0^2;       % (E0+p0)/rho0+v0^2/2
 disp('Conservation laws check')
-check_CL_SW([rhov0 rhov2p0 Ep0], Y, kinetics);
+check_CL_SW([rhov0 rhov2p0 Ep0], Y, kinetics, 1);
   end
  end
 end

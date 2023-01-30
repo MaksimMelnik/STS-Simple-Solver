@@ -33,10 +33,12 @@ O.num_vibr_levels=1;                % actually atom has no vibr levels
 O.e_E=0;                            % electronic excitation energy
 O.fr_deg_c=3;                       % freedom degree for room temperature
 O.EM=80;                            % Parameter ε/k (Lennard-Jones), К
+O.BMbeta=4.14;              % beta parameter of Born-Mayer potential, A^-1
 
 N.name='N';
 N.mass=2.32587E-26;
 N.diameter=3.29800E-10;
+N.BMbeta=2.68;              % beta parameter of Born-Mayer potential, A^-1
 
 
 CO.name='CO';
@@ -170,10 +172,12 @@ O2.r_e=1.20752e-10;                 % internuclear distance, m
 O2=ev_i_ini(O2);                    % vibr energy
 O2.fr_deg_c=5;                      % freedom degree for room temperature
 O2.EM=107.4;                        % Parameter ε/k (Lennard-Jones), К
+O2.BMbeta=3.964;            % beta parameter of Born-Mayer potential, A^-1
 
 
 N2.name='N2';                       % data from DB work-v5
 N2.mass=4.65173E-26;                % kg
+N2.m_mass=28.0134;
 N2.red_osc_mass=0.5*N.mass;
 N2.diameter=3.4039E-10;             % m
 N2.num_elex_levels=1;               % number of electronical levels
@@ -195,6 +199,13 @@ N2.e_E=0;
 N2.r_e=1.09768E-10;                 % internuclear distance, m
 N2=ev_i_ini(N2);                    % vibr energy
 N2.EM=97.53;                        % Parameter ε/k (Lennard-Jones), К
+N2.BMbeta=2.573;            % beta parameter of Born-Mayer potential, A^-1
+
+NO.name='NO';
+NO.mass=4.98263E-26;
+NO.diameter=3.4061E-10;
+NO.EM=119;
+NO.BMbeta=3.303;            % beta parameter of Born-Mayer potential, A^-1
 
 
 
@@ -256,10 +267,7 @@ N2.EM=97.53;                        % Parameter ε/k (Lennard-Jones), К
     Coll_C2.ArrA(7)   =3.72e14/N_a*1e-6;    Coll_C2.ArrN(7)   =0;
     Coll_CO_C__C2_O.ArrA(7)=6e-10/1e6;       Coll_CO_C__C2_O.ArrN(7)=0; 
 
-    
-% save par_data CO C O Ar C2 ...
-%     Coll_CO_CO Coll_CO_C Coll_CO_O Coll_CO_C2 Coll_CO_Ar Coll_C2 ...
-%     Coll_CO_C__C2_O
+save particles.mat C O N CO C2 Ar O2 N2 NO
 
 addpath('../src/')
 

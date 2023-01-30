@@ -17,7 +17,7 @@ switch model
         error('FHO VV is not implemented yet')
 %         k_down=kvv_fho_old(T, M1, M2, ind_e1)';
     case 'SSH'
-        k_down=kvv_ssh(T, M1, M2, ind_e1, 1);
+        k_down=kvv_ssh(T, M1, M2, ind_e1, ind_e2, 1);
 end
 k_up=k_down.*exp((M1.ev_i{ind_e1}(1:end-1)'+M2.ev_i{ind_e2}(2:end)...
                  -M1.ev_i{ind_e1}(2:end)'-M2.ev_i{ind_e2}(1:end-1))/k/T);

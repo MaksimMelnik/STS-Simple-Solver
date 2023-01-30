@@ -51,7 +51,6 @@ for indM1=1:kinetics.num_Ps     % considering each particle
                             T, ind_e1, ind_e2, kinetics.reactions('VV'));
         R_VV_data(i1_e)=R_VV_data(i1_e)+sum(R_VV_data_temp, 2);
         if M2.name~=M1.name
-            warning("VV' is still not implemented")
          R_VV_data(i2_e)=R_VV_data(i2_e)+sum(R_VV_data_temp, 1)';
         end
        end
