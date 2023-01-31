@@ -2,7 +2,7 @@ function kdown = kvv_ssh(t, M1, M2, ind_e1, ind_e2, anharm)
 % rate coef-s of VV exchanges, AB - CD
 % kdown - array of k_(i->i-1)^(j->j+1)
 % t - temperature, K
-% Modification for a universal mixture.
+% Modification for an universal mixture.
 % t is the temperature; M1 is the first molecule; M2 is the partner 
 % particle; ind_e1 is the number of the electronic state of M1; 
 % ind_e2 is the number of the electronic state of M2; 

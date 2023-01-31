@@ -25,9 +25,9 @@ init_c=[ % n0, m-3;   v0, m/s;   T0, K;   n1, DN;   v1, DN;   T1, DN
     6.950596402478228e+22	3070	2.778507787437617e+02 ...
      5.694648485891184e+00  1.756034639324195e-01   1.907439874030552e+01
      ];
-for i_ini=1%:5
- for i_U=2%:4
-  for i_vibr=1%:2
+for i_ini=1:5
+ for i_U=2:4
+  for i_vibr=2%:2
    n0=init_c(i_ini, 1);   % m-3
    v0=init_c(i_ini, 2);   % m/s
    T0=init_c(i_ini, 3);   % K
@@ -35,7 +35,7 @@ for i_ini=1%:5
    v1=init_c(i_ini, 5);   % DN
    T1=init_c(i_ini, 6);   % DN
    
-sigma0 = pi*O2.diameter^2;
+   sigma0 = pi*O2.diameter^2;
 Delta = 1 / sqrt(2) / n0 / sigma0;
 
 num=0;

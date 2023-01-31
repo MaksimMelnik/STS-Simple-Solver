@@ -14,8 +14,8 @@ k = 1.380649e-23;
 
 switch model
     case 'FHO'
-        error('FHO VV is not implemented yet')
-%         k_down=kvv_fho_old(T, M1, M2, ind_e1)';
+%         error('FHO VV is not implemented yet')
+        k_down=kvv_fho_old(T, M1, M2, ind_e1, ind_e2);
     case 'SSH'
         k_down=kvv_ssh(T, M1, M2, ind_e1, ind_e2, 1);
 end
