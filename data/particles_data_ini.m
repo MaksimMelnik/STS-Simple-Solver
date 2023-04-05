@@ -38,6 +38,8 @@ O.BMbeta=4.14;              % beta parameter of Born-Mayer potential, A^-1
 N.name='N';
 N.mass=2.32587E-26;
 N.diameter=3.29800E-10;
+N.num_elex_levels=1;                % number of electronic levels
+N.num_vibr_levels=1;                % actually atom has no vibr levels
 N.BMbeta=2.68;              % beta parameter of Born-Mayer potential, A^-1
 
 
@@ -204,6 +206,8 @@ N2.BMbeta=2.573;            % beta parameter of Born-Mayer potential, A^-1
 NO.name='NO';
 NO.mass=4.98263E-26;
 NO.diameter=3.4061E-10;
+NO.num_elex_levels=1;               % number of electronic levels
+NO.num_vibr_levels=1;               % actually atom has no vibr levels
 NO.EM=119;
 NO.BMbeta=3.303;            % beta parameter of Born-Mayer potential, A^-1
 
@@ -268,6 +272,8 @@ NO.BMbeta=3.303;            % beta parameter of Born-Mayer potential, A^-1
     Coll_CO_C__C2_O.ArrA(7)=6e-10/1e6;       Coll_CO_C__C2_O.ArrN(7)=0; 
 
 save particles.mat C O N CO C2 Ar O2 N2 NO
+save CO_C_O_Ar_C2.mat CO C O Ar C2
+save O2_O O2 O
 
 addpath('../src/')
 
