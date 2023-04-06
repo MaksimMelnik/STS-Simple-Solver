@@ -1,4 +1,4 @@
-
+function out=O2O_SW_Shatalov
 % The main function for the macroparameters calculation behind SW for
 % Shatalov's experiment conditions.
 % 27.12.2022 Maksim Melnik
@@ -116,3 +116,4 @@ semilogx(X, T, X, Tv, 'linewidth', 1.5)
 rmpath('../src/')
 rmpath('../data/')
 toc
+end
