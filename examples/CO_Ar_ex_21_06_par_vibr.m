@@ -23,19 +23,19 @@ addpath('../src/')
 addpath('../data/')
 
 tic
-for i_ini=[8]  % initial conditions test cases
+for i_ini=2:3  % initial conditions test cases
                 % 2 -- Fairbairn 8a,    3 -- Aliat's test case,
                 % 4 -- Mick's fig 3a,   5 -- Appleton fig 3.
                 % 6 -- mod Aliat low p, 7 -- mod Fairbairn 8a, high p
                 % 8 -- Fairbairn 8f,    9 -- Fairbairn 8e
 %  for i_exc=0%:1   % is electronic excitation on?
-  for i_dis=3     % 1 -- Marrone-Treanor wo e exc., 2 -- MT with E exc.,
+  for i_dis=1:3     % 1 -- Marrone-Treanor wo e exc., 2 -- MT with E exc.,
                         % 3 -- Aliat model, 4 -- Savelev model
-   for ind_U=3      % U parameter in MT and Aliat models
+   for ind_U=2:4      % U parameter in MT and Aliat models
                         % 2 -- D/6k, 3 -- 3T, 4 -- Inf
 %% variables 
 % particles_data_ini;   % initialisation of particles and collisions data
-load CO_C_O_Ar_C2.mat       % load of saved particle data
+load particles CO C O Ar C2     % load of saved particle data
 % is electronic excitaion on?
  ind_exc=1;      % COa and COA included (1), only CO(X) (0)
  if i_dis==1
