@@ -58,9 +58,9 @@ switch var
     nm_exp=nm_exp(:,2);
 end
 
-%%Temperature
-figure("Position", [0, 0, 1300, 400])
-tiledlayout(1, 3, "TileSpacing", "compact", "Padding", "tight")
+%%Temperature & Number density
+figure("Position", [0, 0, 850, 800])
+tiledlayout(2, 2, "TileSpacing", "compact", "Padding", "tight")
 nexttile
 hold on
 plot(time_T_exp, T_exp, 'k--', 'LineWidth', 1.5, 'DisplayName', "T - exp case " + num2str(var));
@@ -86,6 +86,23 @@ xlabel("t, \mu s");
 ylabel("T_v, K");
 hold off
 grid minor
+
+nexttile
+hold on
+title("Case " + info(var));
+plot(dat1(i_vibr,2,var).time, dat1(i_vibr,2,var).T,'r--', 'LineWidth', 1.5, 'DisplayName', "T - U=D/6k " );
+plot(dat1(i_vibr,3,var).time, dat1(i_vibr,3,var).T,'b--', 'LineWidth', 1.5, 'DisplayName', "T - U=3T " );
+plot(dat1(i_vibr,4,var).time, dat1(i_vibr,4,var).T, 'm--','LineWidth', 1.5, 'DisplayName', "T - U=inf " );
+plot(dat1(i_vibr,2,var).time, dat1(i_vibr,2,var).Tv,'r-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=D/6k " );
+plot(dat1(i_vibr,3,var).time, dat1(i_vibr,3,var).Tv,'b-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=3T " );
+plot(dat1(i_vibr,4,var).time, dat1(i_vibr,4,var).Tv, 'm-','LineWidth', 1.5, 'DisplayName', "Tv - U=inf " );
+xlim([0 450]);
+legend('Location','se');
+xlabel("t, \mu s");
+ylabel("T_v, K");
+hold off
+grid minor
+
 nexttile 
 hold on
 plot(time_n_exp, nm_exp, 'k--', 'LineWidth', 1.5, 'DisplayName', "n_m - exp case " + num2str(var));
@@ -99,5 +116,15 @@ xlim([0 50]);
 hold off
 grid minor
 
+%%Pressure
 
+PPP(:,1)=[75 53 30 130 97 33];
+PPP(:,2)=[0.12 0.30 0.36 0.09 0.23 0.29];
+PPP(var, 3)=dat1(i_vibr,2,var).p(1);
+a=polyfit(dat1(i_vibr,2,var).time(1:118),dat1(i_vibr,2,var).p(1:118), 1);
+PPP(var, 4)=a(1);
+PPP(var, 5)=a(2);
+Pressure=array2table(PPP, "VariableNames",["p0 - exp","dp/dt - exp", "p_behindRSW U=D/6k",...
+    "dp/dt U=D/6k", "p0_interp U=D/6k"]);
 end
+disp(Pressure);

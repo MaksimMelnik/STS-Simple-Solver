@@ -1,6 +1,5 @@
 
-% The main function for the macroparameters calculation behind reflected SW for
-% Streicher's experiment conditions in pure O2.
+% The main function for the macroparameters calculation behind reflected SW for Streicher's experiment conditions in pure O2.
 % 06.04.2023 Denis Kravchenko
 
 tic
@@ -156,24 +155,24 @@ check_CL_SW([rhov0_1 rhov2p0_1 Ep0_1], Y_1, kinetics, 0);
 end
 
 %%
-load('O2O_Streicher_behind_ReflSW.mat');
-load('O2O_Streicher_between_SWs.mat');
-figure("Position", [0, 0, 700, 330])
-tiledlayout(1, 2, "TileSpacing", "compact", "Padding", "tight")
-nexttile
-plot(time_ms, T, time_ms, Tv, 'linewidth', 1.5);
-xlim([0 50]);
-nexttile
-plot(time_ms_1, T_1, time_ms_1, Tv_1, 'linewidth', 1.5);
-xlim([0 50]);
-
-figure("Position", [0, 0, 700, 330])
-tiledlayout(1, 2, "TileSpacing", "compact", "Padding", "tight")
-nexttile
-plot(dat(1,3,3,1,2).time, dat(1,3,3,1,2).T, dat(1,3,3,1,2).time, dat(1,3,3,1,2).Tv);
-nexttile
-plot(data_1(1,3,3,1,2).time, data_1(1,3,3,1,2).T, data_1(1,3,3,1,2).time, data_1(1,3,3,1,2).Tv01);
-xlim([0 50]);
+% load('O2O_Streicher_behind_ReflSW.mat');
+% load('O2O_Streicher_between_SWs.mat');
+% figure("Position", [0, 0, 700, 330])
+% tiledlayout(1, 2, "TileSpacing", "compact", "Padding", "tight")
+% nexttile
+% plot(time_ms, T, time_ms, Tv, 'linewidth', 1.5);
+% xlim([0 50]);
+% nexttile
+% plot(time_ms_1, T_1, time_ms_1, Tv_1, 'linewidth', 1.5);
+% xlim([0 50]);
+% 
+% figure("Position", [0, 0, 700, 330])
+% tiledlayout(1, 2, "TileSpacing", "compact", "Padding", "tight")
+% nexttile
+% plot(dat(1,3,3,1,2).time, dat(1,3,3,1,2).T, dat(1,3,3,1,2).time, dat(1,3,3,1,2).Tv);
+% nexttile
+% plot(data_1(1,3,3,1,2).time, data_1(1,3,3,1,2).T, data_1(1,3,3,1,2).time, data_1(1,3,3,1,2).Tv01);
+% xlim([0 50]);
 rmpath('../src/')
 rmpath('../data/')
 toc
