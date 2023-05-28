@@ -37,10 +37,15 @@ O.BMbeta=4.14;              % beta parameter of Born-Mayer potential, A^-1
 
 N.name='N';
 N.mass=2.32587E-26;
+N.s_e=4;
 N.diameter=3.29800E-10;
 N.num_elex_levels=1;                % number of electronic levels
 N.num_vibr_levels=1;                % actually atom has no vibr levels
 N.BMbeta=2.68;              % beta parameter of Born-Mayer potential, A^-1
+N.EM=71.4;
+N.fr_deg_c=3;
+N.form_e=7.81808E-19;
+N.e_E=0;                            % electronic excitation energy
 
 
 CO.name='CO';
@@ -182,12 +187,30 @@ N2.mass=4.65173E-26;                % kg
 N2.m_mass=28.0134;
 N2.red_osc_mass=0.5*N.mass;
 N2.diameter=3.4039E-10;             % m
+N2.sigma=2;
+N2.Be=[199.824      145.460     163.745     147.000...
+147.330     147.990     161.690     149.800...
+92.100      92.800      182.473];
+N2.form_e=0;
+N2.form_e_atoms_sum=2*N.form_e;
 N2.num_elex_levels=1;               % number of electronical levels
 N2.num_vibr_levels=47;              % number of vibrational levels
 N2.diss_e=[ 1.56362E-18 5.89862E-19 7.84447E-19 7.80693E-19 8.43286E-19...
             9.96818E-19 9.74372E-19 9.18473E-19 6.84927E-20 2.22661E-19...
             1.98088E-19];           % J
+keys={'Ar', 'C', 'N', 'O', 'C2', 'N2', 'O2', 'CN', 'CO', 'NO', 'CO2'};
+val_A=[7e21, 3e22, 3e22, 3e22, 7e21, 7e21, 7e21, 7e21, 7e21, ...
+                                                    7e21, 7e21]/N_a*1e-6;
+val_n = num2cell(val_A*0 - 1.6);
+val_A = num2cell(val_A);
+N2.diss_Arrhenius_A=containers.Map(keys, val_A);
+N2.diss_Arrhenius_n=containers.Map(keys, val_n);
 N2.diss_parts=["N", "N"];
+N2.mltpl_atoms_mass=N.mass^2;
+N2.mltpl_atoms_s_e=N.s_e(1)^2;
+N2.s_e=[1,      3,       6,      6,...
+3,      1,      2,      2,...
+5,      6,      6];
 N2.we=[     235857      146064      173339      150140      151688 ...
             153025      169420      155926      66700       74249 ...
             204718];                % m-1
@@ -200,16 +223,62 @@ N2.weye=[   -0.226      1.030       -5.690      0.000       4.186 ...
 N2.e_E=0;
 N2.r_e=1.09768E-10;                 % internuclear distance, m
 N2=ev_i_ini(N2);                    % vibr energy
+N2.fr_deg_c=5;                      % freedom degree for room temperature
 N2.EM=97.53;                        % Parameter ε/k (Lennard-Jones), К
 N2.BMbeta=2.573;            % beta parameter of Born-Mayer potential, A^-1
 
+
+
 NO.name='NO';
 NO.mass=4.98263E-26;
+NO.m_mass=30.0061;                  % molar mass
+NO.red_osc_mass=1.24*1e-26;
 NO.diameter=3.4061E-10;
+NO.sigma=1;
+NO.Be=[167.195  112.750  199.650    112.440...
+133.580     200.000     200.260     112.750...
+133.200     198.630     198.200     200.300...
+125.230     113.200     203.400]; % m-1
+NO.form_e=1.50711E-19;
+NO.form_e_atoms_sum=N.form_e+O.form_e;
 NO.num_elex_levels=1;               % number of electronic levels
-NO.num_vibr_levels=1;               % actually atom has no vibr levels
-NO.EM=119;
+NO.num_vibr_levels=47;               % actually atom has no vibr levels
+NO.diss_e=[1.04090E-18      2.88770E-19     5.68183E-19     5.29124E-19...
+4.20809E-19     4.04897E-19     3.87059E-19     3.76074E-19...
+2.42446E-19     2.37182E-19     2.13920E-19     2.00552E-19...
+1.91791E-19     3.80285E-19     3.59666E-19];   % J
+keys={'Ar', 'C', 'N', 'O', 'C2', 'N2', 'O2', 'CN', 'CO', 'NO', 'CO2'};
+val_A=[5e15, 1.1e17, 1.1e17, 1.1e17, 5e15, 5e15, 5e15, 5e15, 5e15, ...
+                                                    1.1e17, 1.1e17]/N_a*1e-6;
+val_n = num2cell(val_A*0 - 0);
+val_A = num2cell(val_A);
+NO.diss_Arrhenius_A=containers.Map(keys, val_A);
+NO.diss_Arrhenius_n=containers.Map(keys, val_n);
+NO.diss_parts=["N", "O"];
+NO.mltpl_atoms_mass=O.mass*N.mass;
+NO.mltpl_atoms_s_e=O.s_e*N.s_e;
+NO.s_e=[4 ,      8 ,      2 ,      4,...
+4,       4,       2 ,      4 ,      4,...
+2,       4,       2 ,      2 ,      4 ,      4];
+NO.we=[190420.00        101900.00       237471.00       103720.00...
+120600.00       239500.00       232390.00       100440.00...
+121740.00       237530.00       239400.00       233940.00...
+108554.00       95200.00        243830.00];      % m-1
+NO.wexe=[1407.50        1280.00     1610.60     777.00...
+1500.00     1500.00     2288.50     1100.00...
+1561.00     1640.00     2000.00     0.00...
+1108.30     1128.00     4838.00];        % m-1
+NO.weye=[1.100      0.000       -4.650      10.000...
+0.000       0.000       75.000      0.000...
+0.000       0.000       0.000       0.000...
+-14.390     0.000       0.000];         % m-1
+NO.e_E=0;
+NO.r_e=1.15*1e-10;                 % internuclear distance, m
+NO=ev_i_ini(NO);                    % vibr energy
+NO.fr_deg_c=5;                      % freedom degree for room temperature
+NO.EM=119;                      % Parameter ε/k (Lennard-Jones), К
 NO.BMbeta=3.303;            % beta parameter of Born-Mayer potential, A^-1
+
 
 
 
@@ -223,6 +292,8 @@ NO.BMbeta=3.303;            % beta parameter of Born-Mayer potential, A^-1
     Coll_CO_C2.ArrA(1)=2.3e20/N_a*1e-6;     Coll_CO_C2.ArrN(1)=-1;
     Coll_C2.ArrA(1)   =3.7e14/N_a*1e-6;     Coll_C2.ArrN(1)   = 0;
     Coll_CO_C__C2_O.ArrA(1)=2e17/N_a*1e-6;  Coll_CO_C__C2_O.ArrN(1)=-1;
+    Coll_NO_O__N_O2.ArrA(1)=8.4e12/N_a*1e-6; Coll_NO_O__N_O2.ArrN(1)=0;
+    Coll_N2_O__NO_N.ArrA(1)=6.4e17/N_a*1e-6; Coll_N2_O__NO_N.ArrN(1)=-1;
 % Ibraguimova
     Coll_CO_CO.ArrA(2)=2.8e21/N_a*1e-6;     Coll_CO_CO.ArrN(2)=-1.39;
     Coll_CO_C.ArrA(2) =1.4e22/N_a*1e-6;     Coll_CO_C.ArrN(2) =-1.39;
@@ -272,8 +343,8 @@ NO.BMbeta=3.303;            % beta parameter of Born-Mayer potential, A^-1
     Coll_CO_C__C2_O.ArrA(7)=6e-10/1e6;       Coll_CO_C__C2_O.ArrN(7)=0; 
 
 save particles.mat C O N CO C2 Ar O2 N2 NO
-save CO_C_O_Ar_C2.mat CO C O Ar C2
-save O2_O O2 O
+%save CO_C_O_Ar_C2.mat CO C O Ar C2
+%save O2_O O2 O
 
 addpath('../src/')
 
