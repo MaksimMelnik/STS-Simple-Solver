@@ -26,7 +26,7 @@ O.diameter=2.75e-10;
 O.s_e=5;                            % from DB, Capitelli
 O.s_e=9;                            % staticsical weigth
 O.m_mass=15.999;                    % molar mass
-O.form_e= 4.098045681049634e-19;    % online table for kappa
+O.form_e= 4.098045681049634e-19;    % DBparticles
 O.form_e= 4.098111014876693e-19;    % by Alena Kosareva
 O.num_elex_levels=1;                % number of electronic levels
 O.num_vibr_levels=1;                % actually atom has no vibr levels
@@ -38,8 +38,11 @@ O.BMbeta=4.14;              % beta parameter of Born-Mayer potential, A^-1
 N.name='N';
 N.mass=2.32587E-26;
 N.diameter=3.29800E-10;
+N.form_e = 7.81808E-19;             % DBparticles
 N.num_elex_levels=1;                % number of electronic levels
 N.num_vibr_levels=1;                % actually atom has no vibr levels
+N.e_E=0;                            % electronic excitation energy
+N.fr_deg_c=3;                       % freedom degree for room temperature
 N.BMbeta=2.68;              % beta parameter of Born-Mayer potential, A^-1
 
 
@@ -182,6 +185,8 @@ N2.mass=4.65173E-26;                % kg
 N2.m_mass=28.0134;
 N2.red_osc_mass=0.5*N.mass;
 N2.diameter=3.4039E-10;             % m
+N2.sigma=2;
+N2.form_e=0;
 N2.num_elex_levels=1;               % number of electronical levels
 N2.num_vibr_levels=47;              % number of vibrational levels
 N2.diss_e=[ 1.56362E-18 5.89862E-19 7.84447E-19 7.80693E-19 8.43286E-19...
@@ -200,6 +205,7 @@ N2.weye=[   -0.226      1.030       -5.690      0.000       4.186 ...
 N2.e_E=0;
 N2.r_e=1.09768E-10;                 % internuclear distance, m
 N2=ev_i_ini(N2);                    % vibr energy
+N2.fr_deg_c=5;                      % freedom degree for room temperature
 N2.EM=97.53;                        % Parameter ε/k (Lennard-Jones), К
 N2.BMbeta=2.573;            % beta parameter of Born-Mayer potential, A^-1
 
@@ -272,10 +278,9 @@ NO.BMbeta=3.303;            % beta parameter of Born-Mayer potential, A^-1
     Coll_CO_C__C2_O.ArrA(7)=6e-10/1e6;       Coll_CO_C__C2_O.ArrN(7)=0; 
 
 save particles.mat C O N CO C2 Ar O2 N2 NO
-save CO_C_O_Ar_C2.mat CO C O Ar C2
 save O2_O O2 O
 
-addpath('../src/')
+rmpath('../src/')
 
 function out=ev_i_ini(M)
 % automatic vibrational energy calculation
