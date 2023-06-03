@@ -22,6 +22,7 @@ C.EM=71.4;                          % Parameter ε/k (Lennard-Jones), К
 
 O.name='O';
 O.mass=2.6567628316576e-26;         % kg
+O.m_mass=15.999;
 O.diameter=2.75e-10;
 O.s_e=5;                            % from DB, Capitelli
 O.s_e=9;                            % staticsical weigth
@@ -37,6 +38,7 @@ O.BMbeta=4.14;              % beta parameter of Born-Mayer potential, A^-1
 
 N.name='N';
 N.mass=2.32587E-26;
+N.m_mass=14.0067;
 N.s_e=4;
 N.diameter=3.29800E-10;
 N.num_elex_levels=1;                % number of electronic levels
