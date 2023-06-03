@@ -1,4 +1,4 @@
-function out=Air_discharge_Hubner
+function out=Air_discharge_Hubner_0D
 % The main function for the macroparameters calculation in the afterglow
 % of the electric discharge.
 % Hubner's experiment conditions [1] accounting data Pintassilgo et al [2]
@@ -31,8 +31,6 @@ for i_ini=1             % choosing desired initial coonditions
                         %   1 is for SSH; 2 is for FHO
    T0     = init_c(i_ini, 4);         % K
    n0     = init_c(i_ini, 1)/k/T0;    % m-3
-   t0     = 1e-8;                     % here might be a problem (this 
-                                      %   value is just from Shatalov tc)
    f_O2_0 = init_c(i_ini, 2);
    T3     = init_c(i_ini, 5) /T0;
    f_O_3  = init_c(i_ini, 6);
@@ -40,10 +38,11 @@ for i_ini=1             % choosing desired initial coonditions
    
    sigma0 = pi*N2.diameter^2;
    Delta = 1 / sqrt(2) / n0 / sigma0; % characteristic length, m
+   t0    = 1 / (4 * n0 * N2.diameter^2 * sqrt(pi * k * T0 / N2.mass));
 
    num=0;
    index{1}=0;
-   Ps={num, N2, O2, N, O};            % w/o NO
+   Ps={num, N2, O2, N, O};            % w/o NO       
    for ind=2:length(Ps)
     num_v_states=sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
     num=num+num_v_states;
@@ -67,10 +66,12 @@ for i_ini=1             % choosing desired initial coonditions
 	case 2
 	 model_VT='FHO';
    end
-   Reacs_keys={'Diss', 'VT'};
-%    Reacs_keys={'Diss', 'VT', 'VV'};
-   reacs_val={Diss, model_VT};
-%    reacs_val={Diss, model_VT, model_VT};
+%    Reacs_keys={'VT'};
+%    Reacs_keys={'Diss', 'VT'};
+   Reacs_keys={'Diss', 'VT', 'VV'};
+%    reacs_val={model_VT};
+%    reacs_val={Diss, model_VT};
+   reacs_val={Diss, model_VT, model_VT};
    kinetics.Ps=Ps(2:end);
    kinetics.num_Ps=length(kinetics.Ps);
    kinetics.num_eq=num;
@@ -80,7 +81,8 @@ for i_ini=1             % choosing desired initial coonditions
    kinetics.T0=T0;
    kinetics.Delta=Delta;
    kinetics.t0=t0;
-   xspan=[0.005 0.015]/t0;
+   xspan=[0.005 0.015]/t0;      % the Hubner experiment measurments time
+   xspan=[0.005 0.120]/t0;
    load('../data/Pintassilgo2014_N2_VDF_post_DC.mat', ...
                                         'Pintassilgo2014_N2_VDF_post_DC')
    i_vec=0:30;
@@ -102,23 +104,25 @@ for i_ini=1             % choosing desired initial coonditions
                                     'NonNegative', 1:kinetics.num_eq+1); 
    [X, Y]=ode15s(@(t, y) Rpart_ODE_0D(t, y, kinetics), xspan, y0, ...
                                                             options_s);
-%    остановился
 
-t=X*t0;
-Y(:, 1:end-1)=Y(:, 1:end-1)*n0;
-Y(:, end)=Y(:, end)*T0;
-T=Y(:, end);
-Tv = N2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
+   t=X*t0;
+   Y(:, 1:end-1)=Y(:, 1:end-1)*n0;
+   Y(:, end)=Y(:, end)*T0;
+   T=Y(:, end);
+   Tv = N2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
+%    Tv = O2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
    out(i_ini, i_vibr, i_U).res=[t, Y, Tv];
 
-disp('Conservation laws check')
-check_CL_SW([1 1 1], [Y(:, 1:end-1) T*0 T], kinetics, 1);
+   disp('Conservation laws check')
+   check_CL_0D([1 1], Y, kinetics, 1);
   end
  end
 end
 
 figure
-semilogx(t, T, t, Tv, 'linewidth', 1.5)
+plot(t*1e3, T, t*1e3, Tv, '-.', 'linewidth', 1.5)
+legend('T', 'Tv', 'location', 'best')
+% xlim([6e-2 1.5e-1])
 
 rmpath('../src/')
 toc
