@@ -12,9 +12,8 @@ R_diss_data2=zeros(kinetics.num_eq, 1);
 R_VE_data2=zeros(kinetics.num_eq, 1);
 R_exch_data2=zeros(kinetics.num_eq, 1);
 y2=y;
-if isKey(kinetics.reactions, 'Exch')
-    error('Exchange reactions are still not implemented.')
-end
+
+
 for indM1=1:kinetics.num_Ps     % considering each particle
  M1=kinetics.Ps{indM1};
  i1=kinetics.index{indM1};      % pointer on ni of M1
@@ -116,6 +115,42 @@ for indM1=1:kinetics.num_Ps     % considering each particle
    R_diss_data2(iP1)=R_diss_data2(iP1)-sum(R_diss_data2(i1));
    R_diss_data2(iP2)=R_diss_data2(iP2)-sum(R_diss_data2(i1));
   end
+
+   if isKey(kinetics.reactions, 'Exch') %exchange reactions
+   if (M1.name=="NO") %first reaction NO+O->O2 + N
+       %M1=NO
+    indO=kinetics.index{2};
+    indN=kinetics.index{3};
+    indO2=kinetics.index{4};
+    indNO=kinetics.index{1};
+    N_a=6.02214076e23; 
+    coll.ArrA(1)=8.4e12/N_a*1e-6; coll.ArrN(1)=0; %Arrhenius parameters from Park
+    R_exch_temp=R_exch_NO_O__O2_N(M1, kinetics.Ps{4} , y2(indNO),...
+        y2(indO), y2(indO2),  y2(indN), coll, T);
+    %если я правильно понимаю для тех кто слева надо +, а для тех кто
+    %справа -
+    R_exch_data2(indNO)=R_exch_data2(indNO) + sum(R_exch_temp,1)'; 
+    R_exch_data2(indO2)=R_exch_data2(indO2) - sum(R_exch_temp,2);
+    R_exch_data2(indO)=R_exch_data2(indO) + sum(R_exch_data2(indNO));
+    R_exch_data2(indN)=R_exch_data2(indN) - sum(R_exch_data2(indNO));
+   end
+   if (M1.name=="N2") %second reaction N2 + O -> NO + N
+    indO=kinetics.index{2};
+    indN=kinetics.index{3};
+    indN2=kinetics.index{5};
+    indNO=kinetics.index{1};
+    N_a=6.02214076e23; 
+    coll.ArrA(1)=6.4e17/N_a*1e-6; coll.ArrN(1)=-1; %Arrhenius parameters from Park
+    R_exch_temp=R_exch_N2_O__NO_N(M1, kinetics.Ps{1} , y2(indN2),...
+        y2(indO), y2(indNO),  y2(indN), coll, T);
+    %если я правильно понимаю для тех кто слева надо +, а для тех кто
+    %справа -
+    R_exch_data2(indN2)=R_exch_data2(indN2) + sum(R_exch_temp,1)';
+    R_exch_data2(indNO)=R_exch_data2(indNO) - sum(R_exch_temp,2);  
+    R_exch_data2(indO)=R_exch_data2(indO) + sum(R_exch_data2(indN2));
+    R_exch_data2(indN)=R_exch_data2(indN) - sum(R_exch_data2(indN2));
+   end
+ end
   
  end
 end

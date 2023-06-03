@@ -10,7 +10,7 @@ v_DN=y2(end-1);     % dimentionless gas velocity
 T_DN=y2(end);
 
     % relaxation terms
-R=Rci(y2, kinetics);
+R=Rci(y2, kinetics); %rpart for NO
     % number densities equations
 M2 = diag([ones(1, kinetics.num_eq)*v_DN 0 0]);
 M2(1:end-2, end-1) = y2(1:end-2);
