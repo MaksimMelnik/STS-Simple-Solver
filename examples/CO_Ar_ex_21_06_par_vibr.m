@@ -22,32 +22,7 @@ Torr = 133.322368;          % how much Pa in Torr
 addpath('../src/')
 addpath('../data/')
 
-tic
-for i_ini=2:3  % initial conditions test cases
-                % 2 -- Fairbairn 8a,    3 -- Aliat's test case,
-                % 4 -- Mick's fig 3a,   5 -- Appleton fig 3.
-                % 6 -- mod Aliat low p, 7 -- mod Fairbairn 8a, high p
-                % 8 -- Fairbairn 8f,    9 -- Fairbairn 8e
-%  for i_exc=0%:1   % is electronic excitation on?
-  for i_dis=1:3     % 1 -- Marrone-Treanor wo e exc., 2 -- MT with E exc.,
-                        % 3 -- Aliat model, 4 -- Savelev model
-   for ind_U=2:4      % U parameter in MT and Aliat models
-                        % 2 -- D/6k, 3 -- 3T, 4 -- Inf
-%% variables 
-% particles_data_ini;   % initialisation of particles and collisions data
-load particles CO C O Ar C2     % load of saved particle data
-% is electronic excitaion on?
- ind_exc=1;      % COa and COA included (1), only CO(X) (0)
- if i_dis==1
-  ind_exc=0;
- end
-%     checkX=1e-3;  % был такой параметр для вывода промежуточных значений
-
-    % number of electronic states
-if ind_exc==0
- CO.num_elex_levels=1;
-end
-    
+tic    
         %   f       p0, Torr     v0, m/sec       T0, K      T2, K
 init_c=[    
                 % 1, высокотемпературный случай для чистого СО
@@ -73,6 +48,31 @@ init_c=[
                 % 9, Fairbairn, случай 8e (T0 не точно)
             0.001   10          3080            297         8800
         ];
+
+for i_ini = 2:3 % [1 2 3 4 5 6 7 8 9]  % initial conditions test cases
+                    % 2 -- Fairbairn 8a,    3 -- Aliat's test case,
+                    % 4 -- Mick's fig 3a,   5 -- Appleton fig 3.
+                    % 6 -- mod Aliat low p, 7 -- mod Fairbairn 8a, high p
+                    % 8 -- Fairbairn 8f,    9 -- Fairbairn 8e
+%  for i_exc=0%:1   % is electronic excitation on?
+  for i_dis = 3 % [1 2 3]  % 1 -- Marrone-Treanor wo e exc.,
+                           % 2 -- MT with E exc.,
+                           % 3 -- Aliat model, 4 -- Savelev model
+   for ind_U = 3 % [2 3 4] % U parameter in MT and Aliat models
+                           % 2 -- D/6k, 3 -- 3T, 4 -- Inf
+    for ind_C2 = 1 % [0 1] % is C2 included?
+        %% variables
+     load particles CO C O Ar C2     % load of saved particle data
+        % is electronic excitaion on?
+     ind_exc=1;      % COa and COA included (1), only CO(X) (0)
+     if i_dis==1
+      ind_exc=0;
+     end
+
+        % number of electronic states
+     if ind_exc==0
+      CO.num_elex_levels=1;
+     end
 %%
 % parfor ind_c=1:5
 % for ind_c=1:1
@@ -112,7 +112,6 @@ init_c=[
                                                struct_U(ind_U).text '.'])
  disp(['Dissociation model by ' struct_Aliat(i_dis).text '.'])
  disp(['CO(X)' ind_exc*', CO(a) and CO(A)' ' states are included.'])
- setup.C2=1;        % is C2 included?
  setup.model_VT='FHO';
  setup.model_VT='SSH';
  switch setup.model_VT
@@ -121,7 +120,7 @@ init_c=[
      case 'SSH'
          disp('VT rates by SSH theory.')
  end
- if setup.C2
+ if ind_C2
      disp('C2 is included.')
  end
  
@@ -150,7 +149,7 @@ mix.num=0;
 CO.diss_Arrhenius_A=diss_Arrhenius_A_CO;
 CO.diss_Arrhenius_n=diss_Arrhenius_n_CO;
 Ps={mix, CO, C, O};
-if setup.C2
+if ind_C2
     C2.diss_Arrhenius_A=diss_Arrhenius_A_C2;
     C2.diss_Arrhenius_n=diss_Arrhenius_n_C2;
     Ps{length(Ps)+1}=C2;
@@ -247,6 +246,7 @@ kinetics.Delta=Delta;
  Ep0=(En0+p0)/(n0*(f*CO.mass+(1-f)*Ar.mass))+0.5*v0^2;
  disp([num2str(i_ini) ': conservation laws check'])
  check_CL_SW([rhov0 rhov2p0 Ep0], Y2, kinetics, 0);
+    end
    end
   end
 %  end

@@ -251,20 +251,20 @@ NO.form_e=1.50711E-19;
 NO.form_e_atoms_sum=N.form_e+O.form_e;
 NO.num_elex_levels=1;               % number of electronic levels
 NO.num_vibr_levels=47;               % actually atom has no vibr levels
-NO.diss_e=[1.04090E-18      2.88770E-19     5.68183E-19     5.29124E-19...
+NO.diss_e=[1.04090E-18      2.88770E-19     5.68183E-19    5.29124E-19 ...
 4.20809E-19     4.04897E-19     3.87059E-19     3.76074E-19...
 2.42446E-19     2.37182E-19     2.13920E-19     2.00552E-19...
 1.91791E-19     3.80285E-19     3.59666E-19];   % J
 keys={'Ar', 'C', 'N', 'O', 'C2', 'N2', 'O2', 'CN', 'CO', 'NO', 'CO2'};
 val_A=[5e15, 1.1e17, 1.1e17, 1.1e17, 5e15, 5e15, 5e15, 5e15, 5e15, ...
-                                                    1.1e17, 1.1e17]/N_a*1e-6;
+                                                1.1e17, 1.1e17]/N_a*1e-6;
 val_n = num2cell(val_A*0 - 0);
 val_A = num2cell(val_A);
 NO.diss_Arrhenius_A=containers.Map(keys, val_A);
 NO.diss_Arrhenius_n=containers.Map(keys, val_n);
 NO.diss_parts=["N", "O"];
 NO.mltpl_atoms_mass=O.mass*N.mass;
-NO.mltpl_atoms_s_e=O.s_e*N.s_e;
+NO.mltpl_atoms_s_e = O.s_e(1) * N.s_e(1);
 NO.s_e=[4 ,      8 ,      2 ,      4,...
 4,       4,       2 ,      4 ,      4,...
 2,       4,       2 ,      2 ,      4 ,      4];

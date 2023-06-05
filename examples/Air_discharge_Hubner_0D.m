@@ -8,10 +8,9 @@ function out=Air_discharge_Hubner_0D
 
 tic % measuring computing time
     % constants
-k=1.380649e-23;             % Boltzmann constant, J/K
-% речек
+k = 1.380649e-23;             % Boltzmann constant, J/K
 addpath('../src/')
-load('../data/particles.mat', 'N2', 'O2', 'N', 'O')%, 'NO') % w/o NO
+load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO')
 O2.num_elex_levels=1;       % no electronic excitation
 O.num_elex_levels=1;
 N2.num_elex_levels=1;
@@ -32,9 +31,11 @@ for i_ini=1             % choosing desired initial coonditions
    T0     = init_c(i_ini, 4);         % K
    n0     = init_c(i_ini, 1)/k/T0;    % m-3
    f_O2_0 = init_c(i_ini, 2);
+   f_NO_0 = init_c(i_ini, 3);
    T3     = init_c(i_ini, 5) /T0;
    f_O_3  = init_c(i_ini, 6);
    f_N_3  = init_c(i_ini, 8);
+   f_NO_3 = init_c(i_ini, 7);
    
    sigma0 = pi*N2.diameter^2;
    Delta = 1 / sqrt(2) / n0 / sigma0; % characteristic length, m
@@ -42,7 +43,7 @@ for i_ini=1             % choosing desired initial coonditions
 
    num=0;
    index{1}=0;
-   Ps={num, N2, O2, N, O};            % w/o NO       
+   Ps={num, N2, O2, NO, N, O};
    for ind=2:length(Ps)
     num_v_states=sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
     num=num+num_v_states;
@@ -82,7 +83,7 @@ for i_ini=1             % choosing desired initial coonditions
    kinetics.Delta=Delta;
    kinetics.t0=t0;
    xspan=[0.005 0.015]/t0;      % the Hubner experiment measurments time
-   xspan=[0.005 0.120]/t0;
+   xspan=[0.005 0.13]/t0;
    load('../data/Pintassilgo2014_N2_VDF_post_DC.mat', ...
                                         'Pintassilgo2014_N2_VDF_post_DC')
    i_vec=0:30;
@@ -93,13 +94,12 @@ for i_ini=1             % choosing desired initial coonditions
    n_N2(i_vec+1) = N2_VDF/sum(N2_VDF);
    n_N2 = n_N2';
    Tv1 = N2.ev_i{1}(2)./(k*log(n_N2(1)./n_N2(2)));
-   warning(['For cumputing of molecular fractions in afterglow NO is' ...
-                                                    ' not considered'])
-   f_O2_3 = (f_O2_0*(2-f_O_3-f_N_3)-f_O_3)/2;   % only w/o NO
-   f_N2_3 = 1 - f_O2_3 - f_O_3 - f_N_3;         % only w/o NO
+   f_O2_3 = ((2-f_O_3-f_N_3)*(f_O2_0+f_NO_0/2) - f_O_3 - f_NO_3)/2;
+   f_N2_3 = 1 - f_O2_3 - f_NO_3 - f_O_3 - f_N_3;
    n_N2 = n_N2 * f_N2_3;
    n_O2 = density_f_exc(Tv1, f_O2_3, O2);
-   y0=[n_N2; n_O2; f_N_3; f_O_3; T3];
+   n_NO = density_f_exc(Tv1, f_NO_3, NO);
+   y0=[n_N2; n_O2; n_NO; f_N_3; f_O_3; T3];
    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
                                     'NonNegative', 1:kinetics.num_eq+1); 
    [X, Y]=ode15s(@(t, y) Rpart_ODE_0D(t, y, kinetics), xspan, y0, ...
@@ -110,7 +110,6 @@ for i_ini=1             % choosing desired initial coonditions
    Y(:, end)=Y(:, end)*T0;
    T=Y(:, end);
    Tv = N2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
-%    Tv = O2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
    out(i_ini, i_vibr, i_U).res=[t, Y, Tv];
 
    disp('Conservation laws check')
