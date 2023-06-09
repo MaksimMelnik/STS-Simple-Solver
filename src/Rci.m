@@ -4,6 +4,8 @@ function R2=Rci(y, kinetics)
 % kinetics is the big structure with all kinetics.
 % 09.12.2022 by Maksim Melnik.
 
+global RES;
+
 T=y(end)*kinetics.T0;
 n0=kinetics.n0;
 R_VT_data2=zeros(kinetics.num_eq, 1);
@@ -13,6 +15,22 @@ R_VE_data2=zeros(kinetics.num_eq, 1);
 R_exch_data2=zeros(kinetics.num_eq, 1);
 y2=y;
 
+for i=1:length(kinetics.Ps)
+    switch kinetics.Ps{i}.name
+        case "NO"
+            numNO=i;
+        case "O2"
+            numO2=i;
+        case "N2"
+            numN2=i;
+        case "N"
+            numN=i;
+        case "O"
+            numO=i;
+        case "Ar"
+            numAr=i;
+    end
+end
 
 for indM1=1:kinetics.num_Ps     % considering each particle
  M1=kinetics.Ps{indM1};
@@ -117,44 +135,42 @@ for indM1=1:kinetics.num_Ps     % considering each particle
   end
 
    if isKey(kinetics.reactions, 'Exch') %exchange reactions
-   if (M1.name=="NO") %first reaction NO+O->O2 + N
-       %M1=NO
-    indO=kinetics.index{2};
-    indN=kinetics.index{3};
-    indO2=kinetics.index{4};
-    indNO=kinetics.index{1};
-    N_a=6.02214076e23; 
-    coll.ArrA(1)=8.4e12/N_a*1e-6; coll.ArrN(1)=0; %Arrhenius parameters from Park
-    R_exch_temp=R_exch_NO_O__O2_N(M1, kinetics.Ps{4} , y2(indNO),...
-        y2(indO), y2(indO2),  y2(indN), coll, T);
+   if (M1.name=="O2") %first reaction O2+N->NO + O
+       %M1=O2
+    indO=kinetics.index{numO};
+    indN=kinetics.index{numN};
+    indN2=kinetics.index{numN2};
+    indNO=kinetics.index{numNO};
+    indO2=kinetics.index{numO2};
+    R_exch_temp=R_exch_O2_N__NO_O(M1, kinetics.Ps{numNO} , y2(indO2),...
+        y2(indN), y2(indNO),  y2(indO), T);
     %если я правильно понимаю для тех кто слева надо +, а для тех кто
     %справа -
-    R_exch_data2(indNO)=R_exch_data2(indNO) + sum(R_exch_temp,1)'; 
-    R_exch_data2(indO2)=R_exch_data2(indO2) - sum(R_exch_temp,2);
-    R_exch_data2(indO)=R_exch_data2(indO) + sum(R_exch_data2(indNO));
-    R_exch_data2(indN)=R_exch_data2(indN) - sum(R_exch_data2(indNO));
+    R_exch_data2(indO2)= R_exch_data2(indO2) + sum(R_exch_temp,2);
+    R_exch_data2(indNO)=  R_exch_data2(indNO) - sum(R_exch_temp,1)'; 
+    R_exch_data2(indN)=  R_exch_data2(indN) + sum(R_exch_temp,'all');
+    R_exch_data2(indO)= R_exch_data2(indO) - sum(R_exch_temp,'all');
    end
-   if (M1.name=="N2") %second reaction N2 + O -> NO + N
-    indO=kinetics.index{2};
-    indN=kinetics.index{3};
-    indN2=kinetics.index{5};
-    indNO=kinetics.index{1};
-    N_a=6.02214076e23; 
-    coll.ArrA(1)=6.4e17/N_a*1e-6; coll.ArrN(1)=-1; %Arrhenius parameters from Park
-    R_exch_temp=R_exch_N2_O__NO_N(M1, kinetics.Ps{1} , y2(indN2),...
-        y2(indO), y2(indNO),  y2(indN), coll, T);
+   if (M1.name=="N2") %second reaction N2(i) + O -> NO(k) + N
+    indO=kinetics.index{numO};
+    indN=kinetics.index{numN};
+    indN2=kinetics.index{numN2};
+    indNO=kinetics.index{numNO};
+    indO2=kinetics.index{numO2};
+    R_exch_temp=R_exch_N2_O__NO_N(M1, kinetics.Ps{numNO} , y2(indN2),...
+        y2(indO), y2(indNO),  y2(indN), T);
     %если я правильно понимаю для тех кто слева надо +, а для тех кто
-    %справа -
-    R_exch_data2(indN2)=R_exch_data2(indN2) + sum(R_exch_temp,1)';
-    R_exch_data2(indNO)=R_exch_data2(indNO) - sum(R_exch_temp,2);  
-    R_exch_data2(indO)=R_exch_data2(indO) + sum(R_exch_data2(indN2));
-    R_exch_data2(indN)=R_exch_data2(indN) - sum(R_exch_data2(indN2));
+   % справа -
+    R_exch_data2(indN2)= R_exch_data2(indN2) + sum(R_exch_temp,2);
+    R_exch_data2(indNO)= R_exch_data2(indNO) - sum(R_exch_temp,1)';  
+    R_exch_data2(indO)= R_exch_data2(indO) + sum(R_exch_temp,'all');
+    R_exch_data2(indN)= R_exch_data2(indN)  - sum(R_exch_temp,'all');
    end
- end
+  end
   
  end
 end
-
+RES=[R_VT_data2, R_diss_data2, R_exch_data2];
 R2=R_VT_data2+R_VV_data+R_diss_data2+R_VE_data2+R_exch_data2;
 
 end
