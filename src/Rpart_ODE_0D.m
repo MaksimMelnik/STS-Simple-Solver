@@ -5,15 +5,15 @@ function out=Rpart_ODE_0D(t, y, kinetics)%#ok<INUSL>
 % 31.05.2023 Maksim Melnik
 
     % constants
-k=1.380649e-23;     % Boltzmann constant, J/K
-T_DN=y(end);        % dimentionless gas temperature T
+k = 1.380649e-23;       % Boltzmann constant, J/K
+T_DN = y(end);          % dimentionless gas temperature T
 
     % relaxation terms
-R=Rci(y, kinetics);
+[R, ~] = Rci(y, kinetics);
     % number densities equations
 M = diag([ones(1, kinetics.num_eq) 0]);
     % energy equation
-nm=0;   % number density of molecules
+nm = 0;                 % number density of molecules
 for ind = 1:kinetics.num_Ps
  if kinetics.Ps{ind}.fr_deg_c > 3
   e_i = [];
@@ -31,10 +31,8 @@ for ind = 1:kinetics.num_Ps
  end
 end
 M(end, end) = 1.5*sum(y(1:end-1)) + nm;
+    % solving SLE
 Msp = sparse(M);
-R = [R; 0] * kinetics.n0 * kinetics.t0;
+R = [R; 0] * kinetics.n0 * kinetics.t0; % dimentionless
 out = Msp^(-1) * R;
-
-% out=y*0;
-
 end

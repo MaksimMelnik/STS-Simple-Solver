@@ -1,25 +1,26 @@
-function R2=Rci(y, kinetics)
+function [R, Qin] = Rci(y, kinetics)
 % Universal function for relaxation terms R_{c\alpha i}.
+% R is the relaxation term Rci, Qin is the energy flux.
 % y is the vector of gas macroparameters on the current solving step;
 % kinetics is the big structure with all kinetics.
 % 09.12.2022 by Maksim Melnik.
 
-T=y(end)*kinetics.T0;
+T = y(end)*kinetics.T0;
 n0=kinetics.n0;
 R_VT_data2=zeros(kinetics.num_eq, 1);
 R_VV_data=zeros(kinetics.num_eq, 1);
 R_diss_data2=zeros(kinetics.num_eq, 1);
 R_VE_data2=zeros(kinetics.num_eq, 1);
 R_exch_data2=zeros(kinetics.num_eq, 1);
-y2=y;
-
+y2 = y;
+Qin = 0;
 
 for indM1=1:kinetics.num_Ps     % considering each particle
  M1=kinetics.Ps{indM1};
  i1=kinetics.index{indM1};      % pointer on ni of M1
  if M1.fr_deg_c>3
 
-  if M1.num_vibr_levels(1)>1     % should we consider vibr processes?
+  if M1.num_vibr_levels(1)>1    % should we consider vibr processes?
       
    if isKey(kinetics.reactions, 'VT')
     for indM2=1:kinetics.num_Ps
@@ -28,29 +29,31 @@ for indM1=1:kinetics.num_Ps     % considering each particle
      for ind_e=1:M1.num_elex_levels
       i1_e=i1(1+sum(M1.num_vibr_levels(1:ind_e-1)):...
                                         sum(M1.num_vibr_levels(1:ind_e)));
-      R_VT_data_temp=R_VT_old(M1, y2(i1_e), M2, ...
-                        sum(y2(i2)), T, ind_e, kinetics.reactions('VT'));
+      [R_VT_data_temp , Q_VT] = R_VT(M1, y(i1_e), M2, ...
+                        sum(y(i2)), T, ind_e, kinetics.reactions('VT'));
       R_VT_data2(i1_e)=R_VT_data2(i1_e)+R_VT_data_temp;
+      Qin = Qin + Q_VT;
      end
     end
    end
    
    if isKey(kinetics.reactions, 'VV')
-    for indM2=indM1:kinetics.num_Ps
-     M2=kinetics.Ps{indM2};
-     if M2.num_vibr_levels(1)>1
-      i2=kinetics.index{indM2};
-      for ind_e1=1:M1.num_elex_levels
-       i1_e=i1(1+sum(M1.num_vibr_levels(1:ind_e1-1)):...
+    for indM2 = indM1:kinetics.num_Ps
+     M2 = kinetics.Ps{indM2};
+     if M2.num_vibr_levels(1) > 1
+      i2 = kinetics.index{indM2};
+      for ind_e1 = 1:M1.num_elex_levels
+       i1_e = i1(1+sum(M1.num_vibr_levels(1:ind_e1-1)):...
                                        sum(M1.num_vibr_levels(1:ind_e1)));
-       for ind_e2=1:M2.num_elex_levels
-        i2_e=i2(1+sum(M2.num_vibr_levels(1:ind_e2-1)):...
+       for ind_e2 = 1:M2.num_elex_levels
+        i2_e = i2(1+sum(M2.num_vibr_levels(1:ind_e2-1)):...
                                        sum(M2.num_vibr_levels(1:ind_e2))); 
-        R_VV_data_temp=R_VV_old(M1, y2(i1_e), M2, y2(i2_e), ...
-                            T, ind_e1, ind_e2, kinetics.reactions('VV'));
-        R_VV_data(i1_e)=R_VV_data(i1_e)+sum(R_VV_data_temp, 2);
-        if M2.name~=M1.name
-         R_VV_data(i2_e)=R_VV_data(i2_e)+sum(R_VV_data_temp, 1)';
+        [R_VV_data_temp, Q_VV] = R_VV(M1, y(i1_e), M2, y(i2_e), ...
+                             T, ind_e1, ind_e2, kinetics.reactions('VV'));
+        R_VV_data(i1_e) = R_VV_data(i1_e) + sum(R_VV_data_temp, 2);
+        Qin = Qin + Q_VV;
+        if M2.name ~= M1.name
+         R_VV_data(i2_e) = R_VV_data(i2_e) + sum(R_VV_data_temp, 1)';
         end
        end
       end
@@ -66,12 +69,12 @@ for indM1=1:kinetics.num_Ps     % considering each particle
      i1_e1=i1(1:M1.num_vibr_levels(1));
      np=0;
      for indM2=1:kinetics.num_Ps
-      np=np+sum(y2(kinetics.index{indM2}));
+      np=np+sum(y(kinetics.index{indM2}));
      end
      for ind_e=2:M1.num_elex_levels
       i1_e2=i1(1+sum(M1.num_vibr_levels(1:ind_e-1)):...
                                         sum(M1.num_vibr_levels(1:ind_e)));
-      R_VE_temp=R_VE_m(M1, y2(i1_e1), y2(i1_e2), np, T, ind_e);
+      R_VE_temp=R_VE_m(M1, y(i1_e1), y(i1_e2), np, T, ind_e);
       R_VE_data2(i1_e1)=R_VE_data2(i1_e1)+sum(R_VE_temp, 2);
       R_VE_data2(i1_e2)=R_VE_data2(i1_e2)-sum(R_VE_temp, 1)';
      end
@@ -94,26 +97,27 @@ for indM1=1:kinetics.num_Ps     % considering each particle
    end
    iP1=kinetics.index{indP1};
    iP2=kinetics.index{indP2};
-   nP1=sum(y2(iP1));
-   nP2=sum(y2(iP2));
+   nP1=sum(y(iP1));
+   nP2=sum(y(iP2));
    for indM2=1:kinetics.num_Ps
     M2=kinetics.Ps{indM2};
     i2=kinetics.index{indM2};
     coll2.ArrA=M1.diss_Arrhenius_A(M2.name);
     coll2.ArrN=M1.diss_Arrhenius_n(M2.name);
-    y_diss=y2(i1);
+    y_diss=y(i1);
     switch kinetics.reactions('Diss').NEmodel
      case {'MT', 'Aliat'}
-      R_diss_data_temp=R_diss_Aliat_onoff(M1, y_diss, nP1, nP2, ...
-           sum(y2(i2)), coll2, T, n0, kinetics.reactions('Diss').U, ...
-                                    kinetics.reactions('Diss').NEmodel);
+      [R_diss_data_temp, Q_diss] = R_diss_Aliat_onoff(M1, y_diss, nP1, ...
+        nP2, sum(y(i2)), coll2, T, n0, ...
+        kinetics.reactions('Diss').U, kinetics.reactions('Diss').NEmodel);
      case 'Savelev21'
        error("Savelev's diss model is still not implemented")
     end
-    R_diss_data2(i1)=R_diss_data2(i1)+R_diss_data_temp;
+    R_diss_data2(i1) = R_diss_data2(i1) + R_diss_data_temp;
+    Qin = Qin + Q_diss;
    end
-   R_diss_data2(iP1)=R_diss_data2(iP1)-sum(R_diss_data2(i1));
-   R_diss_data2(iP2)=R_diss_data2(iP2)-sum(R_diss_data2(i1));
+   R_diss_data2(iP1) = R_diss_data2(iP1) - sum(R_diss_data2(i1));
+   R_diss_data2(iP2) = R_diss_data2(iP2) - sum(R_diss_data2(i1));
   end
 
    if isKey(kinetics.reactions, 'Exch') %exchange reactions
@@ -155,6 +159,5 @@ for indM1=1:kinetics.num_Ps     % considering each particle
  end
 end
 
-R2=R_VT_data2+R_VV_data+R_diss_data2+R_VE_data2+R_exch_data2;
-
+R=R_VT_data2+R_VV_data+R_diss_data2+R_VE_data2+R_exch_data2;
 end

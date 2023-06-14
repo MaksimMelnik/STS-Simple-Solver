@@ -1,8 +1,18 @@
-function out = R_diss_Aliat_onoff(M, n_m, n_a1, n_a2, n_p, Coll, T, ...
+function [RD, Q] = R_diss_Aliat_onoff(M, n_m, n_a1, n_a2, n_p, Coll, T, ...
                                             n0, ind_U, ind_Aliat)
-% Универсальная функция расчёта диссоциации по Алиату для
-% электронно-возбуждённых молекул.
-% 22.10.2020
+% The universal function for calculating dissociation relaxation terms 
+% R_Diss according to the Aliat and Marrone-Treanor models 
+% for electronically excited molecules.
+% RD is the relaxation terms R_Diss, Q is the energy flux.
+% M is the dissociating molecule, n_m is the vector of concentrations,
+% n_a1 is the concentration of the first atom of M1, n_a2 is the second 
+% atom of M1, n_p is the concentration of collision partner particle,
+% Coll is the collision parameters variable, T is the gas temperature,
+% n0 is the characteristic number density, 
+% ind_U is the non-equilibrium U parameter switcher, 
+% ind_Aliat is the dissociation model switcher.
+% 22.10.2020 Maksim Melnik
+
 V_C = 299792458; V_K = 1.380649e-23; V_H = 6.626070041e-34;
 if nargin<9
    ind_U='3T';
@@ -42,6 +52,7 @@ divsum=0;
 zero_template=zeros(1, sum(M.num_vibr_levels(1:M.num_elex_levels)));
 V=zero_template;
 Kdr=zero_template;
+dE_OA = zero_template;
 Theta_r = M.Be*V_H*V_C/V_K;
 Z_rot = T./(M.sigma.*Theta_r);
 for i=1:M.num_elex_levels       % вот тут энергию e_i от нуля или от e_0?
@@ -56,20 +67,20 @@ for i=1:M.num_elex_levels       % вот тут энергию e_i от нуля
                 exp((M.ev_i{i}+M.e_E(i))/V_K*(1/T+1/U(i)))*ZvibT/ZvibU;
   divsum=1;
  end
- Kdr(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i)))=...
-     Z_rot(i)*M.s_e(i)/M.mltpl_atoms_s_e... 
-     *exp(-(M.e_E(i)+M.ev_0(i)+M.ev_i{i}...
-                                   +M.form_e-M.form_e_atoms_sum)/V_K/T);
+ dE = M.e_E(i) + M.ev_0(i) + M.ev_i{i} + M.form_e - M.form_e_atoms_sum;
+ Kdr(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i))) = ...
+                Z_rot(i) * M.s_e(i)/M.mltpl_atoms_s_e * exp(-(dE)/V_K/T);
+ dE_OA(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i))) = dE;
 end
 V=Zel*V/divsum;
 Kdr=Kdr*(M.mass/M.mltpl_atoms_mass)^(3/2)*V_H^3*(2*pi*V_K*T)^(-3/2);
 kd=zero_template;
 for i=1:M.num_elex_levels
-    kd(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i)))=...
-        V(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i)))...
-                                                                *kd_eq(i);
+ kd(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i))) = ...
+      V(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i))) ...
+                                                               * kd_eq(i);
 end
 kr= kd .* Kdr * n0;
-RD = n_p * (n_a1*n_a2*kr-(n_m').*kd);
-out = RD';
+RD = (n_p * (n_a1*n_a2*kr-(n_m').*kd))';
+Q = dE_OA * RD;
 end

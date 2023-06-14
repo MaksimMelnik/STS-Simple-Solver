@@ -1,10 +1,13 @@
 function out=CO_Ar_ex_21_06_par_vibr
-% Программа для расчёта смесей CO и Ar с учётом CO* и C2 с целью выявить
-% задержку диссоциации. На базе кода для параллельных расчётов смеси CO/Ar
-% CO_Ar_mixure_20_04_par.m, модификация кода CO_Ar_ex_20_10_par_vibr с 
-% учётом диссоциации по Алиату и колебательных уровней CO*, + диссоциация
-% по Савельеву и прочие дополнения для Алушты
-% 23.06.2021
+% The main function for the macroparameters calculation behind SW for
+% several experimental and other conditions in pure CO or CO/Ar mixtures.
+% It accounts electronicaly excited CO molecules (CO(a) and CO(A))
+% as well as C2. Based on the old code for the described problem and used
+% for the paper after CMMASS'21 conference. Might be paralleled, Arrhenius
+% law parameters might be changed and Savelev's dissociation model (2021)
+% might be applied.
+% 23.06.2021 Maksim Melnik
+% here should be the references list
 
 %% warnings
 % warning('VE processes off.')

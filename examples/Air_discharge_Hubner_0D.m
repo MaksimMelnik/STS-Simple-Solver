@@ -67,12 +67,15 @@ for i_ini=1             % choosing desired initial coonditions
 	case 2
 	 model_VT='FHO';
    end
+   Exch=1;
 %    Reacs_keys={'VT'};
 %    Reacs_keys={'Diss', 'VT'};
    Reacs_keys={'Diss', 'VT', 'VV'};
+%    Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
 %    reacs_val={model_VT};
 %    reacs_val={Diss, model_VT};
    reacs_val={Diss, model_VT, model_VT};
+%    reacs_val={Diss, model_VT, model_VT, Exch};
    kinetics.Ps=Ps(2:end);
    kinetics.num_Ps=length(kinetics.Ps);
    kinetics.num_eq=num;
@@ -83,7 +86,7 @@ for i_ini=1             % choosing desired initial coonditions
    kinetics.Delta=Delta;
    kinetics.t0=t0;
    xspan=[0.005 0.015]/t0;      % the Hubner experiment measurments time
-   xspan=[0.005 0.13]/t0;
+   xspan=[0.005 0.14]/t0;
    load('../data/Pintassilgo2014_N2_VDF_post_DC.mat', ...
                                         'Pintassilgo2014_N2_VDF_post_DC')
    i_vec=0:30;
