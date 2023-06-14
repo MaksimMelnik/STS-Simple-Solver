@@ -4,7 +4,6 @@ function R2=Rci(y, kinetics)
 % kinetics is the big structure with all kinetics.
 % 09.12.2022 by Maksim Melnik.
 
-global RES;
 
 T=y(end)*kinetics.T0;
 n0=kinetics.n0;
@@ -170,7 +169,7 @@ for indM1=1:kinetics.num_Ps     % considering each particle
   
  end
 end
-RES=[R_VT_data2, R_diss_data2, R_exch_data2];
+
 R2=R_VT_data2+R_VV_data+R_diss_data2+R_VE_data2+R_exch_data2;
 
 end
