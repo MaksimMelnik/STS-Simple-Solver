@@ -1,4 +1,4 @@
-function out = R_exch_O2_N__NO_O(O2, NO, n_O2, n_N, n_NO, n_O, T)
+function [RExch1, Q] = R_exch_O2_N__NO_O(O2, NO, n_O2, n_N, n_NO, n_O, T)
 % Функция расчёта обменной реакции O2+N->NO+O
 % 28.05.2023
 
@@ -42,15 +42,19 @@ s_e_N_O=4/9; % s_e_N/s_e_O
 m_O=2.6567628316576e-26;    m_N=2.32587E-26;
 
 %отношение скорости обратной к скорости прямой
-Kdr = (O2.mass*m_N/(NO.mass*m_O))^1.5*Z_rot_O2/Z_rot_NO*...
-    exp((repmat(NO.ev_i{1}+NO.ev_0,O2.num_vibr_levels,1)-repmat((O2.ev_i{1}+O2.ev_0)',1,NO.num_vibr_levels))/(V_K*T))*...
-    exp((O2.diss_e(1)-NO.diss_e(1))/V_K/T);
+dE = (repmat(NO.ev_i{1} + NO.ev_0, O2.num_vibr_levels, 1) - ...
+            repmat((O2.ev_i{1} + O2.ev_0)', 1, NO.num_vibr_levels)) + ...
+    (O2.diss_e(1)-NO.diss_e(1));
+Kdr = (O2.mass*m_N/(NO.mass*m_O))^1.5 * Z_rot_O2 / Z_rot_NO * ...
+    exp( dE / (V_K*T));
 Kdr = O2.s_e(1)*s_e_N_O/NO.s_e(1) * Kdr;
 
 %скорость обратной реакции r - reverse
 kr= kd .* Kdr;
 RExch1=n_NO'.*kr*n_O - n_O2.*kd*n_N;
 
+Q = sum(RExch1 .* dE, 'all');
+
 %получаем матрицу 36 на 38, по строкам энергия O2, по столбцам NO
-out = RExch1;
+% out = RExch1;
 end

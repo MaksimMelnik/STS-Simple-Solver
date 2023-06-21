@@ -51,7 +51,7 @@ init_c=[
                 % 9, Fairbairn, случай 8e (T0 не точно)
             0.001   10          3080            297         8800
         ];
-
+% parfor ind_c=1:5
 for i_ini = 2:3 % [1 2 3 4 5 6 7 8 9]  % initial conditions test cases
                     % 2 -- Fairbairn 8a,    3 -- Aliat's test case,
                     % 4 -- Mick's fig 3a,   5 -- Appleton fig 3.
@@ -77,18 +77,17 @@ for i_ini = 2:3 % [1 2 3 4 5 6 7 8 9]  % initial conditions test cases
       CO.num_elex_levels=1;
      end
 %%
-% parfor ind_c=1:5
-% for ind_c=1:1
  f=init_c(i_ini, 1);
  p0=init_c(i_ini, 2)*Torr;
  v0=init_c(i_ini, 3);
  T0=init_c(i_ini, 4);
     Tv0=T0;
     n0=p0/k/T0;
-    NN = in_con_Ar([CO.mass, v0, T0, Ar.mass, f]);
-    n1 = NN(1);     % dimensionless
-    T1 = NN(2);     % dimensionless
-    v1 = NN(3);     % dimensionless
+    rho0 = n0 * (f*CO.mass + (1-f)*Ar.mass);
+        % conservation laws to evaluate macroparameters behind SW
+    [n1, v1, T1] = in_con_SW(n0, v0, T0, rho0, f); % dimentionless numbers
+   
+    
  disp([num2str(i_ini) ': T1=' num2str(T1*T0) ', T0=' num2str(T0) ...
                 ', v1=' num2str(v1*v0) ', n1=' num2str(n1*n0, '%1.3e')])
     sigma0 = pi*CO.diameter^2;%Coll_CO_CO.coll_diameter^2;

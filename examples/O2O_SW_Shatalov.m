@@ -14,31 +14,24 @@ O.num_elex_levels=1;
 
     % initial conditions, should be rewritten using recalculation 
     % functions on SW
-init_c=[ % n0, m-3;   v0, m/s;   T0, K;   n1, DN;   v1, DN;   T1, DN
-    2.582622078206076e+22   4440    2.991113007914224e+02 ...
-     5.838863656521909e+00   1.712662015806821e-01   3.617268254080651e+01
-    3.116082265979940e+22   4130    3.098808789880962e+02 ...
-     5.808077724421962e+00  1.721740044550666e-01   3.036555281554731e+01
-    3.255838505493098e+22 3.950000000000000e+03 2.965793020605731e+02 ...
-     5.799490578609251e+00  1.724289377567720e-01   2.906382663628844e+01
-    3.132658068243728e+22	3400    3.082412093964783e+02 ...
-     5.722467108795348e+00  1.747498030111898e-01   2.098940479344222e+01
-    6.950596402478228e+22	3070	2.778507787437617e+02 ...
-     5.694648485891184e+00  1.756034639324195e-01   1.907439874030552e+01
-     ];
+init_c=[    % n0, m-3;              v0, m/s;    T0, K
+            2.582622078206076e+22   4440        2.991113007914224e+02
+            3.116082265979940e+22   4130        3.098808789880962e+02
+            3.255838505493098e+22   3950        2.965793020605731e+02
+            3.132658068243728e+22	3400        3.082412093964783e+02
+            6.950596402478228e+22	3070        2.778507787437617e+02  ];
 for i_ini=1 % [1 2 3 4 5] % choosing desired initial coonditions
- for i_U=4 % [2 3 4]     % choosing desired U dissociation parameter model
-                         % 2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr=2 % [1 2]   % choosing vibrational energy exchange model
-                         % 1 is for SSH; 2 is for FHO
-   % 0 --- before SW, 1 --- behind SW
-   n0=init_c(i_ini, 1);   % m-3; characteristic number density
-   v0=init_c(i_ini, 2);   % m/s; characteristic velocity
-   T0=init_c(i_ini, 3);   % K; characteristic temperature
-   n1=init_c(i_ini, 4);   % dimentionless (DN) for higher calculation 
-                          % accuracy
-   v1=init_c(i_ini, 5);   % DN
-   T1=init_c(i_ini, 6);   % DN
+ for i_U=4 % [2 3 4]      % choosing desired U dissociation parameter model
+                          % 2 is for D/6k; 3 is for 3T; 4 is for inf
+  for i_vibr=2 % [1 2]    % choosing vibrational energy exchange model
+                          % 1 is for SSH; 2 is for FHO
+    % 0 --- before SW, 1 --- behind SW
+   n0 = init_c(i_ini, 1); % m-3; characteristic number density
+   v0 = init_c(i_ini, 2); % m/s; characteristic velocity
+   T0 = init_c(i_ini, 3); % K; characteristic temperature
+   rho0 = n0 * O2.mass;
+        % conservation laws to evaluate macroparameters behind SW
+   [n1, v1, T1] = in_con_SW(n0, v0, T0, rho0, 1); % dimentionless numbers
    
    sigma0 = pi*O2.diameter^2;
    Delta = 1 / sqrt(2) / n0 / sigma0;   % characteristic length

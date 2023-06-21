@@ -9,7 +9,6 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% - check the correctness of the system of equations
 % - add all particles:
 %   N2(A3Σ+u, B3Пg, B'3Σ−u, C3Пu, a'1Σ−u, a1Пg, w1Δu)
 %   O2(a1Δg, b1Σ+g)
@@ -39,24 +38,19 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 %   (1) Elastic collisions of electrons with N2 and O2
 %   (2) Nitrogen and oxygen dissociation by electron
 %   (6) V–T energy exchanges in N2–N collisions involving multiquantum
-%   (7) Vibrational deactivation of N2(X, v) at the wall, Qvwall
 %   (8) Recombination of N and O atoms at the wall, QN wall and QO wall
 %   (9) Diffusion of molecular and atomic metastable states to the wall
 %   (10) Chemical reactions, Qchem
 %   (11) Electron–ion recombination involving nitrogen or oxygen ions,Qe−i
 
 
-warning('насколько уравнение для концентраций вообще корректно?')
-warning('v=0 в цилиндре? Даже v_R?')
 warning(['lambda and cp are calculated only for N2-20%O2 mixture ' ...
                                                     'with T=[300 600] K'])
-warning('А нормально, что cp, а не cV?')
-warning(['Energy fluxes Q are not finnished, now only VT, VV, Diss ' ...
-    'are included'])
+warning(['Energy fluxes Q are not finnished, now only VT, VV, Diss, ' ...
+    'Zeldovich are included'])
 warning('Dimentions of Q should be agreed')
-warning('Energies in Qexch, Qdiss should be rechecked, espetially e_form')
-warning('Exchange reactions are not implemented')
-warning('No conservation laws checking (no conservation because?)')
+warning('Thermal average velocity in R_VT_wall shoul be recheckerd')
+warning('gamma_v in R_VT_wall is the same for each particle')
 disp('Started.')
 
 tic                             % measuring computing time
@@ -121,17 +115,18 @@ for i_ini=1             % choosing desired initial coonditions
 	case 2
 	 model_VT='FHO';
    end
-   Exch = 1;
 %    Reacs_keys = {'None'};
 %    Reacs_keys = {'VT'};
 %    Reacs_keys={'Diss', 'VT'};
    Reacs_keys={'Diss', 'VT', 'VV'};
-%    Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
+   Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
+   Reacs_keys={'Diss', 'VT', 'VV', 'Exch', 'Wall'};
 %    reacs_val = {1};
 %    reacs_val = {model_VT};
 %    reacs_val={Diss, model_VT};
    reacs_val={Diss, model_VT, model_VT};
-%    reacs_val={Diss, model_VT, model_VT, Exch};
+   reacs_val={Diss, model_VT, model_VT, 1};
+   reacs_val={Diss, model_VT, model_VT, 1, 1};
    kinetics.Ps = Ps(2:end);
    kinetics.num_Ps = length(kinetics.Ps);
    kinetics.num_eq = num;

@@ -6,13 +6,13 @@ function [R, Qin] = Rci(y, kinetics)
 % 09.12.2022 by Maksim Melnik.
 
 T = y(end)*kinetics.T0;
-n0=kinetics.n0;
-R_VT_data2=zeros(kinetics.num_eq, 1);
-R_VV_data=zeros(kinetics.num_eq, 1);
-R_diss_data2=zeros(kinetics.num_eq, 1);
-R_VE_data2=zeros(kinetics.num_eq, 1);
-R_exch_data2=zeros(kinetics.num_eq, 1);
-y2 = y;
+n0 = kinetics.n0;
+R_VT_data = zeros(kinetics.num_eq, 1);
+R_VV_data =zeros(kinetics.num_eq, 1);
+R_diss_data=zeros(kinetics.num_eq, 1);
+R_VE_data=zeros(kinetics.num_eq, 1);
+R_exch_data=zeros(kinetics.num_eq, 1);
+R_wall_data = zeros(kinetics.num_eq, 1);
 Qin = 0;
 
 for i=1:length(kinetics.Ps)
@@ -48,7 +48,7 @@ for indM1=1:kinetics.num_Ps     % considering each particle
                                         sum(M1.num_vibr_levels(1:ind_e)));
       [R_VT_data_temp , Q_VT] = R_VT(M1, y(i1_e), M2, ...
                         sum(y(i2)), T, ind_e, kinetics.reactions('VT'));
-      R_VT_data2(i1_e)=R_VT_data2(i1_e)+R_VT_data_temp;
+      R_VT_data(i1_e)=R_VT_data(i1_e)+R_VT_data_temp;
       Qin = Qin + Q_VT;
      end
     end
@@ -92,8 +92,8 @@ for indM1=1:kinetics.num_Ps     % considering each particle
       i1_e2=i1(1+sum(M1.num_vibr_levels(1:ind_e-1)):...
                                         sum(M1.num_vibr_levels(1:ind_e)));
       R_VE_temp=R_VE_m(M1, y(i1_e1), y(i1_e2), np, T, ind_e);
-      R_VE_data2(i1_e1)=R_VE_data2(i1_e1)+sum(R_VE_temp, 2);
-      R_VE_data2(i1_e2)=R_VE_data2(i1_e2)-sum(R_VE_temp, 1)';
+      R_VE_data(i1_e1)=R_VE_data(i1_e1)+sum(R_VE_temp, 2);
+      R_VE_data(i1_e2)=R_VE_data(i1_e2)-sum(R_VE_temp, 1)';
      end
     else
         str_w=strcat('VE is allowed only for CO, but ', M1.name, ...
@@ -130,14 +130,14 @@ for indM1=1:kinetics.num_Ps     % considering each particle
      case 'Savelev21'
        error("Savelev's diss model is still not implemented")
     end
-    R_diss_data2(i1) = R_diss_data2(i1) + R_diss_data_temp;
+    R_diss_data(i1) = R_diss_data(i1) + R_diss_data_temp;
     Qin = Qin + Q_diss;
    end
-   R_diss_data2(iP1) = R_diss_data2(iP1) - sum(R_diss_data2(i1));
-   R_diss_data2(iP2) = R_diss_data2(iP2) - sum(R_diss_data2(i1));
+   R_diss_data(iP1) = R_diss_data(iP1) - sum(R_diss_data(i1));
+   R_diss_data(iP2) = R_diss_data(iP2) - sum(R_diss_data(i1));
   end
 
-   if isKey(kinetics.reactions, 'Exch') %exchange reactions
+  if isKey(kinetics.reactions, 'Exch') %exchange reactions
    if (M1.name=="O2") %first reaction O2+N->NO + O
        %M1=O2
     indO=kinetics.index{numO};
@@ -145,14 +145,15 @@ for indM1=1:kinetics.num_Ps     % considering each particle
     indN2=kinetics.index{numN2};
     indNO=kinetics.index{numNO};
     indO2=kinetics.index{numO2};
-    R_exch_temp=R_exch_O2_N__NO_O(M1, kinetics.Ps{numNO} , y2(indO2),...
-        y2(indN), y2(indNO),  y2(indO), T);
+    [R_exch_temp, QZ1] = R_exch_O2_N__NO_O(M1, kinetics.Ps{numNO} , ...
+                            y(indO2), y(indN), y(indNO),  y(indO), T);
     %если я правильно понимаю для тех кто слева надо +, а для тех кто
     %справа -
-    R_exch_data2(indO2)= R_exch_data2(indO2) + sum(R_exch_temp,2);
-    R_exch_data2(indNO)=  R_exch_data2(indNO) - sum(R_exch_temp,1)'; 
-    R_exch_data2(indN)=  R_exch_data2(indN) + sum(R_exch_temp,'all');
-    R_exch_data2(indO)= R_exch_data2(indO) - sum(R_exch_temp,'all');
+    R_exch_data(indO2)= R_exch_data(indO2) + sum(R_exch_temp,2);
+    R_exch_data(indNO)=  R_exch_data(indNO) - sum(R_exch_temp,1)'; 
+    R_exch_data(indN)=  R_exch_data(indN) + sum(R_exch_temp,'all');
+    R_exch_data(indO)= R_exch_data(indO) - sum(R_exch_temp,'all');
+    Qin = Qin + QZ1;
    end
    if (M1.name=="N2") %second reaction N2(i) + O -> NO(k) + N
     indO=kinetics.index{numO};
@@ -160,19 +161,34 @@ for indM1=1:kinetics.num_Ps     % considering each particle
     indN2=kinetics.index{numN2};
     indNO=kinetics.index{numNO};
     indO2=kinetics.index{numO2};
-    R_exch_temp=R_exch_N2_O__NO_N(M1, kinetics.Ps{numNO} , y2(indN2),...
-        y2(indO), y2(indNO),  y2(indN), T);
+    [R_exch_temp, QZ2] = R_exch_N2_O__NO_N(M1, kinetics.Ps{numNO} , ...
+        y(indN2), y(indO), y(indNO),  y(indN), T);
     %если я правильно понимаю для тех кто слева надо +, а для тех кто
    % справа -
-    R_exch_data2(indN2)= R_exch_data2(indN2) + sum(R_exch_temp,2);
-    R_exch_data2(indNO)= R_exch_data2(indNO) - sum(R_exch_temp,1)';  
-    R_exch_data2(indO)= R_exch_data2(indO) + sum(R_exch_temp,'all');
-    R_exch_data2(indN)= R_exch_data2(indN)  - sum(R_exch_temp,'all');
+    R_exch_data(indN2)= R_exch_data(indN2) + sum(R_exch_temp,2);
+    R_exch_data(indNO)= R_exch_data(indNO) - sum(R_exch_temp,1)';  
+    R_exch_data(indO)= R_exch_data(indO) + sum(R_exch_temp,'all');
+    R_exch_data(indN)= R_exch_data(indN)  - sum(R_exch_temp,'all');
+    Qin = Qin + QZ2;
    end
+  end
+  
+  if isKey(kinetics.reactions, 'Wall')
+   if M1.num_vibr_levels(1)>1
+    if isKey(kinetics.reactions, 'VT')
+     [R_VT_wall_data_temp, Qwall] = R_VT_wall(M1, y(i1), T, kinetics);
+     R_wall_data(i1) = R_wall_data(i1) + R_VT_wall_data_temp/kinetics.n0;
+     Qin = Qin + Qwall/kinetics.n0;
+    end
+   end
+%    if isKey(kinetics.reactions, 'Diss')
+%     warning('Recombination on a wall is still not implemented')
+%    end
   end
   
  end
 end
 
-R=R_VT_data2+R_VV_data+R_diss_data2+R_VE_data2+R_exch_data2;
+R = R_VT_data + R_VV_data + R_diss_data + R_VE_data + ... 
+                                            R_exch_data + R_wall_data;
 end
