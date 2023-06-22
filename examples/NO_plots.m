@@ -10,7 +10,7 @@ for var=[1:11]
 % 5 - 1-01 T=2360 P=0.757; 6 - 1-04 T=3470 P=0.584; 7 - 1-08 T=5580K P=0.252;
 % 8 - 1-12 T=7090K P=0.274; 9 - 04-02 T=2180K P=0.952; 10 - 04-11 T=3470K 
 %P=0.668;  11 - 04-22 T=5650K P=0.545;
-i_vibr=1;
+i_vibr=2;
 rel=2;
 switch var
     case 1
@@ -22,6 +22,7 @@ switch var
     time_n_exp=n_exp(:,1);
     n_exp=n_exp(:,2);
     tlim=600;
+    err=0.045;
     case 2
     TT=readmatrix('T_2%_2.csv');
     time_T_exp=TT(:,1);
@@ -31,6 +32,7 @@ switch var
     time_n_exp=n_exp(:,1);
     n_exp=n_exp(:,2);
     tlim=300;
+    err=0.127;
     case 3
     TT=readmatrix('T_2%_3.csv');
     time_T_exp=TT(:,1);
@@ -40,6 +42,7 @@ switch var
     time_n_exp=n_exp(:,1);
     n_exp=n_exp(:,2);
     tlim=150;
+    err=0.769;
     case 4
     TT=readmatrix('T_2%_4.csv');
     time_T_exp=TT(:,1);
@@ -49,6 +52,7 @@ switch var
     time_n_exp=n_exp(:,1);
     n_exp=n_exp(:,2);
     tlim=70;
+    err=0.80;
     case 5
     TT=readmatrix('T_1%_1.csv');
     time_T_exp=TT(:,1);
@@ -58,6 +62,7 @@ switch var
     time_n_exp=n_exp(:,1);
     n_exp=n_exp(:,2);
     tlim=600;
+    err=0.013;
     case 6
     TT=readmatrix('T_1%_2.csv');
     time_T_exp=TT(:,1);
@@ -67,6 +72,7 @@ switch var
     time_n_exp=n_exp(:,1);
     n_exp=n_exp(:,2);
     tlim=600;
+    err=0.03;
     case 7
     Test=readmatrix("T_1%_3.csv");
     time_T_exp=Test(:,1);
@@ -76,6 +82,7 @@ switch var
     time_n_exp=n_exp(:,1);
     n_exp=n_exp(:,2);
     tlim=300;
+    err=0.37;
     case 8
     Test=readmatrix("T_1%_4.csv");
     time_T_exp=Test(:,1);
@@ -85,6 +92,7 @@ switch var
     time_n_exp=n_exp(:,1);
     n_exp=n_exp(:,2);
     tlim=150;
+    err=0.75;
     case 9
     Test=readmatrix("T_0_4%_1.csv");
     time_T_exp=Test(:,1);
@@ -94,6 +102,7 @@ switch var
     time_n_exp=n_exp(:,1);
     n_exp=n_exp(:,2);
     tlim=600;
+    err=0.02;
     case 10
     Test=readmatrix("T_0_4%_2.csv");
     time_T_exp=Test(:,1);
@@ -103,6 +112,7 @@ switch var
     time_n_exp=n_exp(:,1);
     n_exp=n_exp(:,2);
     tlim=600;
+    err=0.08;
     case 11
     Test=readmatrix("T_0_4%_3.csv");
     time_T_exp=Test(:,1);
@@ -112,6 +122,7 @@ switch var
     time_n_exp=n_exp(:,1);
     n_exp=n_exp(:,2);
     tlim=300;
+    err=0.495;
 end
 
 figure("Position", [0, 0, 900, 800])
@@ -151,6 +162,7 @@ plot(time_n_exp, n_exp, 'k-', 'LineWidth', 2, 'DisplayName', "n_{NO} - experimen
 plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).nNO*1e3,'r-', 'LineWidth', 1.5, 'DisplayName', "n_{NO} - U=D/6k " );
 plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).nNO*1e3,'b-', 'LineWidth', 1.5, 'DisplayName', "n_{NO} - U=3T " );
 plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).nNO*1e3, 'm-','LineWidth', 1.5, 'DisplayName', "n_{NO} - U=inf " );
+errorbar(time_n_exp, n_exp, n_exp*err, 'sqk', 'MarkerFaceColor', 'k','MarkerSize',1, 'LineWidth', 1)
 xlim([-10 tlim]);
 ylim([0 max(dat1(i_vibr,2,var,rel).nNO*1e3)+4]);
 legend('Location','se');
