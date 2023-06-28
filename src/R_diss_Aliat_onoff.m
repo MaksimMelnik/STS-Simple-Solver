@@ -45,20 +45,20 @@ Kdr=zero_template;
 Theta_r = M.Be*V_H*V_C/V_K;
 Z_rot = T./(M.sigma.*Theta_r);
 for i=1:M.num_elex_levels       % вот тут энергию e_i от нуля или от e_0?
- ZvibT=sum(exp(-M.ev_i{i}/(V_K*T)));
- ZvibU=sum(exp(M.ev_i{i}/(V_K*U(i))));
+ ZvibT=sum(exp(-M.ev_i{i}(1:M.num_vibr_levels)/(V_K*T)));
+ ZvibU=sum(exp(M.ev_i{i}(1:M.num_vibr_levels)/(V_K*U(i))));
  if ind_Aliat=="Aliat"
   divsum=divsum+M.s_e(i)*exp(M.e_E(i)/(V_K*U(i)))*ZvibU/ZvibT;
   V(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i)))=...
                 exp((M.ev_i{i}+M.e_E(i))/V_K*(1/T+1/U(i)));
  else
   V(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i)))=...
-                exp((M.ev_i{i}+M.e_E(i))/V_K*(1/T+1/U(i)))*ZvibT/ZvibU;
+                exp((M.ev_i{i}(1:M.num_vibr_levels)+M.e_E(i))/V_K*(1/T+1/U(i)))*ZvibT/ZvibU;
   divsum=1;
  end
  Kdr(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i)))=...
      Z_rot(i)*M.s_e(i)/M.mltpl_atoms_s_e... 
-     *exp(-(M.e_E(i)+M.ev_0(i)+M.ev_i{i}...
+     *exp(-(M.e_E(i)+M.ev_0(i)+M.ev_i{i}(1:M.num_vibr_levels)...
                                    +M.form_e-M.form_e_atoms_sum)/V_K/T);
 end
 V=Zel*V/divsum;

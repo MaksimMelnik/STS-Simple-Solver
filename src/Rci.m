@@ -128,20 +128,22 @@ for indM1=1:kinetics.num_Ps     % considering each particle
     indO=kinetics.index{IndexOfMolecules("O")};
     indN=kinetics.index{IndexOfMolecules("N")};
     indN2=kinetics.index{IndexOfMolecules("N2")};
-    indN2=indN2(1+0:sum(N2.num_vibr_levels(1)));
+    indN2=indN2(1+0:sum(kinetics.Ps{IndexOfMolecules("N2")}.num_vibr_levels(1)));
     indNO=kinetics.index{IndexOfMolecules("NO")};
-    indNO=indNO(1+0:sum(NO.num_vibr_levels(1)));
+    indNO=indNO(1+0:sum(kinetics.Ps{IndexOfMolecules("NO")}.num_vibr_levels(1)));
     indO2=kinetics.index{IndexOfMolecules("O2")};
-    indO2=indO2(1+0:sum(O2.num_vibr_levels(1)));
+    indO2=indO2(1+0:sum(kinetics.Ps{IndexOfMolecules("O2")}.num_vibr_levels(1)));
     coll.ArrA=4e-16^(T < 4000)*3.206e-23^(T >= 4000);
     coll.ArrN=(-0.39)^(T < 4000)*1.58^(T >= 4000);
     coll.ArrE=1449;
     %R_exch_temp=R_exch_O2_N__NO_O(M1, kinetics.Ps{IndexOfMolecules("NO")} , y2(indO2),...
     %    y2(indN), y2(indNO),  y2(indO), T);
 
+    VibrDeactivationOfProduct=0; % 0 - активация продукта реакции отключена 
+    %1 - активация продукта реакции учитывается
     R_exch_temp=R_exch_M1_M2_M3_M4(M1, kinetics.Ps{IndexOfMolecules("N")}, ...
         kinetics.Ps{IndexOfMolecules("NO")}, kinetics.Ps{IndexOfMolecules("O")}, ...
-        y2(indO2), y2(indN), y2(indNO),  y2(indO), T, coll);
+        y2(indO2), y2(indN), y2(indNO),  y2(indO), T, coll, VibrDeactivationOfProduct);
 
     %если я правильно понимаю для тех кто слева надо +, а для тех кто
     %справа -
@@ -154,20 +156,23 @@ for indM1=1:kinetics.num_Ps     % considering each particle
     indO=kinetics.index{IndexOfMolecules("O")};
     indN=kinetics.index{IndexOfMolecules("N")};
     indN2=kinetics.index{IndexOfMolecules("N2")};
-    indN2=indN2(1+0:sum(N2.num_vibr_levels(1)));
+    indN2=indN2(1+0:sum(kinetics.Ps{IndexOfMolecules("N2")}.num_vibr_levels(1)));
     indNO=kinetics.index{IndexOfMolecules("NO")};
-    indNO=indNO(1+0:sum(NO.num_vibr_levels(1)));
+    indNO=indNO(1+0:sum(kinetics.Ps{IndexOfMolecules("NO")}.num_vibr_levels(1)));
     indO2=kinetics.index{IndexOfMolecules("O2")};
-    indO2=indO2(1+0:sum(O2.num_vibr_levels(1)));
+    indO2=indO2(1+0:sum(kinetics.Ps{IndexOfMolecules("O2")}.num_vibr_levels(1)));
     coll.ArrA=3e-17^(T < 4000)*1.554e-23^(T >= 4000);
     coll.ArrN=0^(T < 4000)*1.745^(T >= 4000);
     coll.ArrE=37484;
     %R_exch_temp=R_exch_N2_O__NO_N(M1, kinetics.Ps{IndexOfMolecules("NO")} , y2(indN2),...
     %    y2(indO), y2(indNO),  y2(indN), T);
 
+
+    VibrDeactivationOfProduct=0; % 0 - активация продукта реакции отключена 
+    %1 - активация продукта реакции учитывается
     R_exch_temp=R_exch_M1_M2_M3_M4(M1, kinetics.Ps{IndexOfMolecules("O")}, ...
         kinetics.Ps{IndexOfMolecules("NO")}, kinetics.Ps{IndexOfMolecules("N")}, ...
-        y2(indN2), y2(indO), y2(indNO),  y2(indN), T, coll);
+        y2(indN2), y2(indO), y2(indNO),  y2(indN), T, coll, VibrDeactivationOfProduct);
 
     %если я правильно понимаю для тех кто слева надо +, а для тех кто
    % справа -
