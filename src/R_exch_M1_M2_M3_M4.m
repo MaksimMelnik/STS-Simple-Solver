@@ -14,7 +14,7 @@ Theta_r_M1 = M1.Be(1)*V_H*V_C/V_K;     Z_rot_M1 = T./(M1.sigma.*Theta_r_M1);
 Theta_r_M3 = M3.Be(1)*V_H*V_C/V_K;     Z_rot_M3 = T./(M3.sigma.*Theta_r_M3);
 
 %колебательные статсуммы
-exp_M1 = exp(-(M1.ev_0(1) + M1.ev_i{1}(1:M1.num_vibr_levels(1)))/(V_K*T));
+exp_M1 = exp(-(M1.ev_i{1}(1:M1.num_vibr_levels(1)))/(V_K*T));
 Zv_M1 = sum(exp_M1);
 
 % приведенное Больцмановское распределение молекул
