@@ -5,13 +5,13 @@ function [R, Qin] = Rci(y, kinetics)
 % kinetics is the big structure with all kinetics.
 % 09.12.2022 by Maksim Melnik.
 
-T = y(end)*kinetics.T0;
+T = y(end) * kinetics.T0;
 n0 = kinetics.n0;
-R_VT_data = zeros(kinetics.num_eq, 1);
-R_VV_data =zeros(kinetics.num_eq, 1);
-R_diss_data=zeros(kinetics.num_eq, 1);
-R_VE_data=zeros(kinetics.num_eq, 1);
-R_exch_data=zeros(kinetics.num_eq, 1);
+R_VT_data  =  zeros(kinetics.num_eq, 1);
+R_VV_data  =  zeros(kinetics.num_eq, 1);
+R_diss_data = zeros(kinetics.num_eq, 1);
+R_VE_data  =  zeros(kinetics.num_eq, 1);
+R_exch_data = zeros(kinetics.num_eq, 1);
 R_wall_data = zeros(kinetics.num_eq, 1);
 Qin = 0;
 
@@ -32,38 +32,39 @@ for i=1:length(kinetics.Ps)
     end
 end
 
-for indM1=1:kinetics.num_Ps     % considering each particle
- M1=kinetics.Ps{indM1};
- i1=kinetics.index{indM1};      % pointer on ni of M1
- if M1.fr_deg_c>3
-
-  if M1.num_vibr_levels(1)>1    % should we consider vibr processes?
+for indM1 = 1:kinetics.num_Ps   % considering each particle
+ M1 = kinetics.Ps{indM1};
+ i1 = kinetics.index{indM1};    % pointer on ni of M1
+ if M1.fr_deg_c > 3
       
-   if isKey(kinetics.reactions, 'VT')
-    for indM2=1:kinetics.num_Ps
-     M2=kinetics.Ps{indM2};
-     i2=kinetics.index{indM2};
-     for ind_e=1:M1.num_elex_levels
-      i1_e=i1(1+sum(M1.num_vibr_levels(1:ind_e-1)):...
+  if isKey(kinetics.reactions, 'VT')
+   for indM2 = 1:kinetics.num_Ps
+    M2 = kinetics.Ps{indM2};
+    i2 = kinetics.index{indM2};
+    for ind_e = 1:M1.num_elex_levels
+     if M1.num_vibr_levels(ind_e) > 1
+      i1_e = i1(1+sum(M1.num_vibr_levels(1:ind_e-1)) : ...
                                         sum(M1.num_vibr_levels(1:ind_e)));
       [R_VT_data_temp , Q_VT] = R_VT(M1, y(i1_e), M2, ...
                         sum(y(i2)), T, ind_e, kinetics.reactions('VT'));
-      R_VT_data(i1_e)=R_VT_data(i1_e)+R_VT_data_temp;
+      R_VT_data(i1_e) = R_VT_data(i1_e) + R_VT_data_temp;
       Qin = Qin + Q_VT;
      end
     end
    end
+  end
    
-   if isKey(kinetics.reactions, 'VV')
-    for indM2 = indM1:kinetics.num_Ps
-     M2 = kinetics.Ps{indM2};
-     if M2.num_vibr_levels(1) > 1
-      i2 = kinetics.index{indM2};
-      for ind_e1 = 1:M1.num_elex_levels
-       i1_e = i1(1+sum(M1.num_vibr_levels(1:ind_e1-1)):...
+  if isKey(kinetics.reactions, 'VV')
+   for ind_e1 = 1:M1.num_elex_levels
+    if M1.num_vibr_levels(ind_e) > 1
+     for indM2 = indM1:kinetics.num_Ps
+      M2 = kinetics.Ps{indM2};
+      for ind_e2 = 1:M2.num_elex_levels
+       if M2.num_vibr_levels(ind_e2) > 1
+        i2 = kinetics.index{indM2};
+        i1_e = i1(1+sum(M1.num_vibr_levels(1:ind_e1-1)) : ...
                                        sum(M1.num_vibr_levels(1:ind_e1)));
-       for ind_e2 = 1:M2.num_elex_levels
-        i2_e = i2(1+sum(M2.num_vibr_levels(1:ind_e2-1)):...
+        i2_e = i2(1+sum(M2.num_vibr_levels(1:ind_e2-1)) : ...
                                        sum(M2.num_vibr_levels(1:ind_e2))); 
         [R_VV_data_temp, Q_VV] = R_VV(M1, y(i1_e), M2, y(i2_e), ...
                              T, ind_e1, ind_e2, kinetics.reactions('VV'));
@@ -77,7 +78,6 @@ for indM1=1:kinetics.num_Ps     % considering each particle
      end
     end
    end
-   
   end
   
   if M1.num_elex_levels>1
@@ -104,8 +104,8 @@ for indM1=1:kinetics.num_Ps     % considering each particle
   end
   
   if isKey(kinetics.reactions, 'Diss')
-   for indM3=1:kinetics.num_Ps     % finding indexes of diss parts of M1
-    if kinetics.Ps{indM3}.name==M1.diss_parts(1)
+   for indM3 = 1:kinetics.num_Ps     % finding indexes of diss parts of M1
+    if kinetics.Ps{indM3}.name == M1.diss_parts(1)
      indP1=indM3;
     end
     if kinetics.Ps{indM3}.name==M1.diss_parts(2)
@@ -138,30 +138,39 @@ for indM1=1:kinetics.num_Ps     % considering each particle
   end
 
   if isKey(kinetics.reactions, 'Exch') %exchange reactions
-   if (M1.name=="O2") %first reaction O2+N->NO + O
-       %M1=O2
-    indO=kinetics.index{numO};
-    indN=kinetics.index{numN};
-    indN2=kinetics.index{numN2};
-    indNO=kinetics.index{numNO};
-    indO2=kinetics.index{numO2};
-    [R_exch_temp, QZ1] = R_exch_O2_N__NO_O(M1, kinetics.Ps{numNO} , ...
-                            y(indO2), y(indN), y(indNO),  y(indO), T);
-    %если я правильно понимаю для тех кто слева надо +, а для тех кто
-    %справа -
-    R_exch_data(indO2)= R_exch_data(indO2) + sum(R_exch_temp,2);
-    R_exch_data(indNO)=  R_exch_data(indNO) - sum(R_exch_temp,1)'; 
-    R_exch_data(indN)=  R_exch_data(indN) + sum(R_exch_temp,'all');
-    R_exch_data(indO)= R_exch_data(indO) - sum(R_exch_temp,'all');
-    Qin = Qin + QZ1;
-   end
+%    if (M1.name=="O2") %first reaction O2+N->NO + O
+%        %M1=O2
+%     indO=kinetics.index{numO};
+%     indO = indO(1);
+%     indN=kinetics.index{numN};
+%     indN = indN(1);
+%     indNO=kinetics.index{numNO};
+%     indNO = indNO(1);
+%     indO2=kinetics.index{numO2};
+%     indO2 = indO2(1);
+%     [R_exch_temp, QZ1] = R_exch_O2_N__NO_O(M1, kinetics.Ps{numNO} , ...
+%                             y(indO2), y(indN), y(indNO),  y(indO), T);
+%     %если я правильно понимаю для тех кто слева надо +, а для тех кто
+%     %справа -
+%     R_exch_data(indO2)= R_exch_data(indO2) + sum(R_exch_temp,2);
+%     R_exch_data(indNO)=  R_exch_data(indNO) - sum(R_exch_temp,1)'; 
+%     R_exch_data(indN)=  R_exch_data(indN) + sum(R_exch_temp,'all');
+%     R_exch_data(indO)= R_exch_data(indO) - sum(R_exch_temp,'all');
+%     Qin = Qin + QZ1;
+%    end
    if (M1.name=="N2") %second reaction N2(i) + O -> NO(k) + N
     indO=kinetics.index{numO};
+    indO = indO(1);
     indN=kinetics.index{numN};
+    indN = indN(1);
     indN2=kinetics.index{numN2};
     indNO=kinetics.index{numNO};
-    indO2=kinetics.index{numO2};
-    [R_exch_temp, QZ2] = R_exch_N2_O__NO_N(M1, kinetics.Ps{numNO} , ...
+%     indNO = indNO(1);
+    ind_e = 1;
+    i1_e = i1(1+sum(M1.num_vibr_levels(1:ind_e-1)) : ...
+                                        sum(M1.num_vibr_levels(1:ind_e)));
+	indN2 = i1_e;
+    [R_exch_temp, QZ2] = R_exch_N2_O__NO_N(M1, kinetics.Ps{numNO}, ...
         y(indN2), y(indO), y(indNO),  y(indN), T);
     %если я правильно понимаю для тех кто слева надо +, а для тех кто
    % справа -
@@ -175,15 +184,31 @@ for indM1=1:kinetics.num_Ps     % considering each particle
   
   if isKey(kinetics.reactions, 'Wall')
    if M1.num_vibr_levels(1)>1
-    if isKey(kinetics.reactions, 'VT')
+    if max(isKey(kinetics.reactions, {'VT', 'VV'}))
      [R_VT_wall_data_temp, Qwall] = R_VT_wall(M1, y(i1), T, kinetics);
      R_wall_data(i1) = R_wall_data(i1) + R_VT_wall_data_temp/kinetics.n0;
      Qin = Qin + Qwall/kinetics.n0;
     end
    end
-%    if isKey(kinetics.reactions, 'Diss')
-%     warning('Recombination on a wall is still not implemented')
-%    end
+   if isKey(kinetics.reactions, 'Diss')
+    if M1.sigma == 2
+     for indM3 = 1:kinetics.num_Ps   % finding indexes of diss parts of M1
+      if kinetics.Ps{indM3}.name == M1.diss_parts(1)
+       indP1 = indM3;
+       break
+      end
+     end
+     iP1 = kinetics.index{indP1};
+     nP1 = y(iP1(1));
+     [R_rec_wall_data_temp, Q_rec_wall] = ...
+                        R_rec_wall(kinetics.Ps{indP1}, nP1, T, kinetics);
+	 R_wall_data(iP1(1)) = R_wall_data(iP1(1)) + ...
+                                        R_rec_wall_data_temp/kinetics.n0;
+	 R_wall_data(i1(1)) = R_wall_data(i1(1)) - ...
+                                   0.5 * R_rec_wall_data_temp/kinetics.n0;
+	 Qin = Qin + Q_rec_wall/kinetics.n0;
+    end
+   end
   end
   
  end
@@ -192,3 +217,10 @@ end
 R = R_VT_data + R_VV_data + R_diss_data + R_VE_data + ... 
                                             R_exch_data + R_wall_data;
 end
+
+
+
+
+
+
+

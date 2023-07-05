@@ -1,5 +1,5 @@
-function [RD, Q] = R_diss_Aliat_onoff(M, n_m, n_a1, n_a2, n_p, Coll, T, ...
-                                            n0, ind_U, ind_Aliat)
+function [RD, Q] = R_diss_Aliat_onoff(M, n_m, n_a1, n_a2, n_p, Coll, ...
+                                                T, n0, ind_U, ind_Aliat)
 % The universal function for calculating dissociation relaxation terms 
 % R_Diss according to the Aliat and Marrone-Treanor models 
 % for electronically excited molecules.
@@ -22,8 +22,10 @@ end
 % В переменной Coll хранится информация о столкновении. ArrA и ArrN --
 % параметры в законе Аррениуса. ArrA(1) -- по Парку, 2 -- по Ибрагимовой,
 % 3 -- по МакКензи.
-kd_eq = Coll.ArrA * T^Coll.ArrN*...
-                            exp(-(M.diss_e + M.e_E)/(V_K*T)); % m^3/sec
+% kd_eq = Coll.ArrA * T^Coll.ArrN*... old
+%                             exp(-(M.diss_e + M.e_E)/(V_K*T)); % m^3/sec
+kd_eq = Coll.ArrA * T^Coll.ArrN*... new
+                            exp(-(M.diss_e)/(V_K*T)); % m^3/sec
 % if ind_Arr==4
 %     kd_eq = kd_eq*0+Coll.ArrA(ind_Arr);
 % end
@@ -56,15 +58,19 @@ dE_OA = zero_template;
 Theta_r = M.Be*V_H*V_C/V_K;
 Z_rot = T./(M.sigma.*Theta_r);
 for i=1:M.num_elex_levels       % вот тут энергию e_i от нуля или от e_0?
- ZvibT=sum(exp(-M.ev_i{i}/(V_K*T)));
- ZvibU=sum(exp(M.ev_i{i}/(V_K*U(i))));
+%  ZvibT=sum(exp(-M.ev_i{i}/(V_K*T)));
+%  ZvibU=sum(exp(M.ev_i{i}/(V_K*U(i))));
+ ZvibT=sum(exp(-(M.ev_0(i)+M.ev_i{i})/(V_K*T)));
+ ZvibU=sum(exp((M.ev_0(i)+M.ev_i{i})/(V_K*U(i))));
  if ind_Aliat=="Aliat"
   divsum=divsum+M.s_e(i)*exp(M.e_E(i)/(V_K*U(i)))*ZvibU/ZvibT;
   V(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i)))=...
-                exp((M.ev_i{i}+M.e_E(i))/V_K*(1/T+1/U(i)));
+                exp((M.ev_0(i)+M.ev_i{i}+M.e_E(i))/V_K*(1/T+1/U(i)));
  else
-  V(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i)))=...
-                exp((M.ev_i{i}+M.e_E(i))/V_K*(1/T+1/U(i)))*ZvibT/ZvibU;
+%   V(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i)))=... old
+%                 exp((M.ev_i{i}+M.e_E(i))/V_K*(1/T+1/U(i)))*ZvibT/ZvibU;
+  V(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i)))=... new
+                exp((M.ev_0(i)+M.ev_i{i})/V_K*(1/T+1/U(i)))*ZvibT/ZvibU;
   divsum=1;
  end
  dE = M.e_E(i) + M.ev_0(i) + M.ev_i{i} + M.form_e - M.form_e_atoms_sum;
@@ -76,9 +82,14 @@ V=Zel*V/divsum;
 Kdr=Kdr*(M.mass/M.mltpl_atoms_mass)^(3/2)*V_H^3*(2*pi*V_K*T)^(-3/2);
 kd=zero_template;
 for i=1:M.num_elex_levels
- kd(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i))) = ...
+ if M.num_vibr_levels(i) > 1
+  kd(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i))) = ...
       V(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i))) ...
                                                                * kd_eq(i);
+ else
+  kd(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i))) = ...
+                                                                kd_eq(i);
+ end
 end
 kr= kd .* Kdr * n0;
 RD = (n_p * (n_a1*n_a2*kr-(n_m').*kd))';

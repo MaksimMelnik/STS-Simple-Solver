@@ -20,10 +20,10 @@ lambdaN2 = (1.717 + 0.084*T - 1.948e-5*T^2)/1e3;  % W / m / K
 lambdaO2 = (1.056 + 0.087*T - 8.912e-6*T^2)/1e3;  % W / m / K
 lambda = lambdaN2 * 0.8 + lambdaO2 * 0.2;         % W / m / K (kg*m/s3/K)
 n_m = sum(y(1:end-1)) * kinetics.n0 / N_a;        % molar density, mol/m3
-cp_N2 = 29.1 + 2494.2/553.4/sqrt(pi/2) * exp(-2 * ((T-1047.4)/553.4)^2);
-cp_O2 = 28.2 + 6456.2/788.3/sqrt(pi/2) * exp(-2 * ((T-1006.9)/788.3)^2);
-c_p = 0.8 * cp_N2 + 0.2 * cp_O2;            % molar heat capacity, J/mol/K
-dT = (8*lambda*(kinetics.Tw - T)/kinetics.tube_R^2 + Q) / (n_m*c_p) ...
-                                        /kinetics.T0*kinetics.t0; % K/s
+cp_N2 = c_p(kinetics.Ps{1}, T);
+cp_O2 = c_p(kinetics.Ps{2}, T);
+c_p_total = 0.8 * cp_N2 + 0.2 * cp_O2;      % molar heat capacity, J/mol/K
+dT = (8*lambda*(kinetics.Tw - T)/kinetics.tube_R^2 + Q) ...
+                        /(n_m*c_p_total) /kinetics.T0*kinetics.t0; % K/s
 out = [R; dT];
 end
