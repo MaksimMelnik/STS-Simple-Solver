@@ -1,10 +1,12 @@
-addpath('..\data\NO experiment\');
-load('NO_behind_ReflSW_withexch.mat');
-load('NO_between_SWs_withexch.mat');
-load('NO_Streicher22_experiment.mat');
+%%Comparison with experimental data and plots
+%Streicher's 2022 experiment with NO\O\N\O2\N2\Ar mixtures
+
+load('..\data\NO Streicher experiment\NO_behind_ReflSW_withexch.mat');
+load('..\data\NO Streicher experiment\NO_between_SWs_withexch.mat');
+load('..\data\NO Streicher experiment\NO_Streicher22_experiment.mat');
 info=["2% No.1", "2% No.2", "2% No.3" ,"2% No.4" ,"1% No.5", "1% No.6",...
     "1% No.7","1% No.8","0.4% No.9","0.4% No.10","0.4% No.11"];
-for var=[1:11]
+for var=1:11
 %testcases     
 %var: %1 - 2-02 T=3560 P=0.561;  2 - 2-14 T=5460 P=0.325; 3 - 2-32 T=7070
 %P=0.119; 4 - 2-38 T=8730 P=0.137
@@ -28,7 +30,7 @@ err=0.045;
    
 
 figure("Position", [0, 0, 900, 800])
-tiledlayout(2, 2, "TileSpacing", "compact", "Padding", "tight")
+tiledlayout(2, 2, "TileSpacing", "compact")
 nexttile
 hold on
 title("Case " + info(var));
@@ -88,4 +90,4 @@ xlabel("t, \mu s");
 ylabel("T, K");
 hold off
 grid minor
-end;
+end

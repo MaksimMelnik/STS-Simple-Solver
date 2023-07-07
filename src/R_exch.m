@@ -9,7 +9,7 @@ function out = R_exch(M1, M2, M3, M4, n_M1, n_M2, n_M3, n_M4, T, coll, VDOP)
 V_C = 299792458; V_K = 1.380649e-23; V_H = 6.626070041e-34; %константы
 
 if (M2.fr_deg_c + M4.fr_deg_c ~= 6) 
-    disp("M2 and M4 must be atoms")
+    error("M2 and M4 must be atoms");
 else
 %parameters in Arrhenius law for reactuib in structure coll: ArrA, ArrN, ArrE
 %(kd_eq=A*T^N*exp(-E/T))

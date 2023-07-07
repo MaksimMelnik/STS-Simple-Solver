@@ -14,11 +14,7 @@ R_VE_data2=zeros(kinetics.num_eq, 1);
 R_exch_data2=zeros(kinetics.num_eq, 1);
 y2=y;
 
-for i=1:length(kinetics.Ps)
-    names(i)=string(kinetics.Ps{i}.name);
-    index(i)=i;
-    IndexOfMolecules=containers.Map(names,index);
-end
+IndexOfMolecules=kinetics.IndexOfMolecules;
 
 for indM1=1:kinetics.num_Ps     % considering each particle
  M1=kinetics.Ps{indM1};
@@ -164,15 +160,13 @@ for indM1=1:kinetics.num_Ps     % considering each particle
     coll.ArrA=3e-17^(T < 4000)*1.554e-23^(T >= 4000);
     coll.ArrN=0^(T < 4000)*1.745^(T >= 4000);
     coll.ArrE=37484;
-    %R_exch_temp=R_exch_N2_O__NO_N(M1, kinetics.Ps{IndexOfMolecules("NO")} , y2(indN2),...
-    %    y2(indO), y2(indNO),  y2(indN), T);
-
-
-    VibrDeactivationOfProduct=0; % 0 - активация продукта реакции отключена 
-    %1 - активация продукта реакции учитывается
+    VibrDeactivationOfProduct=0; %1 - taking into ccount vibrational 
+    % activation of product of reaction, 0 - without vibr. 
+    % activation of product of reaction
     R_exch_temp=R_exch(M1, kinetics.Ps{IndexOfMolecules("O")}, ...
-        kinetics.Ps{IndexOfMolecules("NO")}, kinetics.Ps{IndexOfMolecules("N")}, ...
-        y2(indN2), y2(indO), y2(indNO),  y2(indN), T, coll, VibrDeactivationOfProduct);
+    kinetics.Ps{IndexOfMolecules("NO")}, ...
+    kinetics.Ps{IndexOfMolecules("N")}, y2(indN2), y2(indO), ...
+    y2(indNO),  y2(indN), T, coll, VibrDeactivationOfProduct);
 
     %если я правильно понимаю для тех кто слева надо +, а для тех кто
    % справа -

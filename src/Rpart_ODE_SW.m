@@ -10,7 +10,7 @@ v_DN=y2(end-1);     % dimentionless gas velocity
 T_DN=y2(end);
 
     % relaxation terms
-R=Rci(y2, kinetics); %rpart for NO
+R=Rci(y2, kinetics);
     % number densities equations
 M2 = diag([ones(1, kinetics.num_eq)*v_DN 0 0]);
 M2(1:end-2, end-1) = y2(1:end-2);
@@ -28,7 +28,7 @@ for ind=1:kinetics.num_Ps
  if kinetics.Ps{ind}.fr_deg_c>3
   e_i=[];
   for ind_e=1:kinetics.Ps{ind}.num_elex_levels
-   e_i=[e_i, kinetics.Ps{ind}.ev_i{ind_e}(1:kinetics.Ps{ind}.num_vibr_levels(1)) + kinetics.Ps{ind}.ev_0(ind_e)+...
+   e_i=[e_i, kinetics.Ps{ind}.ev_i{ind_e}(1:kinetics.Ps{ind}.num_vibr_levels(ind_e)) + kinetics.Ps{ind}.ev_0(ind_e)+...
        kinetics.Ps{ind}.e_E(ind_e)];
   end
   M2(end, kinetics.index{ind}) = ...
