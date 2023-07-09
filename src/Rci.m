@@ -132,17 +132,12 @@ for indM1=1:kinetics.num_Ps     % considering each particle
     coll.ArrA=4e-16^(T < 4000)*3.206e-23^(T >= 4000);
     coll.ArrN=(-0.39)^(T < 4000)*1.58^(T >= 4000);
     coll.ArrE=1449;
-    %R_exch_temp=R_exch_O2_N__NO_O(M1, kinetics.Ps{IndexOfMolecules("NO")} , y2(indO2),...
-    %    y2(indN), y2(indNO),  y2(indO), T);
-
-    VibrDeactivationOfProduct=0; % 0 - активация продукта реакции отключена 
-    %1 - активация продукта реакции учитывается
+    VibrDeactivationOfProduct=0; %1 - taking into account the vibrational 
+    % activation of the reaction product, 0 - without vibr. 
+    % reaction product activation
     R_exch_temp=R_exch(M1, kinetics.Ps{IndexOfMolecules("N")}, ...
         kinetics.Ps{IndexOfMolecules("NO")}, kinetics.Ps{IndexOfMolecules("O")}, ...
         y2(indO2), y2(indN), y2(indNO),  y2(indO), T, coll, VibrDeactivationOfProduct);
-
-    %если я правильно понимаю для тех кто слева надо +, а для тех кто
-    %справа -
     R_exch_data2(indO2)= R_exch_data2(indO2) + sum(R_exch_temp,2);
     R_exch_data2(indNO)=  R_exch_data2(indNO) - sum(R_exch_temp,1)'; 
     R_exch_data2(indN)=  R_exch_data2(indN) + sum(R_exch_temp,'all');
@@ -160,16 +155,13 @@ for indM1=1:kinetics.num_Ps     % considering each particle
     coll.ArrA=3e-17^(T < 4000)*1.554e-23^(T >= 4000);
     coll.ArrN=0^(T < 4000)*1.745^(T >= 4000);
     coll.ArrE=37484;
-    VibrDeactivationOfProduct=0; %1 - taking into ccount vibrational 
-    % activation of product of reaction, 0 - without vibr. 
-    % activation of product of reaction
+    VibrDeactivationOfProduct=0; %1 - taking into account the vibrational 
+    % activation of the reaction product, 0 - without vibr. 
+    % reaction product activation
     R_exch_temp=R_exch(M1, kinetics.Ps{IndexOfMolecules("O")}, ...
     kinetics.Ps{IndexOfMolecules("NO")}, ...
     kinetics.Ps{IndexOfMolecules("N")}, y2(indN2), y2(indO), ...
     y2(indNO),  y2(indN), T, coll, VibrDeactivationOfProduct);
-
-    %если я правильно понимаю для тех кто слева надо +, а для тех кто
-   % справа -
     R_exch_data2(indN2)= R_exch_data2(indN2) + sum(R_exch_temp,2);
     R_exch_data2(indNO)= R_exch_data2(indNO) - sum(R_exch_temp,1)';  
     R_exch_data2(indO)= R_exch_data2(indO) + sum(R_exch_temp,'all');

@@ -23,9 +23,8 @@ time_n_exp=data_experiment(var).n(:,1);
 nm_exp=data_experiment(var).n(:,2);
 
 if var==1
-time_p_exp=readmatrix('p.csv');
-p_exp=time_p_exp(:,2);
-time_p_exp=time_p_exp(:,1);
+time_p_exp=data_experiment(var).p(:,1);
+p_exp=data_experiment(var).p(:,2);
 end
 
 %%Temperature & Number density
@@ -87,4 +86,22 @@ hold off
 grid minor
 end
 
+%%Pressure
 
+PPP(:,1)=[75 53 30 130 97 33 57 41 34];
+PPP(:,2)=[0.12 0.30 0.36 0.09 0.23 0.29 0.10 0.15 0.24];
+figure
+hold on
+plot(time_p_exp, p_exp, 'DisplayName',"p - raw data");
+plot(time_p_exp(16:end), time_p_exp(16:end)*PPP(1,2)+PPP(1,1), 'k-','LineWidth', 1.5, 'DisplayName',"p - interpolated data");
+plot(dat1(i_vibr,2,1,rel).time, dat1(i_vibr,2,1,rel).p,'r-', 'LineWidth', 1.5, 'DisplayName', "p - U=D/6k SSH");
+plot(dat1(i_vibr,3,1,rel).time, dat1(i_vibr,3,1,rel).p,'b-', 'LineWidth', 1.5, 'DisplayName', "p - U=3T SSH");
+plot(dat1(i_vibr,4,1,rel).time, dat1(i_vibr,4,1,rel).p,'m-', 'LineWidth', 1.5, 'DisplayName', "p - U=\infty SSH");
+legend('Location','se');
+xlabel("t, \mus");
+ylabel("p, Torr");
+xlim([-20 100]);
+ylim([-10 100]);
+hold off;
+grid minor;
+% 
