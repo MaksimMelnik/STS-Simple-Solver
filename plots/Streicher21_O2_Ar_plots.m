@@ -1,11 +1,15 @@
 %%Comparison with experimental data and plots
 %Streicher's 2021 experiment with O2\O\Ar mixtures
-
-load('..\data\O2_Ar Streicher experiment\O2Ar_Streicher_behind_ReflSW.mat');
-load('..\data\O2_Ar Streicher experiment\O2Ar_Streicher_between_SWs.mat');
+clearvars;
+load('..\data\O2_Ar Streicher experiment\output_ReflSW_O2_Ar.mat');
 load('..\data\O2_Ar Streicher experiment\O2_Ar_Streicher21_experiment.mat');
 info=["50% No.1 (03)", "50% No.2 (11)", "50% No.3 (14)" ,"20% No.1 (02)" ,"20% No.2 (08)", "20% No.3 (14)",...
     "100% No.1 (01)","100% No.2 (06)","100% No.3 (08)"];
+
+%Calculated data
+dat=data_betweenSWs_O2Ar;
+dat1=data_behindRSW_O2Ar;
+
 for var=1:9
 %testcases
 %var: %1 - 50-03 T=8110 P=75;  2 - 50-11 T=10470 P=53; 3 - 50-13 T=11410 P=30; 4 - 20-02 T=7840 P=130

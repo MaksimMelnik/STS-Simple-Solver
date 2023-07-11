@@ -1,11 +1,18 @@
 %%Comparison with experimental data and plots
 %Streicher's 2022 experiment with NO\O\N\O2\N2\Ar mixtures
-
-load('..\data\NO Streicher experiment\NO_behind_ReflSW_withexch.mat');
-load('..\data\NO Streicher experiment\NO_between_SWs_withexch.mat');
+clearvars;
+load('..\data\NO Streicher experiment\output_ReflSW_NO_Ar.mat');
 load('..\data\NO Streicher experiment\NO_Streicher22_experiment.mat');
 info=["2% No.1", "2% No.2", "2% No.3" ,"2% No.4" ,"1% No.5", "1% No.6",...
     "1% No.7","1% No.8","0.4% No.9","0.4% No.10","0.4% No.11"];
+
+%Calculated data in case with exchange reactions
+dat1=data_behindRSW_with_exchange; 
+dat=data_betweenSWs_with_exchange;
+
+%Calculated data in case without exchange reactions
+%dat1=data_behindRSW_without_exchange;
+%dat=data_betweenSWs_without_exchange;
 for var=1:11
 %testcases     
 %var: %1 - 2-02 T=3560 P=0.561;  2 - 2-14 T=5460 P=0.325; 3 - 2-32 T=7070
@@ -48,9 +55,9 @@ grid minor
 nexttile
 hold on
 title("Case " + info(var));
-plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).Tv,'r-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=D/6k " );
-plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).Tv,'b-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=3T " );
-plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).Tv, 'm-','LineWidth', 1.5, 'DisplayName', "Tv - U=inf " );
+plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).TvNO,'r-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=D/6k " );
+plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).TvNO,'b-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=3T " );
+plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).TvNO, 'm-','LineWidth', 1.5, 'DisplayName', "Tv - U=inf " );
 plot(time_T_exp, Tv_exp, 'k-', 'LineWidth', 2, 'DisplayName', "Tv - experiment");
 xlim([-10 300]);
 %ylim([0 6000]);
@@ -77,9 +84,9 @@ grid minor
 nexttile
 hold on
 title("Case " + info(var));
-plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).Tv,'r-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=D/6k " );
-plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).Tv,'b-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=3T " );
-plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).Tv, 'm-','LineWidth', 1.5, 'DisplayName', "Tv - U=inf " );
+plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).TvNO,'r-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=D/6k " );
+plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).TvNO,'b-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=3T " );
+plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).TvNO, 'm-','LineWidth', 1.5, 'DisplayName', "Tv - U=inf " );
 plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).T,'r--', 'LineWidth', 1.5, 'DisplayName', "T - U=D/6k " );
 plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).T,'b--', 'LineWidth', 1.5, 'DisplayName', "T - U=3T " );
 plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).T, 'm--','LineWidth', 1.5, 'DisplayName', "T - U=inf " );

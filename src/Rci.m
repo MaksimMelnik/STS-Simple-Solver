@@ -14,8 +14,10 @@ R_VE_data2=zeros(kinetics.num_eq, 1);
 R_exch_data2=zeros(kinetics.num_eq, 1);
 y2=y;
 
+ if isKey(kinetics.reactions, 'Exch')
 IndexOfMolecules=kinetics.IndexOfMolecules;
-
+ end
+ 
 for indM1=1:kinetics.num_Ps     % considering each particle
  M1=kinetics.Ps{indM1};
  i1=kinetics.index{indM1};      % pointer on ni of M1
