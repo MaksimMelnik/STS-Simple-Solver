@@ -6,13 +6,20 @@ load('..\data\NO Streicher experiment\NO_Streicher22_experiment.mat');
 info=["2% No.1", "2% No.2", "2% No.3" ,"2% No.4" ,"1% No.5", "1% No.6",...
     "1% No.7","1% No.8","0.4% No.9","0.4% No.10","0.4% No.11"];
 
-%Calculated data in case with exchange reactions
-dat1=data_behindRSW_with_exchange; 
-dat=data_betweenSWs_with_exchange;
+%Calculated data in case with exchange reactions and without vibrational
+%activation of the reaction product
+%dat1=data_behindRSW_withexch_VDOP0; 
+%dat=data_betweenSWs_withexch_VDOP0;
+
+%Calculated data in case with exchange reactions and with vibrational
+%activation of the reaction product
+dat1=data_behindRSW_withexch_VDOP1; 
+dat=data_betweenSWs_withexch_VDOP1;
 
 %Calculated data in case without exchange reactions
-%dat1=data_behindRSW_without_exchange;
-%dat=data_betweenSWs_without_exchange;
+%dat1=data_behindRSW_withoutexch;
+%dat=data_betweenSWs_withoutexch;
+
 for var=1:11
 %testcases     
 %var: %1 - 2-02 T=3560 P=0.561;  2 - 2-14 T=5460 P=0.325; 3 - 2-32 T=7070

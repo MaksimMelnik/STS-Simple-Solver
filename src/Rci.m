@@ -134,7 +134,7 @@ for indM1=1:kinetics.num_Ps     % considering each particle
     coll.ArrA=4e-16^(T < 4000)*3.206e-23^(T >= 4000);
     coll.ArrN=(-0.39)^(T < 4000)*1.58^(T >= 4000);
     coll.ArrE=1449;
-    VibrDeactivationOfProduct=0; %1 - taking into account the vibrational 
+    VibrDeactivationOfProduct=1; %1 - taking into account the vibrational 
     % activation of the reaction product, 0 - without vibr. 
     % reaction product activation
     R_exch_temp=R_exch(M1, kinetics.Ps{IndexOfMolecules("N")}, ...
@@ -157,7 +157,7 @@ for indM1=1:kinetics.num_Ps     % considering each particle
     coll.ArrA=3e-17^(T < 4000)*1.554e-23^(T >= 4000);
     coll.ArrN=0^(T < 4000)*1.745^(T >= 4000);
     coll.ArrE=37484;
-    VibrDeactivationOfProduct=0; %1 - taking into account the vibrational 
+    VibrDeactivationOfProduct=1; %1 - taking into account the vibrational 
     % activation of the reaction product, 0 - without vibr. 
     % reaction product activation
     R_exch_temp=R_exch(M1, kinetics.Ps{IndexOfMolecules("O")}, ...
