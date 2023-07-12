@@ -4,6 +4,7 @@ function R2=Rci(y, kinetics)
 % kinetics is the big structure with all kinetics.
 % 09.12.2022 by Maksim Melnik.
 
+
 T=y(end)*kinetics.T0;
 n0=kinetics.n0;
 R_VT_data2=zeros(kinetics.num_eq, 1);
@@ -12,9 +13,11 @@ R_diss_data2=zeros(kinetics.num_eq, 1);
 R_VE_data2=zeros(kinetics.num_eq, 1);
 R_exch_data2=zeros(kinetics.num_eq, 1);
 y2=y;
-if isKey(kinetics.reactions, 'Exch')
-    error('Exchange reactions are still not implemented.')
-end
+
+ if isKey(kinetics.reactions, 'Exch')
+IndexOfMolecules=kinetics.IndexOfMolecules;
+ end
+ 
 for indM1=1:kinetics.num_Ps     % considering each particle
  M1=kinetics.Ps{indM1};
  i1=kinetics.index{indM1};      % pointer on ni of M1
@@ -115,6 +118,57 @@ for indM1=1:kinetics.num_Ps     % considering each particle
    end
    R_diss_data2(iP1)=R_diss_data2(iP1)-sum(R_diss_data2(i1));
    R_diss_data2(iP2)=R_diss_data2(iP2)-sum(R_diss_data2(i1));
+  end
+
+   if isKey(kinetics.reactions, 'Exch') %exchange reactions
+   if (M1.name=="O2") %first reaction O2+N->NO + O
+       %M1=O2
+    indO=kinetics.index{IndexOfMolecules("O")};
+    indN=kinetics.index{IndexOfMolecules("N")};
+    indN2=kinetics.index{IndexOfMolecules("N2")};
+    indN2=indN2(1+0:sum(kinetics.Ps{IndexOfMolecules("N2")}.num_vibr_levels(1)));
+    indNO=kinetics.index{IndexOfMolecules("NO")};
+    indNO=indNO(1+0:sum(kinetics.Ps{IndexOfMolecules("NO")}.num_vibr_levels(1)));
+    indO2=kinetics.index{IndexOfMolecules("O2")};
+    indO2=indO2(1+0:sum(kinetics.Ps{IndexOfMolecules("O2")}.num_vibr_levels(1)));
+    coll.ArrA=4e-16^(T < 4000)*3.206e-23^(T >= 4000);
+    coll.ArrN=(-0.39)^(T < 4000)*1.58^(T >= 4000);
+    coll.ArrE=1449;
+    VibrDeactivationOfProduct=1; %1 - taking into account the vibrational 
+    % activation of the reaction product, 0 - without vibr. 
+    % reaction product activation
+    R_exch_temp=R_exch(M1, kinetics.Ps{IndexOfMolecules("N")}, ...
+        kinetics.Ps{IndexOfMolecules("NO")}, kinetics.Ps{IndexOfMolecules("O")}, ...
+        y2(indO2), y2(indN), y2(indNO),  y2(indO), T, coll, VibrDeactivationOfProduct);
+    R_exch_data2(indO2)= R_exch_data2(indO2) + sum(R_exch_temp,2);
+    R_exch_data2(indNO)=  R_exch_data2(indNO) - sum(R_exch_temp,1)'; 
+    R_exch_data2(indN)=  R_exch_data2(indN) + sum(R_exch_temp,'all');
+    R_exch_data2(indO)= R_exch_data2(indO) - sum(R_exch_temp,'all');
+   end
+   if (M1.name=="N2") %second reaction N2(i) + O -> NO(k) + N
+    indO=kinetics.index{IndexOfMolecules("O")};
+    indN=kinetics.index{IndexOfMolecules("N")};
+    indN2=kinetics.index{IndexOfMolecules("N2")};
+    indN2=indN2(1+0:sum(kinetics.Ps{IndexOfMolecules("N2")}.num_vibr_levels(1)));
+    indNO=kinetics.index{IndexOfMolecules("NO")};
+    indNO=indNO(1+0:sum(kinetics.Ps{IndexOfMolecules("NO")}.num_vibr_levels(1)));
+    indO2=kinetics.index{IndexOfMolecules("O2")};
+    indO2=indO2(1+0:sum(kinetics.Ps{IndexOfMolecules("O2")}.num_vibr_levels(1)));
+    coll.ArrA=3e-17^(T < 4000)*1.554e-23^(T >= 4000);
+    coll.ArrN=0^(T < 4000)*1.745^(T >= 4000);
+    coll.ArrE=37484;
+    VibrDeactivationOfProduct=1; %1 - taking into account the vibrational 
+    % activation of the reaction product, 0 - without vibr. 
+    % reaction product activation
+    R_exch_temp=R_exch(M1, kinetics.Ps{IndexOfMolecules("O")}, ...
+    kinetics.Ps{IndexOfMolecules("NO")}, ...
+    kinetics.Ps{IndexOfMolecules("N")}, y2(indN2), y2(indO), ...
+    y2(indNO),  y2(indN), T, coll, VibrDeactivationOfProduct);
+    R_exch_data2(indN2)= R_exch_data2(indN2) + sum(R_exch_temp,2);
+    R_exch_data2(indNO)= R_exch_data2(indNO) - sum(R_exch_temp,1)';  
+    R_exch_data2(indO)= R_exch_data2(indO) + sum(R_exch_temp,'all');
+    R_exch_data2(indN)= R_exch_data2(indN)  - sum(R_exch_temp,'all');
+   end
   end
   
  end
