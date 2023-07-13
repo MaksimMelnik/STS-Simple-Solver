@@ -9,6 +9,7 @@ function kvv = kvv_fho_old(T, M1, M2, ind_e1, ind_e2)
 % 30.01.2023 Maksim Melnik
 
 Lmax=M1.num_vibr_levels(ind_e1)-1;
+Lmax2=M2.num_vibr_levels(ind_e2)-1;
     % constants
 k = 1.380649e-23;         % Boltzmann constant, J/K
 c = 29979245800;            % speed of light, cm/s (or m/s should be?)
@@ -26,7 +27,7 @@ Evibi2 = M2.ev_i{ind_e2}(1:end-1)/k;
 Evibf2 = M2.ev_i{ind_e2}(2:end)/k;
 
 ns1 = 1:Lmax;
-ns2 = 1:Lmax;
+ns2 = 1:Lmax2;
 
     eee1 = abs((Evibi1-Evibf1));
     eee2 = abs((Evibi2-Evibf2));

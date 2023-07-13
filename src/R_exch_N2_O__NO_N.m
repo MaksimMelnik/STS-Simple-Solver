@@ -21,7 +21,6 @@ Theta_r_NO = NO.Be(1)*V_H*V_C/V_K;     Z_rot_NO = T./(NO.sigma.*Theta_r_NO);
 % параметры в законе Аррениуса. ArrA(1) -- по Парку
 
 %колебательные статсуммы
-exp_n2 = exp(-(N2.ev_0(1) + N2.ev_i{1})/(V_K*T));
 exp_n2 = exp(-(N2.ev_i{1})/(V_K*T));
 Zv_n2 = sum(exp_n2);
 
@@ -56,13 +55,8 @@ Kdr = N2.s_e(1)*s_e_O_N/NO.s_e(1) * Kdr;
 
 %скорость обратной реакции r - reverse
 kr= kd .* Kdr;
-% kr=0;
 
 RExch1=n_NO'.*kr*n_N - n_N2.*kd*n_O;
 
 Q = sum(- RExch1 .* dE, 'all');
-% disp(Q)
-%получаем матрицу 47 на 38, по строкам энергия N2, по столбцам NO
-% out = RExch1;
-% Q=kd;
 end

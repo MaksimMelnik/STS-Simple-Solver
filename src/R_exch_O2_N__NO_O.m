@@ -18,7 +18,6 @@ Theta_r_NO = NO.Be(1)*V_H*V_C/V_K;     Z_rot_NO = T./(NO.sigma.*Theta_r_NO);
 Theta_r_O2 = O2.Be(1)*V_H*V_C/V_K;     Z_rot_O2 = T./(O2.sigma.*Theta_r_O2);
 
 %колебательные статсуммы
-exp_o2 = exp(-(O2.ev_0(1) + O2.ev_i{1})/(V_K*T));
 exp_o2 = exp(-(O2.ev_i{1})/(V_K*T));
 Zv_o2 = sum(exp_o2);
 
@@ -56,7 +55,4 @@ kr= kd .* Kdr;
 RExch1=n_NO'.*kr*n_O - n_O2.*kd*n_N;
 
 Q = sum(- RExch1 .* dE, 'all');
-
-%получаем матрицу 36 на 38, по строкам энергия O2, по столбцам NO
-% out = RExch1;
 end
