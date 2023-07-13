@@ -157,9 +157,18 @@ for i_ini=1             % choosing desired initial coonditions
    kinetics.t0 = t0;
    kinetics.tube_R = 0.01;      % m
    kinetics.Tw = 300;           % wall temperature, K
-   xspan = [0.005 0.015]/t0;    % the Hubner experiment measurments time
-%    xspan = [0.005 0.0052]/t0;
+        %determine index numbers of molecules
+   names=repmat("", length(kinetics.Ps), 1);
+   serial_index=zeros(length(kinetics.Ps), 1);
+   for i=1:length(kinetics.Ps)
+        names(i)=string(kinetics.Ps{i}.name);
+        serial_index(i)=i;
+        IndexOfMolecules=containers.Map(names,serial_index);
+   end
+   kinetics.IndexOfMolecules=IndexOfMolecules;
+%    xspan = [0.005 0.015]/t0;    % the Hubner experiment measurments time
    xspan = [0.005 0.2]/t0;      % from Pintassilgo 2014
+%    xspan = [0.005 0.0052]/t0; % tests
    load('../data/for comparison/Hubner2012_and_Pintassilgo2014.mat' ...
                                                             ) %#ok<LOAD>
    i_vec = 0:30;

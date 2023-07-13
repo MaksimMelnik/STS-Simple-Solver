@@ -68,14 +68,14 @@ for i_ini=1             % choosing desired initial coonditions
 	 model_VT='FHO';
    end
    Exch=1;
-%    Reacs_keys={'VT'};
-%    Reacs_keys={'Diss', 'VT'};
+   Reacs_keys={'VT'};
+   reacs_val={model_VT};
+   Reacs_keys={'Diss', 'VT'};
+   reacs_val={Diss, model_VT};
    Reacs_keys={'Diss', 'VT', 'VV'};
-%    Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
-%    reacs_val={model_VT};
-%    reacs_val={Diss, model_VT};
    reacs_val={Diss, model_VT, model_VT};
-%    reacs_val={Diss, model_VT, model_VT, Exch};
+   Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
+   reacs_val={Diss, model_VT, model_VT, Exch};
    kinetics.Ps=Ps(2:end);
    kinetics.num_Ps=length(kinetics.Ps);
    kinetics.num_eq=num;
@@ -85,13 +85,22 @@ for i_ini=1             % choosing desired initial coonditions
    kinetics.T0=T0;
    kinetics.Delta=Delta;
    kinetics.t0=t0;
+        %determine index numbers of molecules
+   names=repmat("", length(kinetics.Ps), 1);
+   serial_index=zeros(length(kinetics.Ps), 1);
+   for i=1:length(kinetics.Ps)
+        names(i)=string(kinetics.Ps{i}.name);
+        serial_index(i)=i;
+        IndexOfMolecules=containers.Map(names,serial_index);
+   end
+   kinetics.IndexOfMolecules=IndexOfMolecules;
    xspan=[0.005 0.015]/t0;      % the Hubner experiment measurments time
-   xspan=[0.005 0.14]/t0;
-   load('../data/Pintassilgo2014_N2_VDF_post_DC.mat', ...
-                                        'Pintassilgo2014_N2_VDF_post_DC')
+   load('../data/for comparison/Hubner2012_and_Pintassilgo2014.mat' ...
+                                                            ) %#ok<LOAD>
    i_vec=0:30;
    N2_VDF = interp1(Pintassilgo2014_N2_VDF_post_DC(:, 1), ...
-        Pintassilgo2014_N2_VDF_post_DC(:, 2), i_vec, 'spline', 'extrap');
+                                Pintassilgo2014_N2_VDF_post_DC(:, 2), ...
+                                i_vec, 'spline', 'extrap'); %#ok<USENS>
    N2_VDF(N2_VDF<0) = 0;
    n_N2 = N2.ev_i{1}*0;
    n_N2(i_vec+1) = N2_VDF/sum(N2_VDF);
@@ -104,7 +113,7 @@ for i_ini=1             % choosing desired initial coonditions
    n_NO = density_f_exc(Tv1, f_NO_3, NO);
    y0=[n_N2; n_O2; n_NO; f_N_3; f_O_3; T3];
    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
-                                    'NonNegative', 1:kinetics.num_eq+1); 
+                                    'NonNegative', 1:kinetics.num_eq+1);
    [X, Y]=ode15s(@(t, y) Rpart_ODE_0D(t, y, kinetics), xspan, y0, ...
                                                             options_s);
 
