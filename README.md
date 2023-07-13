@@ -1,7 +1,7 @@
 # STSe-01D-Solver
 Universal State-to-state modeling code. Allows to simulate 1D and 0D chemical-electronic-vabrational relaxation. It's importans fiture is accounting of electronic excitation. Only for atoms and diatomic molecules.
 ### todo
-- add NO parameters (FHO parameters too)
+- add a brief description how to use the code to the README
 - add NO exhange reactions
 - finish NO Streicher RefSW experiments test cases
 - add universal exchange reactions
@@ -18,7 +18,7 @@ Universal State-to-state modeling code. Allows to simulate 1D and 0D chemical-el
 - make separate k_diss rate coefficients functions (and rewrite k_diss_Aliat, k_diss_old, K_diss_Savelev)
 - rewrite or exclude all R_diss functions (R_diss, R_diss_old, R_diss_Savelev(leave only k_diss_Savelev))
 - transfer previous work for O2 isothermal discharge
-- add the calculation of vibrational levels number below dissociation energy
 - add an universal VE exchange function (k_VE and R_VE)
 - check Oblapenko's FHO parameters
 - add a separate functions for lambda
+- add a possibility to vary an oscillator for vibrations

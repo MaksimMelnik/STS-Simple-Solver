@@ -44,6 +44,7 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 %   (11) Electron–ion recombination involving nitrogen or oxygen ions,Qe−i
 
 
+warning("The present test case is unfinished")
 warning(['lambda and cp are calculated only for N2-20%O2 mixture ' ...
                                                     'with T=[300 600] K'])
 warning(['Energy fluxes Q are not finnished, now only VT, VV, Diss, ' ...
@@ -135,8 +136,12 @@ for i_ini=1             % choosing desired initial coonditions
    reacs_val = {model_VT};
 %    Reacs_keys={'Diss', 'VT'};
 %    reacs_val={Diss, model_VT};
+%    Reacs_keys = {'Diss', 'VT', 'Wall'};
+%    reacs_val = {Diss, model_VT, 1};
 %    Reacs_keys={'Diss', 'VT', 'VV'};
 %    reacs_val={Diss, model_VT, model_VT};
+%    Reacs_keys={'Diss', 'VT', 'VV', 'Wall'};
+%    reacs_val={Diss, model_VT, model_VT, 1};
 %    Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
 %    reacs_val={Diss, model_VT, model_VT, 1};
 %    Reacs_keys={'Diss', 'VT', 'VV', 'Exch', 'Wall'};
@@ -276,17 +281,47 @@ iN2 = kinetics.index{1};
 i1_N2 = iN2(1:N2.num_vibr_levels(1));
 iO = kinetics.index{5};
 Q_VT = zeros(length(t), 1);
+Q_VT_wall = zeros(length(t), 1);
+Q_rec_wall = zeros(length(t), 1);
+Q_VV = zeros(length(t), 1);
 for i_out = 1:length(t)
 [~, Q_VT_data] = R_VT(N2, Y(i_out, i1_N2)', O, ...
                 Y(i_out, iO(1)), T(i_out), 1, kinetics.reactions('VT'));
 Q_VT(i_out) = Q_VT_data;
+% [~, Q_VT_wall_data] = R_VT_wall(N2, Y(i_out, i1_N2)', T(i_out), kinetics);
+% Q_VT_wall(i_out) = Q_VT_wall_data;
+% [~, Q_rec_wall_data] = R_rec_wall(O, Y(i_out, kinetics.index{5}), ...
+%                                                     T(i_out), kinetics);
+% Q_rec_wall(i_out) = Q_rec_wall_data;
+% [~, Q_VV_data] = R_VV(N2, Y(i_out, i1_N2)', N2, Y(i_out, i1_N2)', ...
+%                              T(i_out), 1, 1, kinetics.reactions('VV'));
+% Q_VV(i_out) = Q_VV_data;
 end
 c_p_N2 = c_p(N2, T);
 c_p_O2 = c_p(O2, T);
 c_p_total = 0.2*c_p_O2 + 0.8*c_p_N2;
-Q_Ks = Q_VT ./ (n_g/N_a) ./ c_p_total;
-loglog(t_ag, Q_Ks, 'linewidth', 1.5)
-legend('Q_{VT} N_2-O', 'location', 'best')
+Q_VT_Ks = Q_VT ./ (n_g/N_a) ./ c_p_total;
+% Q_VT_wall_Ks = Q_VT_wall ./ (n_g/N_a) ./ c_p_total;
+Q_rec_wall_Ks = Q_rec_wall ./ (n_g/N_a) ./ c_p_total;
+Q_VV_Ks = Q_VV ./ (n_g/N_a) ./ c_p_total;
+loglog(Pintassilgo2014_ag_Q_VT_N2_O(:, 1), ...
+                                Pintassilgo2014_ag_Q_VT_N2_O(:, 2), ...
+...Pintassilgo2014_ag_Q_rec_O_wall(:, 1), ...
+   ...                             Pintassilgo2014_ag_Q_rec_O_wall(:, 2), ...
+        ...Pintassilgo2014_ag_Q_VV_N2_N2(:, 1), ...
+                                ...Pintassilgo2014_ag_Q_VV_N2_N2(:, 2), ...
+    ...t_ag*1e3, Q_rec_wall_Ks , ...
+t_ag*1e3, Q_VT_Ks, ...t_ag*1e3, Q_VT_wall_Ks, ...
+...t_ag*1e3, Q_VV_Ks, ...
+    'linewidth', 1.5) %#ok<USENS>
+legend('VT N_2-O, Pint2014', ...'O+wall, Pint2014', ...
+    ...'VV N2-N2, Pint2014', ...
+    ...'O+wall Maksim', ...
+'VT N_2-O, code', ...
+    ...'Q_{VT} wall deactivation', 
+    ...'Q_{VV} N_2-N_2', ...
+    'location', 'best')
+title('Q_{in}')
 xlim([6e-3 1e2])
 ylim([6e0 1e5])
 

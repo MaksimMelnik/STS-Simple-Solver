@@ -1,14 +1,13 @@
-function out=O2O_SW_Shatalov
+function out = O2O_SW_Shatalov
 % The main function for the macroparameters calculation behind SW for
 % Shatalov's experiment conditions.
 % 27.12.2022 Maksim Melnik
 tic
     % constants
-k=1.380649e-23;                     % Boltzmann constant, J/K
+k = 1.380649e-23;                   % Boltzmann constant, J/K
 Torr = 133.322368;                  % Pa in 1 Torr
 addpath('../src/')
-addpath('../data/')
-load('particles.mat', 'O2', 'O');   % loading particles data
+load('../data/particles.mat', 'O2', 'O'); % loading particles data
 O2.num_elex_levels=1;               % no electronic excitation
 O.num_elex_levels=1;
     % initial condition from Shatalov's paper
@@ -18,6 +17,18 @@ init_c_Shatalov = [ % p0, Torr;     T1, K;      v0, m/s;
                     1               8620        3950
                     1               6470        3400
                     2               5300        3070];
+	% initialization of the gas mixture
+num=0;
+Ps={num, O2, O};          % chemical composition of the mixture
+index = cell(1, length(Ps));
+index{1} = 0;
+for ind=2:length(Ps)
+    num_states=sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
+    num=num+num_states;
+    first=index{ind-1}(end)+1;
+    index{ind}=first:first+num_states-1;
+end
+
 for i_ini = 1 % [1 2 3 4 5] % choosing desired initial coonditions
  cond2 = par_shatalov_f(init_c_Shatalov(i_ini, :));
   % 0 --- before SW, 1 --- behind SW
@@ -35,18 +46,10 @@ for i_ini = 1 % [1 2 3 4 5] % choosing desired initial coonditions
                           % 2 is for D/6k; 3 is for 3T; 4 is for inf
   for i_vibr=1 % [1 2]    % choosing vibrational energy exchange model
                           % 1 is for SSH; 2 is for FHO
-num=0;
-index{1}=0;
-Ps={num, O2, O};          % chemical composition of the mixture
-for ind=2:length(Ps)
-    num_states=sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
-    num=num+num_states;
-    first=index{ind-1}(end)+1;
-    index{ind}=first:first+num_states-1;
-end
-Diss.Arrhenius='Park';    % parameters in dissociation Arrhenius law
-Diss.rec=true;            % is recombination included?
-Diss.NEmodel='MT';        % dissociation non-equilibrium model
+                          
+   Diss.Arrhenius='Park'; % parameters in dissociation Arrhenius law
+   Diss.rec=true;         % is recombination included?
+   Diss.NEmodel='MT';     % dissociation non-equilibrium model
    switch i_U             % non-equilibrium parameter U in dissociation
     case 2                % model
 	 Diss.U='D/6k';
@@ -112,6 +115,5 @@ figure
 semilogx(X, T, X, Tv, 'linewidth', 1.5)
 
 rmpath('../src/')
-rmpath('../data/')
 toc
 end
