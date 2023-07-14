@@ -1,60 +1,55 @@
-function out=O2O_SW_Shatalov
+function out = O2O_SW_Shatalov
 % The main function for the macroparameters calculation behind SW for
 % Shatalov's experiment conditions.
 % 27.12.2022 Maksim Melnik
-
 tic
     % constants
-k=1.380649e-23;                     % Boltzmann constant, J/K
+k = 1.380649e-23;                   % Boltzmann constant, J/K
+Torr = 133.322368;                  % Pa in 1 Torr
 addpath('../src/')
-addpath('../data/')
-load('particles.mat', 'O2', 'O');   % loading particles data
+load('../data/particles.mat', 'O2', 'O'); % loading particles data
 O2.num_elex_levels=1;               % no electronic excitation
 O.num_elex_levels=1;
-
-    % initial conditions, should be rewritten using recalculation 
-    % functions on SW
-init_c=[ % n0, m-3;   v0, m/s;   T0, K;   n1, DN;   v1, DN;   T1, DN
-    2.582622078206076e+22   4440    2.991113007914224e+02 ...
-     5.838863656521909e+00   1.712662015806821e-01   3.617268254080651e+01
-    3.116082265979940e+22   4130    3.098808789880962e+02 ...
-     5.808077724421962e+00  1.721740044550666e-01   3.036555281554731e+01
-    3.255838505493098e+22 3.950000000000000e+03 2.965793020605731e+02 ...
-     5.799490578609251e+00  1.724289377567720e-01   2.906382663628844e+01
-    3.132658068243728e+22	3400    3.082412093964783e+02 ...
-     5.722467108795348e+00  1.747498030111898e-01   2.098940479344222e+01
-    6.950596402478228e+22	3070	2.778507787437617e+02 ...
-     5.694648485891184e+00  1.756034639324195e-01   1.907439874030552e+01
-     ];
-for i_ini=1 % [1 2 3 4 5] % choosing desired initial coonditions
- for i_U=4 % [2 3 4]     % choosing desired U dissociation parameter model
-                         % 2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr=2 % [1 2]   % choosing vibrational energy exchange model
-                         % 1 is for SSH; 2 is for FHO
-   % 0 --- before SW, 1 --- behind SW
-   n0=init_c(i_ini, 1);   % m-3; characteristic number density
-   v0=init_c(i_ini, 2);   % m/s; characteristic velocity
-   T0=init_c(i_ini, 3);   % K; characteristic temperature
-   n1=init_c(i_ini, 4);   % dimentionless (DN) for higher calculation 
-                          % accuracy
-   v1=init_c(i_ini, 5);   % DN
-   T1=init_c(i_ini, 6);   % DN
-   
-   sigma0 = pi*O2.diameter^2;
-   Delta = 1 / sqrt(2) / n0 / sigma0;   % characteristic length
-
+    % initial condition from Shatalov's paper
+init_c_Shatalov = [ % p0, Torr;     T1, K;      v0, m/s;
+                    0.8             10820       4440
+                    1               9410        4130
+                    1               8620        3950
+                    1               6470        3400
+                    2               5300        3070];
+	% initialization of the gas mixture
 num=0;
-index{1}=0;
 Ps={num, O2, O};          % chemical composition of the mixture
+index = cell(1, length(Ps));
+index{1} = 0;
 for ind=2:length(Ps)
     num_states=sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
     num=num+num_states;
     first=index{ind-1}(end)+1;
     index{ind}=first:first+num_states-1;
 end
-Diss.Arrhenius='Park';    % parameters in dissociation Arrhenius law
-Diss.rec=true;            % is recombination included?
-Diss.NEmodel='MT';        % dissociation non-equilibrium model
+
+for i_ini = 1 % [1 2 3 4 5] % choosing desired initial coonditions
+ cond2 = par_shatalov_f(init_c_Shatalov(i_ini, :));
+  % 0 --- before SW, 1 --- behind SW
+ v0 = init_c_Shatalov(i_ini, 3);      % m/s; characteristic velocity
+ T0 = cond2(2);                       % K; characteristic temperature
+ p0 = init_c_Shatalov(i_ini, 1)*Torr; % m-3; characteristic number density
+ n0 = p0/k/T0;
+ rho0 = n0 * O2.mass;
+ sigma0 = pi*O2.diameter^2;
+ Delta = 1 / sqrt(2) / n0 / sigma0;   % characteristic length
+  % conservation laws to evaluate macroparameters behind SW
+ [n1, v1, T1] = in_con_SW(n0, v0, T0, rho0, 1); % dimentionless numbers
+ 
+ for i_U=4 % [2 3 4]      % choosing desired U dissociation parameter model
+                          % 2 is for D/6k; 3 is for 3T; 4 is for inf
+  for i_vibr=1 % [1 2]    % choosing vibrational energy exchange model
+                          % 1 is for SSH; 2 is for FHO
+                          
+   Diss.Arrhenius='Park'; % parameters in dissociation Arrhenius law
+   Diss.rec=true;         % is recombination included?
+   Diss.NEmodel='MT';     % dissociation non-equilibrium model
    switch i_U             % non-equilibrium parameter U in dissociation
     case 2                % model
 	 Diss.U='D/6k';
@@ -120,6 +115,5 @@ figure
 semilogx(X, T, X, Tv, 'linewidth', 1.5)
 
 rmpath('../src/')
-rmpath('../data/')
 toc
 end

@@ -1,3 +1,4 @@
 *.asv
+temp/
 examples/graphics.m
 data/Streicher experiment/

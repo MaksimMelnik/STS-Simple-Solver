@@ -1,10 +1,13 @@
 function out=CO_Ar_ex_21_06_par_vibr
-% Программа для расчёта смесей CO и Ar с учётом CO* и C2 с целью выявить
-% задержку диссоциации. На базе кода для параллельных расчётов смеси CO/Ar
-% CO_Ar_mixure_20_04_par.m, модификация кода CO_Ar_ex_20_10_par_vibr с 
-% учётом диссоциации по Алиату и колебательных уровней CO*, + диссоциация
-% по Савельеву и прочие дополнения для Алушты
-% 23.06.2021
+% The main function for the macroparameters calculation behind SW for
+% several experimental and other conditions in pure CO or CO/Ar mixtures.
+% It accounts electronicaly excited CO molecules (CO(a) and CO(A))
+% as well as C2. Based on the old code for the described problem and used
+% for the paper after CMMASS'21 conference. Might be paralleled, Arrhenius
+% law parameters might be changed and Savelev's dissociation model (2021)
+% might be applied.
+% 23.06.2021 Maksim Melnik
+% here should be the references list
 
 %% warnings
 % warning('VE processes off.')
@@ -22,32 +25,7 @@ Torr = 133.322368;          % how much Pa in Torr
 addpath('../src/')
 addpath('../data/')
 
-tic
-for i_ini=2:3  % initial conditions test cases
-                % 2 -- Fairbairn 8a,    3 -- Aliat's test case,
-                % 4 -- Mick's fig 3a,   5 -- Appleton fig 3.
-                % 6 -- mod Aliat low p, 7 -- mod Fairbairn 8a, high p
-                % 8 -- Fairbairn 8f,    9 -- Fairbairn 8e
-%  for i_exc=0%:1   % is electronic excitation on?
-  for i_dis=1:3     % 1 -- Marrone-Treanor wo e exc., 2 -- MT with E exc.,
-                        % 3 -- Aliat model, 4 -- Savelev model
-   for ind_U=2:4      % U parameter in MT and Aliat models
-                        % 2 -- D/6k, 3 -- 3T, 4 -- Inf
-%% variables 
-% particles_data_ini;   % initialisation of particles and collisions data
-load particles CO C O Ar C2     % load of saved particle data
-% is electronic excitaion on?
- ind_exc=1;      % COa and COA included (1), only CO(X) (0)
- if i_dis==1
-  ind_exc=0;
- end
-%     checkX=1e-3;  % был такой параметр для вывода промежуточных значений
-
-    % number of electronic states
-if ind_exc==0
- CO.num_elex_levels=1;
-end
-    
+tic    
         %   f       p0, Torr     v0, m/sec       T0, K      T2, K
 init_c=[    
                 % 1, высокотемпературный случай для чистого СО
@@ -73,19 +51,43 @@ init_c=[
                 % 9, Fairbairn, случай 8e (T0 не точно)
             0.001   10          3080            297         8800
         ];
-%%
 % parfor ind_c=1:5
-% for ind_c=1:1
+for i_ini = 2:3 % [1 2 3 4 5 6 7 8 9]  % initial conditions test cases
+                    % 2 -- Fairbairn 8a,    3 -- Aliat's test case,
+                    % 4 -- Mick's fig 3a,   5 -- Appleton fig 3.
+                    % 6 -- mod Aliat low p, 7 -- mod Fairbairn 8a, high p
+                    % 8 -- Fairbairn 8f,    9 -- Fairbairn 8e
+%  for i_exc=0%:1   % is electronic excitation on?
+  for i_dis = 3 % [1 2 3]  % 1 -- Marrone-Treanor wo e exc.,
+                           % 2 -- MT with E exc.,
+                           % 3 -- Aliat model, 4 -- Savelev model
+   for ind_U = 3 % [2 3 4] % U parameter in MT and Aliat models
+                           % 2 -- D/6k, 3 -- 3T, 4 -- Inf
+    for ind_C2 = 1 % [0 1] % is C2 included?
+        %% variables
+     load particles CO C O Ar C2     % load of saved particle data
+        % is electronic excitaion on?
+     ind_exc=1;      % COa and COA included (1), only CO(X) (0)
+     if i_dis==1
+      ind_exc=0;
+     end
+
+        % number of electronic states
+     if ind_exc==0
+      CO.num_elex_levels=1;
+     end
+%%
  f=init_c(i_ini, 1);
  p0=init_c(i_ini, 2)*Torr;
  v0=init_c(i_ini, 3);
  T0=init_c(i_ini, 4);
     Tv0=T0;
     n0=p0/k/T0;
-    NN = in_con_Ar([CO.mass, v0, T0, Ar.mass, f]);
-    n1 = NN(1);     % dimensionless
-    T1 = NN(2);     % dimensionless
-    v1 = NN(3);     % dimensionless
+    rho0 = n0 * (f*CO.mass + (1-f)*Ar.mass);
+        % conservation laws to evaluate macroparameters behind SW
+    [n1, v1, T1] = in_con_SW(n0, v0, T0, rho0, f); % dimentionless numbers
+   
+    
  disp([num2str(i_ini) ': T1=' num2str(T1*T0) ', T0=' num2str(T0) ...
                 ', v1=' num2str(v1*v0) ', n1=' num2str(n1*n0, '%1.3e')])
     sigma0 = pi*CO.diameter^2;%Coll_CO_CO.coll_diameter^2;
@@ -112,7 +114,6 @@ init_c=[
                                                struct_U(ind_U).text '.'])
  disp(['Dissociation model by ' struct_Aliat(i_dis).text '.'])
  disp(['CO(X)' ind_exc*', CO(a) and CO(A)' ' states are included.'])
- setup.C2=1;        % is C2 included?
  setup.model_VT='FHO';
  setup.model_VT='SSH';
  switch setup.model_VT
@@ -121,7 +122,7 @@ init_c=[
      case 'SSH'
          disp('VT rates by SSH theory.')
  end
- if setup.C2
+ if ind_C2
      disp('C2 is included.')
  end
  
@@ -150,7 +151,7 @@ mix.num=0;
 CO.diss_Arrhenius_A=diss_Arrhenius_A_CO;
 CO.diss_Arrhenius_n=diss_Arrhenius_n_CO;
 Ps={mix, CO, C, O};
-if setup.C2
+if ind_C2
     C2.diss_Arrhenius_A=diss_Arrhenius_A_C2;
     C2.diss_Arrhenius_n=diss_Arrhenius_n_C2;
     Ps{length(Ps)+1}=C2;
@@ -247,6 +248,7 @@ kinetics.Delta=Delta;
  Ep0=(En0+p0)/(n0*(f*CO.mass+(1-f)*Ar.mass))+0.5*v0^2;
  disp([num2str(i_ini) ': conservation laws check'])
  check_CL_SW([rhov0 rhov2p0 Ep0], Y2, kinetics, 0);
+    end
    end
   end
 %  end
