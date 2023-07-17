@@ -43,65 +43,146 @@ tlim=max(time_n_exp);
 err=0.045;
    
 
-figure("Position", [0, 0, 900, 800])
-tiledlayout(2, 2, "TileSpacing", "compact")
+% figure("Position", [0, 0, 900, 800])
+% tiledlayout(2, 2, "TileSpacing", "compact")
+% nexttile
+% hold on
+% title("Case " + info(var));
+% plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).T,'r--', 'LineWidth', 1.5, 'DisplayName', "T - U=D/6k " );
+% plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).T,'b--', 'LineWidth', 1.5, 'DisplayName', "T - U=3T " );
+% plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).T, 'm--','LineWidth', 1.5, 'DisplayName', "T - U=inf " );
+% plot(time_T_exp, T_exp, 'k-', 'LineWidth', 2, 'DisplayName', "T - experiment ");
+% legend('Location','se');
+% xlim([-10 300]);
+% ylim([0 max(T_exp)+500]);
+% xlabel("t, \mu s");
+% ylabel("T, K");
+% hold off
+% grid minor
+% nexttile
+% hold on
+% title("Case " + info(var));
+% plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).TvNO,'r-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=D/6k " );
+% plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).TvNO,'b-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=3T " );
+% plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).TvNO, 'm-','LineWidth', 1.5, 'DisplayName', "Tv - U=inf " );
+% plot(time_T_exp, Tv_exp, 'k-', 'LineWidth', 2, 'DisplayName', "Tv - experiment");
+% xlim([-10 300]);
+% %ylim([0 6000]);
+% legend('Location','se');
+% xlabel("t, \mu s");
+% ylabel("T_v, K");
+% hold off
+% grid minor
+% nexttile
+% hold on
+% title("Case " + info(var));
+% plot(time_n_exp, n_exp, 'k-', 'LineWidth', 2, 'DisplayName', "n_{NO} - experiment" + num2str(var));
+% plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).nNO*1e3,'r-', 'LineWidth', 1.5, 'DisplayName', "n_{NO} - U=D/6k " );
+% plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).nNO*1e3,'b-', 'LineWidth', 1.5, 'DisplayName', "n_{NO} - U=3T " );
+% plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).nNO*1e3, 'm-','LineWidth', 1.5, 'DisplayName', "n_{NO} - U=inf " );
+% errorbar(time_n_exp, n_exp, n_exp*err, 'sqk', 'MarkerFaceColor', 'k','MarkerSize',1, 'LineWidth', 1)
+% xlim([-10 tlim]);
+% ylim([0 max(dat1(i_vibr,2,var,rel).nNO*1e3)+4]);
+% legend('Location','se');
+% xlabel("t, \mu s");
+% ylabel("n_{NO}, mmol/m^3");
+% hold off
+% grid minor
+% nexttile
+% hold on
+% title("Case " + info(var));
+% plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).TvNO,'r-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=D/6k " );
+% plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).TvNO,'b-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=3T " );
+% plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).TvNO, 'm-','LineWidth', 1.5, 'DisplayName', "Tv - U=inf " );
+% plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).T,'r--', 'LineWidth', 1.5, 'DisplayName', "T - U=D/6k " );
+% plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).T,'b--', 'LineWidth', 1.5, 'DisplayName', "T - U=3T " );
+% plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).T, 'm--','LineWidth', 1.5, 'DisplayName', "T - U=inf " );
+% xlim([-10 10000]);
+% %ylim([0 6000]);
+% legend('Location','se');
+% xlabel("t, \mu s");
+% ylabel("T, K");
+% hold off
+% grid minor
+
+addpath('../src/');
+addpath('../data/')
+load('particles.mat', "NO", "N", "O", "Ar", "O2", "N2");
+k=1.380649e-23; Na=6.02214076e23;
+
+i_U=2;
+[~,j1]=min(abs(dat1(i_vibr, i_U, var, rel).time - tlim/3));
+[~,j2]=min(abs(dat1(i_vibr, i_U, var, rel).time - 2*tlim/3));
+[~,j3]=min(abs(dat1(i_vibr, i_U, var, rel).time - tlim));
+
+figure("Position", [200, 100, 900, 800])
+t=tiledlayout(2, 2, "TileSpacing", "compact");
+title(t, "Case " + info(var));
 nexttile
-hold on
-title("Case " + info(var));
-plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).T,'r--', 'LineWidth', 1.5, 'DisplayName', "T - U=D/6k " );
-plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).T,'b--', 'LineWidth', 1.5, 'DisplayName', "T - U=3T " );
-plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).T, 'm--','LineWidth', 1.5, 'DisplayName', "T - U=inf " );
-plot(time_T_exp, T_exp, 'k-', 'LineWidth', 2, 'DisplayName', "T - experiment ");
-legend('Location','se');
-xlim([-10 300]);
-ylim([0 max(T_exp)+500]);
-xlabel("t, \mu s");
-ylabel("T, K");
+n_bolz=density_f_exc(dat1(i_vibr, i_U, var, rel).TvNO(3), dat1(i_vibr, i_U, var, rel).nNO(3)*Na, NO);
+semilogy(0:NO.num_vibr_levels-1, n_bolz, 'k-', 'LineWidth',2.0);
+set(gca,'FontSize',12);
+hold on;
+semilogy(0:NO.num_vibr_levels-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(3, :) ,'r-','LineWidth',2.0);
+semilogy(0:NO.num_vibr_levels-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(3, :) , 'm-','LineWidth',2.0);
+semilogy(0:NO.num_vibr_levels-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(3, :) , 'g-', 'LineWidth',2.0);
+xlabel('NO vibr. level, i');
+ylabel('n^i_{NO}, м^{-3}');
+lgd=legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
+xlim([0 NO.num_vibr_levels-1]);
+title("t=0 \mus");
 hold off
 grid minor
+
 nexttile
-hold on
-title("Case " + info(var));
-plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).TvNO,'r-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=D/6k " );
-plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).TvNO,'b-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=3T " );
-plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).TvNO, 'm-','LineWidth', 1.5, 'DisplayName', "Tv - U=inf " );
-plot(time_T_exp, Tv_exp, 'k-', 'LineWidth', 2, 'DisplayName', "Tv - experiment");
-xlim([-10 300]);
-%ylim([0 6000]);
-legend('Location','se');
-xlabel("t, \mu s");
-ylabel("T_v, K");
+n_bolz=density_f_exc(dat1(i_vibr, i_U, var, rel).TvNO(j1), dat1(i_vibr, i_U, var, rel).nNO(j1)*Na, NO);
+semilogy(0:NO.num_vibr_levels-1, n_bolz, 'k-', 'LineWidth',2.0);
+set(gca,'FontSize',12);
+hold on;
+semilogy(0:NO.num_vibr_levels-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j1, :) ,'r-','LineWidth',2.0);
+semilogy(0:NO.num_vibr_levels-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j1, :) , 'm-','LineWidth',2.0);
+semilogy(0:NO.num_vibr_levels-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j1, :) , 'g-', 'LineWidth',2.0);
+xlabel('NO vibr. level, i');
+ylabel('n^i_{NO}, м^{-3}');
+%legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
+xlim([0 NO.num_vibr_levels-1]);
+title("t="+num2str(round(tlim/3))+" \mus")
 hold off
 grid minor
+
 nexttile
-hold on
-title("Case " + info(var));
-plot(time_n_exp, n_exp, 'k-', 'LineWidth', 2, 'DisplayName', "n_{NO} - experiment" + num2str(var));
-plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).nNO*1e3,'r-', 'LineWidth', 1.5, 'DisplayName', "n_{NO} - U=D/6k " );
-plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).nNO*1e3,'b-', 'LineWidth', 1.5, 'DisplayName', "n_{NO} - U=3T " );
-plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).nNO*1e3, 'm-','LineWidth', 1.5, 'DisplayName', "n_{NO} - U=inf " );
-errorbar(time_n_exp, n_exp, n_exp*err, 'sqk', 'MarkerFaceColor', 'k','MarkerSize',1, 'LineWidth', 1)
-xlim([-10 tlim]);
-ylim([0 max(dat1(i_vibr,2,var,rel).nNO*1e3)+4]);
-legend('Location','se');
-xlabel("t, \mu s");
-ylabel("n_{NO}, mmol/m^3");
+n_bolz=density_f_exc(dat1(i_vibr, i_U, var, rel).TvNO(j2), dat1(i_vibr, i_U, var, rel).nNO(j2)*Na, NO);
+semilogy(0:NO.num_vibr_levels-1, n_bolz, 'k-', 'LineWidth',2.0);
+set(gca,'FontSize',12);
+hold on;
+semilogy(0:NO.num_vibr_levels-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j2, :) ,'r-','LineWidth',2.0);
+semilogy(0:NO.num_vibr_levels-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j2, :) , 'm-','LineWidth',2.0);
+semilogy(0:NO.num_vibr_levels-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j2, :) , 'g-', 'LineWidth',2.0);
+xlabel('NO vibr. level, i');
+ylabel('n^i_{NO}, м^{-3}');
+%legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
+xlim([0 NO.num_vibr_levels-1]);
+title("t="+num2str(round(2*tlim/3))+" \mus")
 hold off
 grid minor
+
 nexttile
-hold on
-title("Case " + info(var));
-plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).TvNO,'r-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=D/6k " );
-plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).TvNO,'b-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=3T " );
-plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).TvNO, 'm-','LineWidth', 1.5, 'DisplayName', "Tv - U=inf " );
-plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).T,'r--', 'LineWidth', 1.5, 'DisplayName', "T - U=D/6k " );
-plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).T,'b--', 'LineWidth', 1.5, 'DisplayName', "T - U=3T " );
-plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).T, 'm--','LineWidth', 1.5, 'DisplayName', "T - U=inf " );
-xlim([-10 10000]);
-%ylim([0 6000]);
-legend('Location','se');
-xlabel("t, \mu s");
-ylabel("T, K");
+n_bolz=density_f_exc(dat1(i_vibr, i_U, var, rel).TvNO(j3), dat1(i_vibr, i_U, var, rel).nNO(j3)*Na, NO);
+semilogy(0:NO.num_vibr_levels-1, n_bolz, 'k-', 'LineWidth',2.0);
+set(gca,'FontSize',12);
+hold on;
+semilogy(0:NO.num_vibr_levels-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j3, :) ,'r-','LineWidth',2.0);
+semilogy(0:NO.num_vibr_levels-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j3, :) , 'm-','LineWidth',2.0);
+semilogy(0:NO.num_vibr_levels-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j3, :) , 'g-', 'LineWidth',2.0);
+xlabel('NO vibr. level, i');
+ylabel('n^i_{NO}, м^{-3}');
+%legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
+xlim([0 NO.num_vibr_levels-1]);
+title("t="+num2str(round(tlim))+" \mus")
 hold off
 grid minor
+
+lgd.Layout.Tile = 'south';
+rmpath('../src/')
+rmpath('../data/')
 end
