@@ -1,16 +1,17 @@
 function out = O2O_SW_Shatalov
 % The main function for the macroparameters calculation behind SW for
-% Shatalov's experiment conditions.
+% Shatalov's experiment conditions [1].
 % 27.12.2022 Maksim Melnik
+% [1] Ibraguimova et al J. Chem. Phys. 139, 034317 (2013)
 tic
     % constants
 k = 1.380649e-23;                   % Boltzmann constant, J/K
-Torr = 133.322368;                  % Pa in 1 Torr
+Torr = 133.322368;                  % how much Pa in a one Torr
 addpath('../src/')
 load('../data/particles.mat', 'O2', 'O'); % loading particles data
 O2.num_elex_levels=1;               % no electronic excitation
 O.num_elex_levels=1;
-    % initial condition from Shatalov's paper
+    % initial condition from Shatalov's paper [1]
 init_c_Shatalov = [ % p0, Torr;     T1, K;      v0, m/s;
                     0.8             10820       4440
                     1               9410        4130

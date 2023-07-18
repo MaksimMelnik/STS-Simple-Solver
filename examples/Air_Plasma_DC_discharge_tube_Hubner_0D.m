@@ -9,6 +9,10 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 % 5.06.2023 Maksim Melnik
 
 %  todo:
+% add VT rates from V. Guerra works and fix the VT fluxes
+% - N2-N2
+% - N2-O2
+% - N2-N
 % fix the flux in the Zeldovich reactions
 % - add all particles:
 %   N2(A3Σ+u, B3Пg, B'3Σ−u, C3Пu, a'1Σ−u, a1Пg, w1Δu)
@@ -72,9 +76,9 @@ O2.num_elex_levels = 1;
 O.num_elex_levels = 1;
 N.num_elex_levels=1;
 NO.num_elex_levels=1;
-%     % no vibrational excitation
-% NO.num_vibr_levels(1) = 1;  NO.ev_i{1} = 0;
-% O2.num_vibr_levels(1) = 1;  O2.ev_i{1} = 0;
+    % no vibrational excitation
+NO.num_vibr_levels(1) = 1;  NO.ev_i{1} = 0;
+O2.num_vibr_levels(1) = 1;  O2.ev_i{1} = 0;
 
     % initial conditions
     % f_M_i are fractions of particle M at the moment i (i=0 is initial,
@@ -87,8 +91,9 @@ init_c=[% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
 for i_ini=1             % choosing desired initial coonditions
  for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr=1 % [1 2]  % choosing vibrational energy exchange model
-                        %   1 is for SSH; 2 is for FHO
+  for i_vibr = 3 % [1 2 3] % choosing vibrational energy exchange model
+                        %   1 is for SSH; 2 is for FHO;
+                        %   3 is for kinetics from V. Guerra works
    T0     = init_c(i_ini, 4);         % K
    n0     = init_c(i_ini, 1)/k/T0;    % m-3
    f_O2_0 = init_c(i_ini, 2);
@@ -126,9 +131,11 @@ for i_ini=1             % choosing desired initial coonditions
    end
    switch i_vibr
     case 1
-	 model_VT='SSH';
+	 model_VT = 'SSH';
 	case 2
-	 model_VT='FHO';
+	 model_VT = 'FHO';
+	case 3
+	 model_VT = 'Guerra';
    end
    Reacs_keys = {'None'};
    reacs_val = {1};
@@ -190,7 +197,11 @@ for i_ini=1             % choosing desired initial coonditions
 if N2.num_elex_levels == 2
    y0=[n_N2;    f_N2A_3;   n_O2;  n_NO;  f_N_3; f_O_3; T3];
 end
-   options_s = odeset('RelTol', 1e-20, 'AbsTol', 1e-20, ...
+   options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-20, ...
+                                    'NonNegative', 1:kinetics.num_eq+1); 
+   options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-13, ...
+                                    'NonNegative', 1:kinetics.num_eq+1); 
+   options_s = odeset('RelTol', 1e-12, 'AbsTol', 1e-12, ...
                                     'NonNegative', 1:kinetics.num_eq+1); 
    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
                                     'NonNegative', 1:kinetics.num_eq+1); 
