@@ -8,7 +8,7 @@ T_DN = y(end);          % dimentionless gas temperature T
 % relaxation terms
 [R, ~] = Rci(y, kinetics);
 R = R * kinetics.n0 * kinetics.t0;
-    % number densities equations
+    % number densities equations/
 M = R;
 % energy equation
 nm = 0; % number density of molecules
