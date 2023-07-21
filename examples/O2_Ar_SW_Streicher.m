@@ -42,15 +42,18 @@ for rel=2     % if relaxation between incident and reflected waves
     T0buf=T0; %buffer variable for initial temperature
     n0=p0/(k*T0); % initial number density, m-3
     n0buf=n0; %buffer variable for initial number density
-    if f==1
-    NN=in_con_O2([O2.mass, v0, T0]); %dimensionless for pure oxygen
-    else
-    NN=in_con_Ar([O2.mass, v0, T0, Ar.mass ,f]);%dimensionless for diluted 
-    % oxygen
-    end
-    n1=NN(1);   % DN
-    v1=NN(3);   % DN
-    T1=NN(2);   % DN
+%     if f==1
+%     NN=in_con_O2([O2.mass, v0, T0]); %dimensionless for pure oxygen
+%     else
+%     NN=in_con_Ar([O2.mass, v0, T0, Ar.mass ,f]);%dimensionless for diluted 
+%     % oxygen
+%     end
+%     n1=NN(1);   % DN
+%     v1=NN(3);   % DN
+%     T1=NN(2);   % DN
+
+    rho0=n0*((1-f)*Ar.mass + f*O2.mass);
+    [n1, v1, T1]=in_con_SW(n0, v0, T0, rho0 ,f);
     sigma0 = pi*O2.diameter^2;
     Delta = 1 / sqrt(2) / n0 / sigma0;  %free path length
     num=0;

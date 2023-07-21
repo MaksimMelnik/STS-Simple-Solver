@@ -32,7 +32,7 @@ init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
     0.004 5.35 1241 296 662
     0.004 2.34 1597 296 830
     ];
-for i_ini=1
+for i_ini=10
 for i_U=4 %choosing desired U dissociation parameter model
 %2 is for D/6k; 3 is for 3T; 4 is for inf
 for i_vibr=2% choosing desired vibrational energy exchange model
@@ -47,10 +47,14 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     T0buf=T0; %buffer variable for initial temperature
     n0=p0/(k*T0);   % initial number density, m-3
     n0buf=n0; %buffer variable for initial number density
-    NN=in_con_Ar([NO.mass, v0, T0, Ar.mass ,f]); %dimensionless variables
-    n1=NN(1);   % DN
-    v1=NN(3);   % DN
-    T1=NN(2);   % DN
+%     NN=in_con_Ar([NO.mass, v0, T0, Ar.mass ,f]); %dimensionless variables
+%     n1=NN(1);   % DN
+%     v1=NN(3);   % DN
+%     T1=NN(2);   % DN
+
+    rho0=n0*((1-f)*Ar.mass + f*NO.mass);
+    [n1, v1, T1]=in_con_SW(n0, v0, T0, rho0 ,f);
+
     sigma0 = pi*NO.diameter^2;
     Delta = 1 / sqrt(2) / n0 / sigma0; %free path length
     num=0;
