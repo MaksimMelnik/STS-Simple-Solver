@@ -26,9 +26,9 @@ init_c=[ % n0, m-3;   v0, m/s;   T0, K;   n1, DN;   v1, DN;   T1, DN
      5.694648485891184e+00  1.756034639324195e-01   1.907439874030552e+01
      ];
 for i_ini=1 % [1 2 3 4 5] % choosing desired initial coonditions
- for i_U=[3 4] % [2 3 4]     % choosing desired U dissociation parameter model
+ for i_U=4 % [2 3 4]     % choosing desired U dissociation parameter model
                          % 2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr=2 % [1 2]   % choosing vibrational energy exchange model
+  for i_vibr=1 % [1 2]   % choosing vibrational energy exchange model
                          % 1 is for SSH; 2 is for FHO
    % 0 --- before SW, 1 --- behind SW
    n0=init_c(i_ini, 1);   % m-3; characteristic number density
@@ -36,7 +36,7 @@ for i_ini=1 % [1 2 3 4 5] % choosing desired initial coonditions
    T0=init_c(i_ini, 3);   % K; characteristic temperature
    n1=init_c(i_ini, 4);   % dimentionless (DN) for higher calculation 
                           % accuracy
-   v1=init_c(i_ini, 5);   % DN
+%    v1=init_c(i_ini, 5);   % DN
    T1=init_c(i_ini, 6);   % DN
    
    sigma0 = pi*O2.diameter^2;
@@ -77,22 +77,22 @@ kinetics.num_eq=num;
 kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
 kinetics.index=index(2:end);
 kinetics.n0=n0;
-kinetics.v0=v0;
+% kinetics.v0=v0;
 kinetics.T0=T0;
 kinetics.t0 = t0;
 kinetics.Delta=Delta;
-  xspan = [0.005 0.2]/t0;
+  xspan = [0 0.0001]/t0;
   n=density_f_exc(T0, n1, O2);    % vibrational distribution, VDF
   y0=zeros(kinetics.num_eq+1, 1); % initial values behind SW
   y0(1:length(n))=n;
   y0(end)=T1;
   options_s = odeset('RelTol', 1e-5, ... solving accuracy parameters
                     'AbsTol', 1e-8, 'NonNegative', 1:kinetics.num_eq+1);
-  [X, Y]=ode15s(@(t, y) Rpart_0D(t, y, kinetics), xspan, y0, options_s);
+  [X, Y]=ode15s(@(t, y) Rpart_ODE_0D(t, y, kinetics), xspan, y0, options_s);
 
 t = X * t0;                      % dimensioning
-Y(:, 1:end-2)=Y(:, 1:end-2)*n0;
-Y(:, end-1)=Y(:, end-1)*v0;
+Y(:, 1:end-1)=Y(:, 1:end-1)*n0;
+% Y(:, end-1)=Y(:, end-1)*v0;
 Y(:, end)=Y(:, end)*T0;
 T=Y(:, end);
 Tv = O2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2))); % vibrational temperature
@@ -100,25 +100,25 @@ Tv = O2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2))); % vibrational temperature
    out(i_ini, i_vibr, i_U).res=[X, Y, Tv, time_ms]; % output variable
 
     % checking conservation laws
-   rhov0=n0*O2.mass * v0;                    % rho0*v0
-   rhov2p0=n0*O2.mass * v0^2 + n0*k*T0;      % rho0*v0^2+p0
-   e_i=[];
-   for ind_e=1:O2.num_elex_levels
-    e_i=[e_i, O2.ev_i{ind_e}+O2.ev_0(ind_e)+O2.e_E(ind_e)];
-   end
-   En0=n0*e_i*n/n1 + n0*k*T0 + 1.5*n0*k*T0 + n0*O2.form_e;
-   Ep0=(En0+n0*k*T0)/(n0*O2.mass)+0.5*v0^2;       % (E0+p0)/rho0+v0^2/2
+%    rhov0=n0*O2.mass * v0;                    % rho0*v0
+%    rhov2p0=n0*O2.mass * v0^2 + n0*k*T0;      % rho0*v0^2+p0
+%    e_i=[];
+%    for ind_e=1:O2.num_elex_levels
+%     e_i=[e_i, O2.ev_i{ind_e}+O2.ev_0(ind_e)+O2.e_E(ind_e)];
+%    end
+%    En0=n0*e_i*n/n1 + n0*k*T0 + 1.5*n0*k*T0 + n0*O2.form_e;
+%    Ep0=(En0+n0*k*T0)/(n0*O2.mass)+0.5*v0^2;       % (E0+p0)/rho0+v0^2/2
    disp('Conservation laws check')
-   check_CL_SW([rhov0 rhov2p0 Ep0], Y, kinetics, 0);
+   check_CL_0D([1 1], Y, kinetics, 1);
   end
  end
 end
 
  % drawing to check if it's fine
 figure
-semilogx(X, T, X, Tv, 'linewidth', 1.5)
+semilogx(t, T, t, Tv, 'linewidth', 1.5)
 
 rmpath('../src/')
-rmpath('../data/')
+% rmpath('../data/')
 toc
 end
