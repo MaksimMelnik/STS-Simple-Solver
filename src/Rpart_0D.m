@@ -1,4 +1,4 @@
-function out=Rpart_ODE_0D(t, y, kinetics)%#ok<INUSL>
+function out=Rpart_0D(t, y, kinetics)%#ok<INUSL>
 
 
 % constants
