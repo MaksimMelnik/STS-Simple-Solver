@@ -6,9 +6,8 @@ function out=O2O_0D_Shatalov
 tic
     % constants
 k=1.380649e-23;                     % Boltzmann constant, J/K
-addpath('C:\Users\79292\Matlab.Work\STS-Simple-Solver\src')
-addpath('C:\Users\79292\Matlab.Work\My\data')
-load('particles.mat', 'O2', 'O');   % loading particles data
+addpath('../src/');
+load('../data/particles.mat', 'O2', 'O');   % loading particles data
 O2.num_elex_levels=1;               % no electronic excitation
 O.num_elex_levels=1;
 
