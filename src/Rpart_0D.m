@@ -21,8 +21,8 @@ for ind = 1:kinetics.num_Ps
         for ind_e = 1:kinetics.Ps{ind}.num_elex_levels
             e_i = [e_i, kinetics.Ps{ind}.e_E(ind_e) + kinetics.Ps{ind}.ev_i{ind_e} + kinetics.Ps{ind}.ev_0(ind_e)];
         end
+        E_term = E_term + sum(R(kinetics.index{ind}) .* (e_i + kinetics.Ps{ind}.form_e)) / k / kinetics.T0;
         Rci_term = Rci_term + 2.5 * sum(R(kinetics.Ps{ind}));
-        E_term = E_term + sum(R(kinetics.index{ind}) * (e_i + kinetics.Ps{ind}.form_e)) / k / kinetics.T0;
         nm = nm + sum(y(kinetics.index{ind}));
     else
         E_term = E_term + R(kinetics.Ps{ind}) * (kinetics.Ps{ind}.form_e + kinetics.Ps{ind}.e_E(1:kinetics.Ps{ind}.num_elex_levels)) / k / kinetics.T0;
