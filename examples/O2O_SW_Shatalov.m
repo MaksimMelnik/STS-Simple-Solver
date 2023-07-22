@@ -3,7 +3,7 @@ function out = O2O_SW_Shatalov
 % Shatalov's experiment conditions [1].
 % 27.12.2022 Maksim Melnik
 % [1] Ibraguimova et al J. Chem. Phys. 139, 034317 (2013)
-tic
+tic                                 % calculation time measuring
     % constants
 k = 1.380649e-23;                   % Boltzmann constant, J/K
 Torr = 133.322368;                  % how much Pa in a one Torr
@@ -19,18 +19,16 @@ init_c_Shatalov = [ % p0, Torr;     T1, K;      v0, m/s;
                     1               6470        3400
                     2               5300        3070];
 	% initialization of the gas mixture
-num=0;
-Ps={num, O2, O};          % chemical composition of the mixture
+Ps    = {O2, O};                    % chemical composition of the mixture
 index = cell(1, length(Ps));
-index{1} = 0;
-for ind=2:length(Ps)
-    num_states=sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
-    num=num+num_states;
-    first=index{ind-1}(end)+1;
-    index{ind}=first:first+num_states-1;
+first = 1;
+for ind = 1:length(Ps)
+    num_states = sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
+    index{ind} = first : (first+num_states-1);
+    first = index{ind}(end) + 1;
 end
 
-for i_ini = 1 % [1 2 3 4 5] % choosing desired initial coonditions
+for i_ini = 1 % [1 2 3 4 5]         % choosing desired initial coonditions
  cond2 = par_shatalov_f(init_c_Shatalov(i_ini, :));
   % 0 --- before SW, 1 --- behind SW
  v0 = init_c_Shatalov(i_ini, 3);      % m/s; characteristic velocity
@@ -67,11 +65,11 @@ for i_ini = 1 % [1 2 3 4 5] % choosing desired initial coonditions
    end
 Reacs_keys={'Diss', 'VT', 'VV'};
 reacs_val={Diss, model_VT, model_VT};
-kinetics.Ps=Ps(2:end);    % inicialization of kinetics variable
+kinetics.Ps=Ps;                   % inicialization of kinetics variable
 kinetics.num_Ps=length(kinetics.Ps);
-kinetics.num_eq=num;
+kinetics.index=index;
+kinetics.num_eq = kinetics.index{end}(end);
 kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
-kinetics.index=index(2:end);
 kinetics.n0=n0;
 kinetics.v0=v0;
 kinetics.T0=T0;

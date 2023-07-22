@@ -163,6 +163,12 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     
     %% REFL
    % taking into account exchange reactions
+    load('../data/reactions.mat');
+    ReactZel_1 = Reactions("N2 + O -> NO + N");
+    Exch = ReactZel_1("Kunova");
+    % Exch = ReactZel_1("Kunova, NO(1)");
+        % to take into account several reactions:
+    % Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
     Reacs_keys={'Diss','Exch', 'VT', 'VV'};
     reacs_val={Diss, Exch,  model_VT, model_VT};
 

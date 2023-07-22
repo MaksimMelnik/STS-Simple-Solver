@@ -2,6 +2,7 @@
 Universal State-to-state modeling code. Allows to simulate 1D and 0D chemical-electronic-vabrational relaxation. It's importans fiture is accounting of electronic excitation. Only for atoms and diatomic molecules.
 ### todo
 - add a brief description how to use the code to the README
+- add a required MATLAB version
 - add NO exhange reactions
 - finish NO Streicher RefSW experiments test cases (NO/N2, NO/N2/Ar)
 - add universal exchange reactions
