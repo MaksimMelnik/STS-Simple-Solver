@@ -38,7 +38,7 @@ switch reaction.type
   end
   R_exch_data = n_M3' * n_M4 .* kb  -  n_M1 * n_M2 .* kf;
   dE_Q = dE + M3.ev_0(1) + M3.ev_i{1} - M1.ev_0(1) + M1.ev_i{1}';
-  Q = sum(- R_exch_data .* dE, 'all');
+  Q = sum(- R_exch_data .* dE_Q, 'all');
  case "ATn"
         error("Exchange reactions of this type are still not " + ...
             "implemented " + reaction.type)
