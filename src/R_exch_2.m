@@ -4,20 +4,41 @@ function [R_exch_data, Q] = ...
 % M1 + M2 -> M3 + M4. 
 % M1 and M3 are molecules; M2 and M4 are currently atoms; 
 % n_Mi are number densities of Mi; T is the gas temperature; 
-% coll is the collision variable.
+% reaction is the reaction structure (see data/reactions_data_ini).
 % Electronic excitaion is not taken into account.
 % 22.07.2023 Maksim Melnik
 
     % constants
 k = 1.380649e-23;         % Boltzmann constant, J/K
+c = 299792458;            % speed of light
+h = 6.626070041e-34;      % Plank constant, J*sec
 
 if (M2.fr_deg_c + M4.fr_deg_c ~= 6) 
     error("M2 and M4 must be atoms.");
 end
 switch reaction.type
  case "const"
-        error("Exchange reactions of this type are still not " + ...
-            "implemented " + reaction.type)
+%         error("Exchange reactions of this type are still not " + ...
+%             "implemented " + reaction.type)
+  kf = zeros(M1.num_vibr_levels(1), M3.num_vibr_levels(1));
+  kb = kf;
+  kf(reaction.index{1}, reaction.index{3}) = ...
+      kf(reaction.index{1}, reaction.index{3}) + reaction.A;
+  dE = (M1.diss_e(1) - M3.diss_e(1));
+  if reaction.reverse
+   Theta_r_M1 = M1.Be(1) * h * c / k;
+   Z_rot_M1 = T ./ (M1.sigma .* Theta_r_M1);
+   Theta_r_M3 = M3.Be(1) * h * c / k;
+   Z_rot_M3 = T ./ (M3.sigma .* Theta_r_M3);
+   Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) ...
+        * (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 ...
+                                                       * exp( dE / (k*T));
+    % rate coefficient of backward (b) reaction
+   kb = kf .* Kfb;
+  end
+  R_exch_data = n_M3' * n_M4 .* kb  -  n_M1 * n_M2 .* kf;
+  dE_Q = dE + M3.ev_0(1) + M3.ev_i{1} - M1.ev_0(1) + M1.ev_i{1}';
+  Q = sum(- R_exch_data .* dE, 'all');
  case "ATn"
         error("Exchange reactions of this type are still not " + ...
             "implemented " + reaction.type)

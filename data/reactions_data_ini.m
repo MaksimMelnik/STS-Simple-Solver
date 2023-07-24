@@ -52,7 +52,7 @@ react2 = react1;
 react2.source = 'Kunova, NO(1)';
  % only ground NO state included
 react2.index = {1:N2.num_vibr_levels(1), 1, 1, 1};
-   % from works by V. Guerra
+   % from works by V. Guerra [1]
 react3 = react1;
 react3.source = 'Guerra95';
 react3.type = "const";
@@ -70,4 +70,7 @@ valueSet = {Zeldovich1.data};
 Reactions = containers.Map(keySet, valueSet);
 
 save reactions.mat Reactions
+
+    % references
+% [1] V Guerra et al 1995 J. Phys. D: Appl. Phys. 28 1903
 end
