@@ -25,6 +25,7 @@ for ind = 1:kinetics.num_Ps
                 (e_i + kinetics.Ps{ind}.form_e)/k/kinetics.T0 + 2.5*T_DN;
   nm = nm + sum(y(kinetics.index{ind}));
  else
+  
   M(end, kinetics.index{ind}) = (kinetics.Ps{ind}.form_e ...
       + kinetics.Ps{ind}.e_E(1:kinetics.Ps{ind}.num_elex_levels))...
                                                 /k/kinetics.T0 + 1.5*T_DN;
