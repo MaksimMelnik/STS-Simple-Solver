@@ -21,7 +21,7 @@ dat=data_betweenSWs_withexch_VDOP1;
 %dat1=data_behindRSW_withoutexch;
 %dat=data_betweenSWs_withoutexch;
 
-for var=5
+for var=1:12
 %testcases     
 %var: %1 - 2-02 T=3560 P=0.561;  2 - 2-14 T=5460 P=0.325; 3 - 2-32 T=7070
 %P=0.119; 4 - 2-38 T=8730 P=0.137
@@ -193,86 +193,106 @@ end
 % hold off
 % grid minor
 
-addpath('../src/');
-addpath('../data/')
-load('particles.mat', "NO", "N", "O", "Ar", "O2", "N2");
-k=1.380649e-23; Na=6.02214076e23;
-NO.num_elex_levels=1;
-N2.num_elex_levels=1;
-O2.num_elex_levels=1;
-i_U=2;
-[~,j1]=min(abs(dat1(i_vibr, i_U, var, rel).time - tlim_n/3));
-[~,j2]=min(abs(dat1(i_vibr, i_U, var, rel).time - 2*tlim_n/3));
-[~,j3]=min(abs(dat1(i_vibr, i_U, var, rel).time - tlim_n));
+% addpath('../src/');
+% addpath('../data/')
+% load('particles.mat', "NO", "N", "O", "Ar", "O2", "N2");
+% k=1.380649e-23; Na=6.02214076e23;
+% NO.num_elex_levels=1;
+% N2.num_elex_levels=1;
+% O2.num_elex_levels=1;
+% i_U=2;
+% [~,j1]=min(abs(dat1(i_vibr, i_U, var, rel).time - tlim_n/3));
+% [~,j2]=min(abs(dat1(i_vibr, i_U, var, rel).time - 2*tlim_n/3));
+% [~,j3]=min(abs(dat1(i_vibr, i_U, var, rel).time - tlim_n));
+% 
+% figure("Position", [200, 100, 900, 800])
+% t=tiledlayout(2, 2, "TileSpacing", "compact");
+% title(t, "Case " + info(var) + ". Max T_v^{NO}(t)=" + num2str(max((dat1(i_vibr, i_U, var, rel).TvNO))));
+% nexttile
+% n_bolz=density_f_exc(dat1(i_vibr, i_U, var, rel).TvNO(3), dat1(i_vibr, i_U, var, rel).nNO(3)*Na, NO);
+% semilogy(0:NO.num_vibr_levels(1)-1, n_bolz, 'k-', 'LineWidth',2.0);
+% set(gca,'FontSize',12);
+% hold on;
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(3, :) ,'r-','LineWidth',2.0);
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(3, :) , 'm-','LineWidth',2.0);
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(3, :) , 'g-', 'LineWidth',2.0);
+% xlabel('NO vibr. level, i');
+% ylabel('n^i_{NO}, м^{-3}');
+% lgd=legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
+% xlim([0 NO.num_vibr_levels(1)-1]);
+% title("t=0 \mus" + "  T_v^{NO}(t)="+num2str(dat1(i_vibr, i_U, var, rel).TvNO(3)));
+% hold off
+% grid minor
+% 
+% nexttile
+% n_bolz=density_f_exc(dat1(i_vibr, i_U, var, rel).TvNO(j1), dat1(i_vibr, i_U, var, rel).nNO(j1)*Na, NO);
+% semilogy(0:NO.num_vibr_levels(1)-1, n_bolz, 'k-', 'LineWidth',2.0);
+% set(gca,'FontSize',12);
+% hold on;
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j1, :) ,'r-','LineWidth',2.0);
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j1, :) , 'm-','LineWidth',2.0);
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j1, :) , 'g-', 'LineWidth',2.0);
+% xlabel('NO vibr. level, i');
+% ylabel('n^i_{NO}, м^{-3}');
+% %legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
+% xlim([0 NO.num_vibr_levels(1)-1]);
+% title("t="+num2str(round(tlim_n/3))+" \mus"  + "  T_v^{NO}(t)="+num2str(dat1(i_vibr, i_U, var, rel).TvNO(j1)))
+% hold off
+% grid minor
+% 
+% nexttile
+% n_bolz=density_f_exc(dat1(i_vibr, i_U, var, rel).TvNO(j2), dat1(i_vibr, i_U, var, rel).nNO(j2)*Na, NO);
+% semilogy(0:NO.num_vibr_levels(1)-1, n_bolz, 'k-', 'LineWidth',2.0);
+% set(gca,'FontSize',12);
+% hold on;
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j2, :) ,'r-','LineWidth',2.0);
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j2, :) , 'm-','LineWidth',2.0);
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j2, :) , 'g-', 'LineWidth',2.0);
+% xlabel('NO vibr. level, i');
+% ylabel('n^i_{NO}, м^{-3}');
+% %legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
+% xlim([0 NO.num_vibr_levels(1)-1]);
+% title("t="+num2str(round(2*tlim_n/3))+" \mus" + "  T_v^{NO}(t)="+num2str(dat1(i_vibr, i_U, var, rel).TvNO(j2)))
+% hold off
+% grid minor
+% 
+% nexttile
+% n_bolz=density_f_exc(dat1(i_vibr, i_U, var, rel).TvNO(j3), dat1(i_vibr, i_U, var, rel).nNO(j3)*Na, NO);
+% semilogy(0:NO.num_vibr_levels(1)-1, n_bolz, 'k-', 'LineWidth',2.0);
+% set(gca,'FontSize',12);
+% hold on;
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j3, :) ,'r-','LineWidth',2.0);
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j3, :) , 'm-','LineWidth',2.0);
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j3, :) , 'g-', 'LineWidth',2.0);
+% xlabel('NO vibr. level, i');
+% ylabel('n^i_{NO}, м^{-3}');
+% %legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
+% xlim([0 NO.num_vibr_levels(1)-1]);
+% title("t="+num2str(round(tlim_n))+" \mus" + "  T_v^{NO}(t)="+num2str(dat1(i_vibr, i_U, var, rel).TvNO(j3)))
+% hold off
+% grid minor
+% 
+% lgd.Layout.Tile = 'south';
+% rmpath('../src/')
+% rmpath('../data/')
 
-figure("Position", [200, 100, 900, 800])
-t=tiledlayout(2, 2, "TileSpacing", "compact");
-title(t, "Case " + info(var) + ". Max T_v^{NO}(t)=" + num2str(max((dat1(i_vibr, i_U, var, rel).TvNO))));
-nexttile
-n_bolz=density_f_exc(dat1(i_vibr, i_U, var, rel).TvNO(3), dat1(i_vibr, i_U, var, rel).nNO(3)*Na, NO);
-semilogy(0:NO.num_vibr_levels(1)-1, n_bolz, 'k-', 'LineWidth',2.0);
-set(gca,'FontSize',12);
-hold on;
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(3, :) ,'r-','LineWidth',2.0);
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(3, :) , 'm-','LineWidth',2.0);
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(3, :) , 'g-', 'LineWidth',2.0);
-xlabel('NO vibr. level, i');
-ylabel('n^i_{NO}, м^{-3}');
-lgd=legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
-xlim([0 NO.num_vibr_levels(1)-1]);
-title("t=0 \mus" + "  T_v^{NO}(t)="+num2str(dat1(i_vibr, i_U, var, rel).TvNO(3)));
+
+figure
+hold on
+title("Case " + info(var));
+p1=plot(time_n_exp, n_exp, 'k-', 'LineWidth', 2, 'DisplayName', "n_{NO} - experiment" + num2str(var));
+p2=plot(data_behindRSW_withexch_VDOP1(i_vibr,2,var,rel).time, data_behindRSW_withexch_VDOP1(i_vibr,2,var,rel).nNO*1e3,'r-', 'LineWidth', 1.5, 'DisplayName', "n_{NO} - U=D/6k " );
+p3=plot(data_behindRSW_withexch_VDOP1(i_vibr,3,var,rel).time, data_behindRSW_withexch_VDOP1(i_vibr,3,var,rel).nNO*1e3,'b-', 'LineWidth', 1.5, 'DisplayName', "n_{NO} - U=3T " );
+p4=plot(data_behindRSW_withexch_VDOP1(i_vibr,4,var,rel).time, data_behindRSW_withexch_VDOP1(i_vibr,4,var,rel).nNO*1e3, 'm-','LineWidth', 1.5, 'DisplayName', "n_{NO} - U=inf " );
+p5=plot(data_behindRSW_withexch_VDOP1_Park(i_vibr,2,var,rel).time, data_behindRSW_withexch_VDOP1_Park(i_vibr,2,var,rel).nNO*1e3,'r--', 'LineWidth', 1.5, 'DisplayName', "n_{NO} - U=D/6k _Park" );
+p6=plot(data_behindRSW_withexch_VDOP1_Park(i_vibr,3,var,rel).time, data_behindRSW_withexch_VDOP1_Park(i_vibr,3,var,rel).nNO*1e3,'b--', 'LineWidth', 1.5, 'DisplayName', "n_{NO} - U=3T _Park" );
+p7=plot(data_behindRSW_withexch_VDOP1_Park(i_vibr,4,var,rel).time, data_behindRSW_withexch_VDOP1_Park(i_vibr,4,var,rel).nNO*1e3, 'm--','LineWidth', 1.5, 'DisplayName', "n_{NO} - U=inf _Park" );
+errorbar(time_n_err, n_err, err_n, 'sqk', 'MarkerFaceColor', 'k','MarkerSize',1, 'LineWidth', 1);
+xlim([-10 tlim_n]);
+ylim([0 max(dat1(i_vibr,2,var,rel).nNO*1e3)+4]);
+legend([p1 p2 p3 p4 p5 p6 p7],'Location','best');
+xlabel("t, \mus");
+ylabel("n_{NO}, mmol/m^3");
 hold off
 grid minor
-
-nexttile
-n_bolz=density_f_exc(dat1(i_vibr, i_U, var, rel).TvNO(j1), dat1(i_vibr, i_U, var, rel).nNO(j1)*Na, NO);
-semilogy(0:NO.num_vibr_levels(1)-1, n_bolz, 'k-', 'LineWidth',2.0);
-set(gca,'FontSize',12);
-hold on;
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j1, :) ,'r-','LineWidth',2.0);
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j1, :) , 'm-','LineWidth',2.0);
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j1, :) , 'g-', 'LineWidth',2.0);
-xlabel('NO vibr. level, i');
-ylabel('n^i_{NO}, м^{-3}');
-%legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
-xlim([0 NO.num_vibr_levels(1)-1]);
-title("t="+num2str(round(tlim_n/3))+" \mus"  + "  T_v^{NO}(t)="+num2str(dat1(i_vibr, i_U, var, rel).TvNO(j1)))
-hold off
-grid minor
-
-nexttile
-n_bolz=density_f_exc(dat1(i_vibr, i_U, var, rel).TvNO(j2), dat1(i_vibr, i_U, var, rel).nNO(j2)*Na, NO);
-semilogy(0:NO.num_vibr_levels(1)-1, n_bolz, 'k-', 'LineWidth',2.0);
-set(gca,'FontSize',12);
-hold on;
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j2, :) ,'r-','LineWidth',2.0);
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j2, :) , 'm-','LineWidth',2.0);
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j2, :) , 'g-', 'LineWidth',2.0);
-xlabel('NO vibr. level, i');
-ylabel('n^i_{NO}, м^{-3}');
-%legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
-xlim([0 NO.num_vibr_levels(1)-1]);
-title("t="+num2str(round(2*tlim_n/3))+" \mus" + "  T_v^{NO}(t)="+num2str(dat1(i_vibr, i_U, var, rel).TvNO(j2)))
-hold off
-grid minor
-
-nexttile
-n_bolz=density_f_exc(dat1(i_vibr, i_U, var, rel).TvNO(j3), dat1(i_vibr, i_U, var, rel).nNO(j3)*Na, NO);
-semilogy(0:NO.num_vibr_levels(1)-1, n_bolz, 'k-', 'LineWidth',2.0);
-set(gca,'FontSize',12);
-hold on;
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j3, :) ,'r-','LineWidth',2.0);
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j3, :) , 'm-','LineWidth',2.0);
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j3, :) , 'g-', 'LineWidth',2.0);
-xlabel('NO vibr. level, i');
-ylabel('n^i_{NO}, м^{-3}');
-%legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
-xlim([0 NO.num_vibr_levels(1)-1]);
-title("t="+num2str(round(tlim_n))+" \mus" + "  T_v^{NO}(t)="+num2str(dat1(i_vibr, i_U, var, rel).TvNO(j3)))
-hold off
-grid minor
-
-lgd.Layout.Tile = 'south';
-rmpath('../src/')
-rmpath('../data/')
 end

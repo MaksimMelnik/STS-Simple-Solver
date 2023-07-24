@@ -34,11 +34,11 @@ init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
     0.004 1.18 1959 296 817   % 0.4% NO; 49.8% N2; 49.8% Ar
     ];
 for i_ini=1:12
-for i_U=2 %choosing desired U dissociation parameter model
+for i_U=2:4 %choosing desired U dissociation parameter model
 %2 is for D/6k; 3 is for 3T; 4 is for inf
 for i_vibr=2% choosing desired vibrational energy exchange model
 %1 for SSH; 2 for FHO
-for rel=1 % 1 -relaxation off; 2 - relaxation on
+for rel=2 % 1 -relaxation off; 2 - relaxation on
     f=init_c(i_ini, 1); %molar fraction of NO
     p0=init_c(i_ini, 2)*Torr; %initial pressure in shock tube
     v0=init_c(i_ini, 3);   % velocity of incident SW, m/s
@@ -85,11 +85,11 @@ for rel=1 % 1 -relaxation off; 2 - relaxation on
          model_VT='FHO';
     end
     Exch=1;
-    %Reacs_keys={'VT','VV'}; %chemical relaxation and dissociation between 
+    Reacs_keys={'VT','VV'}; %chemical relaxation and dissociation between 
     %SWs is negligible, only VT and VV processes 
-    Reacs_keys={'Diss','Exch', 'VT', 'VV'};
-    reacs_val={Diss, Exch, model_VT, model_VT};
-    %reacs_val={model_VT, model_VT};
+    %Reacs_keys={'Diss','Exch', 'VT', 'VV'};
+    %reacs_val={Diss, Exch, model_VT, model_VT};
+    reacs_val={model_VT, model_VT};
     kinetics.Ps=Ps(2:end);
     kinetics.num_Ps=length(kinetics.Ps);
     kinetics.num_eq=num;
@@ -326,8 +326,8 @@ end
 
 %%
 %if you want to save your data in .mat file, uncomment following raws
-%save(['NO_N2_betweenSWs_withoutexch.mat'], 'dat');
-%save(['NO_N2_behindRSW_withoutexch.mat'], 'dat1');
+save(['NO_N2_betweenSWs_withexch_VDOP1_PARK.mat'], 'dat');
+save(['NO_N2_behindRSW_withexch_VDOP1_PARK.mat'], 'dat1');
 rmpath('../src/')
 rmpath('../data/')
 toc       

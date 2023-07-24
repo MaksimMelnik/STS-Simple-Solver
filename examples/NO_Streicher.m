@@ -32,8 +32,8 @@ init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
     0.004 5.35 1241 296 662
     0.004 2.34 1597 296 830
     ];
-for i_ini=10
-for i_U=4 %choosing desired U dissociation parameter model
+for i_ini=1:11
+for i_U=2:4 %choosing desired U dissociation parameter model
 %2 is for D/6k; 3 is for 3T; 4 is for inf
 for i_vibr=2% choosing desired vibrational energy exchange model
 %1 for SSH; 2 for FHO
@@ -291,8 +291,8 @@ end
 
 %%
 %if you want to save your data in .mat file, uncomment following raws
-%save(['NO_between_SWs.mat'], 'dat');
-%save(['NO_behind_ReflSW.mat'], 'dat1');
+save(['NO_between_SWs_withexch_VDOP1_PARK.mat'], 'dat');
+save(['NO_behind_ReflSW_withexch_VDOP1_PARK.mat'], 'dat1');
 rmpath('../src/')
 rmpath('../data/')
 toc                
