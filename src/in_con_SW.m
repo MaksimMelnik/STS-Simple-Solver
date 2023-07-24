@@ -3,7 +3,8 @@ function [n1_DN, v1_DN, T1_DN] = in_con_SW(n0, v0, T0, rho0, f_m)
 % shock wave (SW).
 % n0 is the number density before a SW; v0 is the velocity before the SW;
 % T is the gas temperature before the SW;
-% rho0 is the density before a SW; f_m is the fraction of molecules.
+% rho0 is the density before a SW; 
+% f_m is the fraction of all molecules in the gas mixture.
 % 17.06.2023
 
 k = 1.380649e-23;

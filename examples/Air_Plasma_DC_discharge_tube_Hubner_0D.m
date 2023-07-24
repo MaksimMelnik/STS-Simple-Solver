@@ -9,7 +9,11 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 % 5.06.2023 Maksim Melnik
 
 %  todo:
+% make a separate functions for R_exch and k_exch
 % fix the flux in the Zeldovich reactions
+% add VT rates from V. Guerra works and fix the VT fluxes
+% - N2-N    % first five transitions, same as i->i-1
+% create a separate function for the plotting of the results
 % - add all particles:
 %   N2(A3Σ+u, B3Пg, B'3Σ−u, C3Пu, a'1Σ−u, a1Пg, w1Δu)
 %   O2(a1Δg, b1Σ+g)
@@ -55,6 +59,7 @@ warning('gamma_v in R_VT_wall is the same for each particle')
 warning('Check energies in the wall recombination function')
 warning('Zeldovich reactions are without electronic excitation')
 warning('Zeldovich reactions were weird. It may affect')
+warning("VV exchanges are with a crutch.")
 disp('Started.')
 
 tic                             % measuring computing time
@@ -72,9 +77,9 @@ O2.num_elex_levels = 1;
 O.num_elex_levels = 1;
 N.num_elex_levels=1;
 NO.num_elex_levels=1;
-%     % no vibrational excitation
-% NO.num_vibr_levels(1) = 1;  NO.ev_i{1} = 0;
-% O2.num_vibr_levels(1) = 1;  O2.ev_i{1} = 0;
+    % no vibrational excitation
+NO.num_vibr_levels(1) = 1;  NO.ev_i{1} = 0;
+O2.num_vibr_levels(1) = 1;  O2.ev_i{1} = 0;
 
     % initial conditions
     % f_M_i are fractions of particle M at the moment i (i=0 is initial,
@@ -87,8 +92,9 @@ init_c=[% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
 for i_ini=1             % choosing desired initial coonditions
  for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr=1 % [1 2]  % choosing vibrational energy exchange model
-                        %   1 is for SSH; 2 is for FHO
+  for i_vibr = 3 % [1 2 3] % choosing vibrational energy exchange model
+                        %   1 is for SSH; 2 is for FHO;
+                        %   3 is for kinetics from V. Guerra works
    T0     = init_c(i_ini, 4);         % K
    n0     = init_c(i_ini, 1)/k/T0;    % m-3
    f_O2_0 = init_c(i_ini, 2);
@@ -126,24 +132,26 @@ for i_ini=1             % choosing desired initial coonditions
    end
    switch i_vibr
     case 1
-	 model_VT='SSH';
+	 model_VT = 'SSH';
 	case 2
-	 model_VT='FHO';
+	 model_VT = 'FHO';
+	case 3
+	 model_VT = 'Guerra';
    end
    Reacs_keys = {'None'};
    reacs_val = {1};
    Reacs_keys = {'VT'};
    reacs_val = {model_VT};
-%    Reacs_keys={'Diss', 'VT'};
-%    reacs_val={Diss, model_VT};
-%    Reacs_keys = {'Diss', 'VT', 'Wall'};
-%    reacs_val = {Diss, model_VT, 1};
-%    Reacs_keys={'Diss', 'VT', 'VV'};
-%    reacs_val={Diss, model_VT, model_VT};
-%    Reacs_keys={'Diss', 'VT', 'VV', 'Wall'};
-%    reacs_val={Diss, model_VT, model_VT, 1};
-%    Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
-%    reacs_val={Diss, model_VT, model_VT, 1};
+   Reacs_keys={'Diss', 'VT'};
+   reacs_val={Diss, model_VT};
+   Reacs_keys = {'Diss', 'VT', 'Wall'};
+   reacs_val = {Diss, model_VT, 1};
+   Reacs_keys={'Diss', 'VT', 'VV'};
+   reacs_val={Diss, model_VT, model_VT};
+   Reacs_keys={'Diss', 'VT', 'VV', 'Wall'};
+   reacs_val={Diss, model_VT, model_VT, 1};
+   Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
+   reacs_val={Diss, model_VT, model_VT, 1};
 %    Reacs_keys={'Diss', 'VT', 'VV', 'Exch', 'Wall'};
 %    reacs_val={Diss, model_VT, model_VT, 1, 1};
    kinetics.Ps = Ps(2:end);
@@ -168,7 +176,7 @@ for i_ini=1             % choosing desired initial coonditions
    kinetics.IndexOfMolecules=IndexOfMolecules;
 %    xspan = [0.005 0.015]/t0;    % the Hubner experiment measurments time
    xspan = [0.005 0.2]/t0;      % from Pintassilgo 2014
-%    xspan = [0.005 0.0052]/t0; % tests
+   xspan = [0.005 0.0052]/t0; % tests
    load('../data/for comparison/Hubner2012_and_Pintassilgo2014.mat' ...
                                                             ) %#ok<LOAD>
    i_vec = 0:30;
@@ -190,7 +198,11 @@ for i_ini=1             % choosing desired initial coonditions
 if N2.num_elex_levels == 2
    y0=[n_N2;    f_N2A_3;   n_O2;  n_NO;  f_N_3; f_O_3; T3];
 end
-   options_s = odeset('RelTol', 1e-20, 'AbsTol', 1e-20, ...
+   options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-20, ...
+                                    'NonNegative', 1:kinetics.num_eq+1); 
+   options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-13, ...
+                                    'NonNegative', 1:kinetics.num_eq+1); 
+   options_s = odeset('RelTol', 1e-12, 'AbsTol', 1e-12, ...
                                     'NonNegative', 1:kinetics.num_eq+1); 
    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
                                     'NonNegative', 1:kinetics.num_eq+1); 
@@ -210,6 +222,7 @@ end
 n_g=sum(Y(:, 1:end-1), 2);
 n_N2=sum(Y(:, kinetics.index{1}), 2);
 t_ag=t-0.005;
+fsize = [200 50 900 550];
 
 figure
 plot(t*1e3, T, t*1e3, Tv, '-.', 'linewidth', 1.5)
@@ -230,7 +243,7 @@ ylim([250 620])
 % n_NO=Y(:, kinetics.index{3});
 % plot(t*1e3, n_NO, 'linewidth', 1.5)
 
-figure  % N, O and NO ag plot
+figure('Position', fsize)  % N, O and NO ag plot
 loglog(Pintassilgo2014_ag_N(:, 1), Pintassilgo2014_ag_N(:, 2), ...
                         'color', [0.9 0 0], 'linewidth', 1.5) %#ok<USENS>
 hold on
@@ -255,37 +268,43 @@ ylim([1e-4 1])
 grid on
 
 
-figure  % VDF ag plot
+figure('Position', fsize) % VDF ag plot
 time_ind0=1;
+[~, time_ind1] = min( abs(t_ag*1e3 - 1) );
+[~, time_ind10] = min( abs(t_ag*1e3 - 10) );
 time_ind100=length(Y(:, 1));
 lvls4plot=0:length(Y(1, kinetics.index{1}))-1;
 semilogy(Pintassilgo2014_N2_VDF_post_DC(:,1), ...
             Pintassilgo2014_N2_VDF_post_DC(:,2), ...
-                                'color', [1 0.8 0] ,'linewidth', 1.5)
+                                'color', [1 0 0] ,'linewidth', 1.5)
 hold on
 semilogy(Pintassilgo2014_N2_VDF_ag_1ms(:,1), ...
                             Pintassilgo2014_N2_VDF_ag_1ms(:,2), ...
-                    'color', [0 0 0.9] ,'linewidth', 1.5) %#ok<USENS>
+                'color', [0.75 0.2 0.25] ,'linewidth', 1.5) %#ok<USENS>
 semilogy(Pintassilgo2014_N2_VDF_ag_10ms(:,1), ...
                             Pintassilgo2014_N2_VDF_ag_10ms(:,2), ...
-                    'color', [0 0.6 0] ,'linewidth', 1.5) %#ok<USENS>
+                'color', [0.25 0.4 0.75] ,'linewidth', 1.5) %#ok<USENS>
 semilogy(Pintassilgo2014_N2_VDF_ag_100ms(:,1), ...
                         Pintassilgo2014_N2_VDF_ag_100ms(:,2), ...
-                        'color', [0.9 0 0] ,'linewidth', 1.5) %#ok<USENS>
+                        'color', [0 0.6 1] ,'linewidth', 1.5) %#ok<USENS>
 semilogy(lvls4plot, Y(time_ind0, kinetics.index{1})/n_N2(time_ind0), ...
-                            '--', 'color', [1 0.8 0] ,'linewidth', 2.5)
+                            '--', 'color', [1 0 0] ,'linewidth', 2.5)
+semilogy(lvls4plot, Y(time_ind1, kinetics.index{1})/n_N2(time_ind1), ...
+                        '--', 'color', [0.75 0.2 0.25] ,'linewidth', 2.5)
+semilogy(lvls4plot, Y(time_ind10, kinetics.index{1})/n_N2(time_ind10), ...
+                        '--', 'color', [0.25 0.4 0.75] ,'linewidth', 2.5)
 semilogy(lvls4plot, ...
             Y(time_ind100, kinetics.index{1})/n_N2(time_ind100), ...
-                            '--', 'color', [0.9 0 0] ,'linewidth', 2.5)
+                            '--', 'color', [0 0.6 1] ,'linewidth', 2.5)
  legend('0.1 ms, Pintassilgo2014', '1 ms, Pintassilgo2014', ...
             '10 ms, Pintassilgo2014', '100 ms, Pintassilgo2014', ...
-            '0 ms, Maksim', '100 ms, Maksim', ...
-                                                    'location', 'best')
+            '0 ms, Maksim', '1 ms, Maksim', '10 ms, Maksim', ...
+                                    '100 ms, Maksim', 'location', 'best')
 xlim([0 30])
 ylim([1e-6 1])
 
 
-figure  % heating rates, K/s
+figure('Position', fsize)  % heating rates, K/s
 iN2 = kinetics.index{1};
 i1_N2 = iN2(1:N2.num_vibr_levels(1));
 iO = kinetics.index{5};
@@ -297,39 +316,58 @@ for i_out = 1:length(t)
 [~, Q_VT_data] = R_VT(N2, Y(i_out, i1_N2)', O, ...
                 Y(i_out, iO(1)), T(i_out), 1, kinetics.reactions('VT'));
 Q_VT(i_out) = Q_VT_data;
-% [~, Q_VT_wall_data] = R_VT_wall(N2, Y(i_out, i1_N2)', T(i_out), kinetics);
-% Q_VT_wall(i_out) = Q_VT_wall_data;
-% [~, Q_rec_wall_data] = R_rec_wall(O, Y(i_out, kinetics.index{5}), ...
-%                                                     T(i_out), kinetics);
-% Q_rec_wall(i_out) = Q_rec_wall_data;
-% [~, Q_VV_data] = R_VV(N2, Y(i_out, i1_N2)', N2, Y(i_out, i1_N2)', ...
-%                              T(i_out), 1, 1, kinetics.reactions('VV'));
-% Q_VV(i_out) = Q_VV_data;
+if isKey(kinetics.reactions, 'Wall') 
+%  [~, Q_VT_wall_data] = ...
+%                     R_VT_wall(N2, Y(i_out, i1_N2)', T(i_out), kinetics);
+%  Q_VT_wall(i_out) = Q_VT_wall_data;
+ if isKey(kinetics.reactions, 'Diss')
+  [~, Q_rec_wall_data] = R_rec_wall(O, Y(i_out, kinetics.index{5}), ...
+                                                    T(i_out), kinetics);
+  Q_rec_wall(i_out) = Q_rec_wall_data;
+ end
+end
+if isKey(kinetics.reactions, 'VV')
+ [~, Q_VV_data] = R_VV(N2, Y(i_out, i1_N2)', N2, Y(i_out, i1_N2)', ...
+                             T(i_out), 1, 1, kinetics.reactions('VV'));
+ Q_VV(i_out) = Q_VV_data;
+end
 end
 c_p_N2 = c_p(N2, T);
 c_p_O2 = c_p(O2, T);
 c_p_total = 0.2*c_p_O2 + 0.8*c_p_N2;
 Q_VT_Ks = Q_VT ./ (n_g/N_a) ./ c_p_total;
 % Q_VT_wall_Ks = Q_VT_wall ./ (n_g/N_a) ./ c_p_total;
-Q_rec_wall_Ks = Q_rec_wall ./ (n_g/N_a) ./ c_p_total;
-Q_VV_Ks = Q_VV ./ (n_g/N_a) ./ c_p_total;
+legend_str1 = ["VT N_2-O, Pintassilgo2014"];
+legend_str2 = ["VT N_2-O, code"];
 loglog(Pintassilgo2014_ag_Q_VT_N2_O(:, 1), ...
-                                Pintassilgo2014_ag_Q_VT_N2_O(:, 2), ...
-...Pintassilgo2014_ag_Q_rec_O_wall(:, 1), ...
-   ...                             Pintassilgo2014_ag_Q_rec_O_wall(:, 2), ...
-        ...Pintassilgo2014_ag_Q_VV_N2_N2(:, 1), ...
-                                ...Pintassilgo2014_ag_Q_VV_N2_N2(:, 2), ...
-    ...t_ag*1e3, Q_rec_wall_Ks , ...
-t_ag*1e3, Q_VT_Ks, ...t_ag*1e3, Q_VT_wall_Ks, ...
-...t_ag*1e3, Q_VV_Ks, ...
-    'linewidth', 1.5) %#ok<USENS>
-legend('VT N_2-O, Pint2014', ...'O+wall, Pint2014', ...
-    ...'VV N2-N2, Pint2014', ...
-    ...'O+wall Maksim', ...
-'VT N_2-O, code', ...
-    ...'Q_{VT} wall deactivation', 
-    ...'Q_{VV} N_2-N_2', ...
-    'location', 'best')
+            Pintassilgo2014_ag_Q_VT_N2_O(:, 2), ...
+                        'color', [0 0 0.8], 'linewidth', 1.5) %#ok<USENS>
+hold on
+if isKey(kinetics.reactions, 'Wall') && isKey(kinetics.reactions, 'Diss')
+ loglog(Pintassilgo2014_ag_Q_rec_O_wall(:, 1), ...
+    Pintassilgo2014_ag_Q_rec_O_wall(:, 2), ...
+                        'color', [0.8 0 0], 'linewidth', 1.5) %#ok<USENS>
+ legend_str1 = [legend_str1, "O+wall rec, Pintassilgo2014"];
+end
+if isKey(kinetics.reactions, 'VV')
+ loglog(Pintassilgo2014_ag_Q_VV_N2_N2(:, 1), ...
+            Pintassilgo2014_ag_Q_VV_N2_N2(:, 2), ...
+                        'color', [0 0.7 0], 'linewidth', 1.5) %#ok<USENS>
+ legend_str1 = [legend_str1, "VV N2-N2, Pintassilgo2014"];
+end
+loglog(t_ag*1e3, Q_VT_Ks, ':', 'color', [0 0 0.8], 'linewidth', 1.5)
+if isKey(kinetics.reactions, 'Wall') && isKey(kinetics.reactions, 'Diss')
+ Q_rec_wall_Ks = Q_rec_wall ./ (n_g/N_a) ./ c_p_total;
+ loglog(t_ag*1e3, Q_rec_wall_Ks, ':', 'color', [0.8 0 0], 'linewidth',1.5)
+ legend_str2 = [legend_str2, "O+wall rec, code"];
+end
+if isKey(kinetics.reactions, 'VV')
+ Q_VV_Ks = Q_VV ./ (n_g/N_a) ./ c_p_total;
+ loglog(t_ag*1e3, Q_VV_Ks, ':', 'color', [0 0.7 0], 'linewidth', 1.5)
+ legend_str2 = [legend_str2, "VV N_2-N_2, code"];
+end
+%  loglog(t_ag*1e3, Q_VT_wall_Ks, 'linewidth', 1.5)
+legend([legend_str1 legend_str2], 'location', 'best')
 title('Q_{in}')
 xlim([6e-3 1e2])
 ylim([6e0 1e5])
