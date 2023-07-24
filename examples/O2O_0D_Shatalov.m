@@ -81,14 +81,14 @@ kinetics.n0=n0;
 kinetics.T0=T0;
 kinetics.t0 = t0;
 kinetics.Delta=Delta;
-  xspan = [0 0.0001]/t0;
-  n=density_f_exc(T0, n1, O2);    % vibrational distribution, VDF
-  y0=zeros(kinetics.num_eq+1, 1); % initial values behind SW
-  y0(1:length(n))=n;
-  y0(end)=T1;
-  options_s = odeset('RelTol', 1e-5, ... solving accuracy parameters
+xspan = [0 0.0001]/t0;
+n=density_f_exc(T0, n1, O2);    % vibrational distribution, VDF
+y0=zeros(kinetics.num_eq+1, 1); % initial values behind SW
+y0(1:length(n))=n;
+y0(end)=T1;
+options_s = odeset('RelTol', 1e-5, ... solving accuracy parameters
                     'AbsTol', 1e-8, 'NonNegative', 1:kinetics.num_eq+1);
-  [X, Y]=ode15s(@(t, y) Rpart_ODE_0D(t, y, kinetics), xspan, y0, options_s);
+[X, Y]=ode15s(@(t, y) Rpart_0D(t, y, kinetics), xspan, y0, options_s);
 
 t = X * t0;                      % dimensioning
 Y(:, 1:end-1)=Y(:, 1:end-1)*n0;
@@ -113,7 +113,6 @@ Tv = O2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2))); % vibrational temperature
   end
  end
 end
-
  % drawing to check if it's fine
 figure
 semilogx(t, T, t, Tv, 'linewidth', 1.5)
