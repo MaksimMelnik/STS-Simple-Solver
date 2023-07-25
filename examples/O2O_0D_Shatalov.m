@@ -88,7 +88,7 @@ y0(1:length(n))=n;
 y0(end)=T1;
 options_s = odeset('RelTol', 1e-5, ... solving accuracy parameters
                     'AbsTol', 1e-8, 'NonNegative', 1:kinetics.num_eq+1);
-[X, Y]=ode15s(@(t, y) Rpart_ODE_0D(t, y, kinetics), xspan, y0, options_s);
+[X, Y]=ode15s(@(t, y) Rpart_0D(t, y, kinetics), xspan, y0, options_s);
 
 t = X * t0;                      % dimensioning
 Y(:, 1:end-1)=Y(:, 1:end-1)*n0;
