@@ -116,6 +116,8 @@ for i_ini=1             % choosing desired initial coonditions
                                     'NonNegative', 1:kinetics.num_eq+1);
    [X, Y]=ode15s(@(t, y) Rpart_0D(t, y, kinetics), xspan, y0, ...
                                                             options_s);
+%    [X, Y]=ode15s(@(t, y) Rpart_ODE_0D(t, y, kinetics), xspan, y0, ...
+%                                                             options_s);
 
    t=X*t0;
    Y(:, 1:end-1)=Y(:, 1:end-1)*n0;
