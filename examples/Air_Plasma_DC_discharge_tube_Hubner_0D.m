@@ -138,6 +138,12 @@ for i_ini=1             % choosing desired initial coonditions
 	case 3
 	 model_VT = 'Guerra';
    end
+   load('../data/reactions.mat');
+   ReactZel_1 = Reactions("N2 + O -> NO + N");
+   ReactZel_2 = Reactions("O2 + N -> NO + O");
+   Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
+        % V Guerra Zeldovich model
+%     Exch = [ReactZel_1("Guerra95"), ReactZel_2("Kunova")];
    Reacs_keys = {'None'};
    reacs_val = {1};
    Reacs_keys = {'VT'};
@@ -151,7 +157,7 @@ for i_ini=1             % choosing desired initial coonditions
    Reacs_keys={'Diss', 'VT', 'VV', 'Wall'};
    reacs_val={Diss, model_VT, model_VT, 1};
    Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
-   reacs_val={Diss, model_VT, model_VT, 1};
+   reacs_val={Diss, model_VT, model_VT, Exch};
 %    Reacs_keys={'Diss', 'VT', 'VV', 'Exch', 'Wall'};
 %    reacs_val={Diss, model_VT, model_VT, 1, 1};
    kinetics.Ps = Ps(2:end);
@@ -176,7 +182,7 @@ for i_ini=1             % choosing desired initial coonditions
    kinetics.IndexOfMolecules=IndexOfMolecules;
 %    xspan = [0.005 0.015]/t0;    % the Hubner experiment measurments time
    xspan = [0.005 0.2]/t0;      % from Pintassilgo 2014
-   xspan = [0.005 0.0052]/t0; % tests
+%    xspan = [0.005 0.0052]/t0; % tests
    load('../data/for comparison/Hubner2012_and_Pintassilgo2014.mat' ...
                                                             ) %#ok<LOAD>
    i_vec = 0:30;
@@ -331,6 +337,13 @@ if isKey(kinetics.reactions, 'VV')
                              T(i_out), 1, 1, kinetics.reactions('VV'));
  Q_VV(i_out) = Q_VV_data;
 end
+if isKey(kinetics.reactions, 'Exch')
+%                          N2 + O -> NO + N
+ [~, Q_exch_NO_N_data] = R_exch_2(N2, O, NO, N, Y(i_out, i1_N2)', ...
+     Y(i_out, iO(1))', Y(i_out, kinetics.index{3})', ...
+     Y(i_out, kinetics.index{4}(1))', T(i_out), ReactZel_1("Kunova"));
+ Q_exch_NO_N(i_out) = Q_exch_NO_N_data;
+end
 end
 c_p_N2 = c_p(N2, T);
 c_p_O2 = c_p(O2, T);
@@ -354,6 +367,12 @@ if isKey(kinetics.reactions, 'VV')
             Pintassilgo2014_ag_Q_VV_N2_N2(:, 2), ...
                         'color', [0 0.7 0], 'linewidth', 1.5) %#ok<USENS>
  legend_str1 = [legend_str1, "VV N2-N2, Pintassilgo2014"];
+end
+if isKey(kinetics.reactions, 'Exch')
+ loglog(Pintassilgo2014_ag_Q_Zel_N_NO(:, 1), ...
+            Pintassilgo2014_ag_Q_Zel_N_NO(:, 2), ...
+                       'color', [0.9 0.9 0], 'linewidth', 1.5) %#ok<USENS>
+ legend_str1 = [legend_str1, "Zel NO-N, Pintassilgo2014"];
 end
 loglog(t_ag*1e3, Q_VT_Ks, ':', 'color', [0 0 0.8], 'linewidth', 1.5)
 if isKey(kinetics.reactions, 'Wall') && isKey(kinetics.reactions, 'Diss')
