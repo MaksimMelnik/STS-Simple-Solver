@@ -32,6 +32,18 @@ function reactions_data_ini
 load('particles.mat') %#ok<LOAD>
 k = 1.380649e-23;         % Boltzmann constant, J/K
 
+    % template
+template.name = NaN;
+template.source = NaN;
+template.particles = NaN;
+template.type = NaN;
+template.direction_forward = NaN;
+template.reverse = NaN;
+template.index = NaN;
+template.A = NaN;
+template.n = NaN;
+template.E = NaN;
+
      % Zeldovich reaction N2 + O -> NO + N
 Zeldovich1.name = 'N2 + O -> NO + N';
 Zeldovich1.particles = ["N2", "O", "NO", "N"];
@@ -65,10 +77,36 @@ keySet = {react1.source, react2.source, react3.source};
 valueSet = {react1, react2, react3};
 Zeldovich1.data = containers.Map(keySet, valueSet);
 
-keySet = {Zeldovich1.name};
-valueSet = {Zeldovich1.data};
-Reactions = containers.Map(keySet, valueSet);
+     % Zeldovich reaction O2 + N -> NO + O
+Zeldovich2.name = 'O2 + N -> NO + O';
+Zeldovich2.particles = ["O2", "N", "NO", "O"];
+   % from works by O. Kunova
+react1 = template;
+react1.name = Zeldovich2.name;
+react1.source = 'Kunova';
+react1.particles = Zeldovich2.particles;
+react1.type = "Heaviside";
+react1.direction_forward = true;
+react1.reverse = true;
+ % all ground states
+react1.index = {1:O2.num_vibr_levels(1), 1, 1:NO.num_vibr_levels(1), 1};
+react1.A = @(T) 4e-16^(T < 4000)*3.206e-23^(T >= 4000);
+react1.n = @(T) (-0.39)^(T < 4000)*1.58^(T >= 4000);
+react1.E = 1449 * k;   % J
+   % from works by O. Kunova, but only the ground vibrational state of NO
+react2 = react1;
+react2.source = 'Kunova, NO(1)';
+ % only ground NO state included
+react2.index = {1:O2.num_vibr_levels(1), 1, 1, 1};
+keySet = {react1.source, react2.source};%, react3.source};
+valueSet = {react1, react2};%, react3};
+Zeldovich2.data = containers.Map(keySet, valueSet);
 
+
+    % summarizing all reactions in the one container and file
+keySet = {Zeldovich1.name, Zeldovich2.name};
+valueSet = {Zeldovich1.data, Zeldovich2.data};
+Reactions = containers.Map(keySet, valueSet);
 save reactions.mat Reactions
 
     % references
