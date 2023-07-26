@@ -9,11 +9,10 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% make a separate functions for R_exch and k_exch
+% create a separate function for the plotting of the results
 % fix the flux in the Zeldovich reactions
 % add VT rates from V. Guerra works and fix the VT fluxes
 % - N2-N    % first five transitions, same as i->i-1
-% create a separate function for the plotting of the results
 % - add all particles:
 %   N2(A3Σ+u, B3Пg, B'3Σ−u, C3Пu, a'1Σ−u, a1Пg, w1Δu)
 %   O2(a1Δg, b1Σ+g)
@@ -138,7 +137,7 @@ for i_ini=1             % choosing desired initial coonditions
 	case 3
 	 model_VT = 'Guerra';
    end
-   load('../data/reactions.mat');
+   load('../data/reactions.mat', 'Reactions');
    ReactZel_1 = Reactions("N2 + O -> NO + N");
    ReactZel_2 = Reactions("O2 + N -> NO + O");
    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
@@ -371,7 +370,7 @@ end
 if isKey(kinetics.reactions, 'Exch')
  loglog(Pintassilgo2014_ag_Q_Zel_N_NO(:, 1), ...
             Pintassilgo2014_ag_Q_Zel_N_NO(:, 2), ...
-                       'color', [0.9 0.9 0], 'linewidth', 1.5) %#ok<USENS>
+                       'color', [1 1 0], 'linewidth', 1.5) %#ok<USENS>
  legend_str1 = [legend_str1, "Zel NO-N, Pintassilgo2014"];
 end
 loglog(t_ag*1e3, Q_VT_Ks, ':', 'color', [0 0 0.8], 'linewidth', 1.5)
