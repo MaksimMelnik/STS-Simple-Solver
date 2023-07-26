@@ -32,7 +32,7 @@ for i_ini=1 % [1 2 3 4 5] % choosing desired initial coonditions
                          % 1 is for SSH; 2 is for FHO
    % 0 --- before SW, 1 --- behind SW
    n0=init_c(i_ini, 1);   % m-3; characteristic number density
-   v0=init_c(i_ini, 2);   % m/s; characteristic velocity
+   %v0=init_c(i_ini, 2);   % m/s; characteristic velocity
    T0=init_c(i_ini, 3);   % K; characteristic temperature
    n1=init_c(i_ini, 4);   % dimentionless (DN) for higher calculation 
                           % accuracy
