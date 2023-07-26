@@ -1,8 +1,8 @@
 function out = O2O_SW_Shatalov
 % The main function for the macroparameters calculation behind SW for
 % Shatalov's experiment conditions [1].
+% [1] Ibraguimova et al J. Chem. Phys. 139, 034317 (2013).
 % 27.12.2022 Maksim Melnik
-% [1] Ibraguimova et al J. Chem. Phys. 139, 034317 (2013)
 tic                                 % calculation time measuring
     % constants
 k = 1.380649e-23;                   % Boltzmann constant, J/K
