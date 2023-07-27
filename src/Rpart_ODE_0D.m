@@ -2,6 +2,7 @@ function out = Rpart_ODE_0D(~, y, kinetics)
 % Right part function for ODE systems for 0D relaxation problem.
 % y is the vector of macroparameters;
 % kinetics is the big structure with all kinetics.
+% 21.07.2023 Shaikhutdinova Asya
 
     % constants
 k = 1.380649e-23;       % Boltzmann constant, J/K

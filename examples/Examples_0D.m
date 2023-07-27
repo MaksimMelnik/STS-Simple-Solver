@@ -1,10 +1,13 @@
 function out=Examples_0D
-% The main function for the macroparameters calculation in the afterglow
-% of the electric discharge.
-% Hubner's experiment conditions [1] accounting data Pintassilgo et al [2]
+% The main function for the macroparameters calculation for the 0D problem.
+% Test cases are based on 
+%   1) the Hubner's experiment conditions [1] accounting data 
+% Pintassilgo et al [2];
+%   2) the Shatalov's experiment behind the shock waves [3].
 % [1] M Hubner et al Meas. Sci. Technol. 23 (2012) 115602.
 % [2] C D Pintassilgo et al Plasma Sources Sci. Technol. 23 (2014) 025006.
-% 15.02.2023 Maksim Melnik
+% [3] Ibraguimova et al J. Chem. Phys. 139, 034317 (2013).
+% 15.02.2023 Maksim Melnik, Shaikhutdinova Asya
 
 tic % measuring computing time
     % constants
