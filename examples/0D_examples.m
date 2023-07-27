@@ -26,13 +26,14 @@ init_c=[% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3
         3.116082265979940e+22   4130    3.098808789880962e+02 ...
        5.808077724421962e+00  1.721740044550666e-01   3.036555281554731e+01 0 0
      ];
-for i_ini=1 % [1 2]     % choosing desired initial coonditions
+for i_ini=2 % [1 2]     % choosing desired initial coonditions
                         % 1 is for Hubner; 2 is for Shatalov
  for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
   for i_vibr=1 % [1 2]  % choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO
    if i_ini == 1
+    M1 = N2;
     T0     = init_c(i_ini, 4);         % K
     n0     = init_c(i_ini, 1)/k/T0;    % m-3
     f_O2_0 = init_c(i_ini, 2);
@@ -43,13 +44,14 @@ for i_ini=1 % [1 2]     % choosing desired initial coonditions
     f_NO_3 = init_c(i_ini, 7);
     t0    = 1 / (4 * n0 * N2.diameter^2 * sqrt(pi * k * T0 / N2.mass));
    elseif i_ini == 2
+    M1 = O2;
     T0     = init_c(i_ini, 3);   % K
     n0     = init_c(i_ini, 1);   % m-3
     n1     = init_c(i_ini, 4);  
     T1     = init_c(i_ini, 6);
     t0     = 1 / (4 * n0 * O2.diameter^2 * sqrt(pi * k * T0 / O2.mass));
    end
-   sigma0  = pi*N2.diameter^2;
+   sigma0  = pi*M1.diameter^2;
    Delta   = 1 / sqrt(2) / n0 / sigma0; % characteristic length, m
 
    num=0;
@@ -78,7 +80,6 @@ for i_ini=1 % [1 2]     % choosing desired initial coonditions
 	case 2
 	 model_VT='FHO';
    end
-   %отсюда
    Exch=1;
    %Reacs_keys={'VT'};
    %reacs_val={model_VT};
@@ -87,7 +88,7 @@ for i_ini=1 % [1 2]     % choosing desired initial coonditions
    %Reacs_keys={'Diss', 'VT', 'VV'};
    %reacs_val={Diss, model_VT, model_VT};
    %Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
-   %reacs_val={Diss, model_VT, model_VT, Exch}; % зачем столько раз переопределяются?
+   %reacs_val={Diss, model_VT, model_VT, Exch};
    Reacs_keys={{'Diss', 'VT', 'VV', 'Exch'}, {'Diss', 'VT', 'VV'}};
    reacs_val={{Diss, model_VT, model_VT, Exch}, {Diss, model_VT, model_VT}};
    kinetics.Ps=Ps{i_ini}(2:end);
@@ -110,8 +111,7 @@ for i_ini=1 % [1 2]     % choosing desired initial coonditions
      serial_index(i)=i;
      IndexOfMolecules=containers.Map(names,serial_index);
     end
-    kinetics.IndexOfMolecules=IndexOfMolecules;
-    xspan=[0.005 0.015]/t0;      % the Hubner experiment measurments time
+    kinetics.IndexOfMolecules=IndexOfMolecules;      
     load('../data/for comparison/Hubner2012_and_Pintassilgo2014.mat' ...
                                                             ) %#ok<LOAD>
     i_vec=0:30;
@@ -131,14 +131,13 @@ for i_ini=1 % [1 2]     % choosing desired initial coonditions
     y0=[n_N2; n_O2; n_NO; f_N_3; f_O_3; T3];
 
    elseif i_ini == 2
-    xspan = [0 0.1]/t0;
     n=density_f_exc(T0, n1, O2);    % vibrational distribution, VDF
     y0=zeros(kinetics.num_eq+1, 1); % initial values behind SW
     y0(1:length(n))=n;
     y0(end)=T1;
    end
-   %до сюда
-   options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
+   xspan=[0 0.015]/t0;
+   options_s = odeset('RelTol', 1e-4, 'AbsTol', 1e-6, ...
                                     'NonNegative', 1:kinetics.num_eq+1);
    [X, Y]=ode15s(@(t, y) Rpart_ODE_0D(t, y, kinetics), xspan, y0, ...
                                                               options_s);
@@ -147,12 +146,8 @@ for i_ini=1 % [1 2]     % choosing desired initial coonditions
    Y(:, 1:end-1)=Y(:, 1:end-1)*n0;
    Y(:, end)=Y(:, end)*T0;
    T=Y(:, end);
-   if i_ini == 1
-    Tv = N2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
-   elseif i_ini == 2
-    Tv = O2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
-   end
-   out(i_ini, i_vibr, i_U).res=[t, Y, Tv]; % time_ms?
+   Tv = M1.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
+   out(i_ini, i_vibr, i_U).res=[t, Y, Tv];
 
    disp('Conservation laws check')
    check_CL_0D([1 1], Y, kinetics, 1);
@@ -161,10 +156,6 @@ for i_ini=1 % [1 2]     % choosing desired initial coonditions
 end
 
 figure
-plot(t*1e3, T, t*1e3, Tv, '-.', 'linewidth', 1.5)
-legend('T', 'Tv', 'location', 'best')
-% xlim([6e-2 1.5e-1])
-
 semilogx(t, T, t, Tv, 'linewidth', 1.5)
 
 rmpath('../src/')
