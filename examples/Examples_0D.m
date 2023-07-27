@@ -20,11 +20,11 @@ NO.num_elex_levels=1;
     % initial conditions
     % f_M_i are fractions of particle M at the moment i (i=0 is initial,
     %   i=3 is when the discharge is off. Fractions_3 are approximate.
-init_c=[% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3 
-          133     0.2     0.008   300    440    1.2e-1 3.8e-3  2e-3
-         % n0, m-3;  v0, m/s;  T0, K;   n1, DN;   v1, DN;   T1, DN
-        3.116082265979940e+22   4130    3.098808789880962e+02 ...
-       5.808077724421962e+00  1.721740044550666e-01   3.036555281554731e+01 0 0
+init_c=[% p0, Pa; T0, K; f_O2_0; f_NO_0; T3, K; f_O_3; f_NO_3; f_N_3 
+          133     300    0.2     0.008   440    1.2e-1 3.8e-3  2e-3
+        % p0, Pa; T0, K;                 n1, DN;   v1, DN;   T1, DN
+          133     3.098808789880962e+02  5.808077724421962e+00	...
+            3.036555281554731e+01 0 0 0 0
      ];
 for i_ini=2 % [1 2]     % choosing desired initial coonditions
                         % 1 is for Hubner; 2 is for Shatalov
@@ -32,25 +32,23 @@ for i_ini=2 % [1 2]     % choosing desired initial coonditions
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
   for i_vibr=1 % [1 2]  % choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO
+    
+   T0      = init_c(i_ini, 2);         % K
+   n0      = init_c(i_ini, 1)/k/T0;    % m-3
    if i_ini == 1
     M1 = N2;
-    T0     = init_c(i_ini, 4);         % K
-    n0     = init_c(i_ini, 1)/k/T0;    % m-3
-    f_O2_0 = init_c(i_ini, 2);
-    f_NO_0 = init_c(i_ini, 3);
     T3     = init_c(i_ini, 5) /T0;
+    f_O2_0 = init_c(i_ini, 3);
+    f_NO_0 = init_c(i_ini, 4);
     f_O_3  = init_c(i_ini, 6);
     f_N_3  = init_c(i_ini, 8);
     f_NO_3 = init_c(i_ini, 7);
-    t0    = 1 / (4 * n0 * N2.diameter^2 * sqrt(pi * k * T0 / N2.mass));
    elseif i_ini == 2
     M1 = O2;
-    T0     = init_c(i_ini, 3);   % K
-    n0     = init_c(i_ini, 1);   % m-3
-    n1     = init_c(i_ini, 4);  
-    T1     = init_c(i_ini, 6);
-    t0     = 1 / (4 * n0 * O2.diameter^2 * sqrt(pi * k * T0 / O2.mass));
+    n1     = init_c(i_ini, 3);  
+    T1     = init_c(i_ini, 4);
    end
+   t0      = 1 / (4 * n0 * M1.diameter^2 * sqrt(pi * k * T0 / M1.mass));
    sigma0  = pi*M1.diameter^2;
    Delta   = 1 / sqrt(2) / n0 / sigma0; % characteristic length, m
 
@@ -157,6 +155,7 @@ end
 
 figure
 semilogx(t, T, t, Tv, 'linewidth', 1.5)
+legend('T, K', 'Tv, K', 'location', 'best')
 
 rmpath('../src/')
 toc
