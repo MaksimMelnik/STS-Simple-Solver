@@ -1,4 +1,4 @@
-function out=Air_discharge_Hubner_0D
+function out=0D_examples
 % The main function for the macroparameters calculation in the afterglow
 % of the electric discharge.
 % Hubner's experiment conditions [1] accounting data Pintassilgo et al [2]
