@@ -7,17 +7,13 @@ function [R, Qin] = Rci(y, kinetics)
 
 T = y(end) * kinetics.T0;
 n0 = kinetics.n0;
-R_VT_data  =  zeros(kinetics.num_eq, 1);
-R_VV_data  =  zeros(kinetics.num_eq, 1);
+R_VT_data   = zeros(kinetics.num_eq, 1);
+R_VV_data   = zeros(kinetics.num_eq, 1);
 R_diss_data = zeros(kinetics.num_eq, 1);
-R_VE_data  =  zeros(kinetics.num_eq, 1);
+R_VE_data   = zeros(kinetics.num_eq, 1);
 R_exch_data = zeros(kinetics.num_eq, 1);
 R_wall_data = zeros(kinetics.num_eq, 1);
 Qin = 0;
-
-if isKey(kinetics.reactions, 'Exch')
- IndexOfMolecules=kinetics.IndexOfMolecules;
-end
 
 for indM1 = 1:kinetics.num_Ps   % considering each particle
  M1 = kinetics.Ps{indM1};
@@ -85,7 +81,7 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
     else
         str_w=strcat('VE is allowed only for CO, but ', M1.name, ...
                                         ' is electronicaly excited too.');
-        warning(str_w)
+        error(str_w)
     end
    end
   end
@@ -225,6 +221,7 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
 end
 
 if isKey(kinetics.reactions, 'Exch') % exchange reactions universal attempt
+ IndexOfMolecules = kinetics.IndexOfMolecules;
  exch_reactions = kinetics.reactions("Exch");
  for ind_exch = 1:length(exch_reactions)
   reaction = exch_reactions(ind_exch);
@@ -237,7 +234,7 @@ if isKey(kinetics.reactions, 'Exch') % exchange reactions universal attempt
   indM2 = kinetics.index{IOM_M2};
   indM3 = kinetics.index{IOM_M3};
   indM4 = kinetics.index{IOM_M4};
-  [R_exch_temp, Q_exch] = R_exch_2(kinetics.Ps{IOM_M1}, ...
+  [R_exch_temp, Q_exch] = R_exch(kinetics.Ps{IOM_M1}, ...
         kinetics.Ps{IOM_M2}, kinetics.Ps{IOM_M3}, kinetics.Ps{IOM_M4}, ...
                      y(indM1), y(indM2), y(indM3), y(indM4), T, reaction);
   R_exch_data(indM1) = R_exch_data(indM1) + sum(R_exch_temp, 2);

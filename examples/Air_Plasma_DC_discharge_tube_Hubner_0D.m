@@ -9,7 +9,7 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% create a separate function for the plotting of the results
+% fix the n0 and n3
 % fix the flux in the Zeldovich reactions
 % add VT rates from V. Guerra works and fix the VT fluxes
 % - N2-N    % first five transitions, same as i->i-1
@@ -64,7 +64,6 @@ disp('Started.')
 tic                             % measuring computing time
     % constants
 k = 1.380649e-23;               % Boltzmann constant, J/K
-N_a=6.02214076e23;              % Avogadro constant
 addpath('../src/')
 load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO')
     % electronic excitation
@@ -142,7 +141,7 @@ for i_ini=1             % choosing desired initial coonditions
    ReactZel_2 = Reactions("O2 + N -> NO + O");
    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
         % V Guerra Zeldovich model
-%     Exch = [ReactZel_1("Guerra95"), ReactZel_2("Kunova")];
+   Exch = [ReactZel_1("Guerra95"), ReactZel_2("Kunova")];
    Reacs_keys = {'None'};
    reacs_val = {1};
    Reacs_keys = {'VT'};

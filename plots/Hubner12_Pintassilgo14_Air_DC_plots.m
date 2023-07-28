@@ -139,7 +139,7 @@ if isKey(kinetics.reactions, 'VV')
 end
 if isKey(kinetics.reactions, 'Exch')
 %                          N2 + O -> NO + N
- [~, Q_exch_NO_N_data] = R_exch_2(N2, O, NO, N, Y(i_out, i1_N2)', ...
+ [~, Q_exch_NO_N_data] = R_exch(N2, O, NO, N, Y(i_out, i1_N2)', ...
      Y(i_out, iO(1))', Y(i_out, kinetics.index{3})', ...
      Y(i_out, kinetics.index{4}(1))', T(i_out), Exch_reactions(1));
  Q_exch_NO_N(i_out) = Q_exch_NO_N_data;
@@ -186,7 +186,7 @@ if isKey(kinetics.reactions, 'VV')
  legend_str2 = [legend_str2, "VV N_2-N_2, code"];
 end
 if isKey(kinetics.reactions, 'Exch')
- Q_exch_NO_N_Ks = - Q_exch_NO_N ./ (n_g/N_a) ./ c_p_total;
+ Q_exch_NO_N_Ks = Q_exch_NO_N ./ (n_g/N_a) ./ c_p_total;
  loglog(t_ag*1e3, Q_exch_NO_N_Ks, ':', 'color', [1 0.7 0], ...
                                                         'linewidth', 1.5) 
  legend_str2 = [legend_str2, "Zel NO-N, code"];
