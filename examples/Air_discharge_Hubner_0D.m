@@ -67,13 +67,10 @@ for i_ini=1             % choosing desired initial coonditions
 	case 2
 	 model_VT='FHO';
    end
-   Exch=1;
-   Reacs_keys={'VT'};
-   reacs_val={model_VT};
-   Reacs_keys={'Diss', 'VT'};
-   reacs_val={Diss, model_VT};
-   Reacs_keys={'Diss', 'VT', 'VV'};
-   reacs_val={Diss, model_VT, model_VT};
+   load('../data/reactions.mat', 'Reactions');
+   ReactZel_1 = Reactions("N2 + O -> NO + N");
+   ReactZel_2 = Reactions("O2 + N -> NO + O");
+   Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
    Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
    reacs_val={Diss, model_VT, model_VT, Exch};
    kinetics.Ps=Ps(2:end);
@@ -133,7 +130,6 @@ end
 figure
 plot(t*1e3, T, t*1e3, Tv, '-.', 'linewidth', 1.5)
 legend('T', 'Tv', 'location', 'best')
-% xlim([6e-2 1.5e-1])
 
 rmpath('../src/')
 toc

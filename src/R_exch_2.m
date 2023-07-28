@@ -18,8 +18,6 @@ if (M2.fr_deg_c + M4.fr_deg_c ~= 6)
 end
 switch reaction.type
  case "const"
-%         error("Exchange reactions of this type are still not " + ...
-%             "implemented " + reaction.type)
   kf = zeros(M1.num_vibr_levels(1), M3.num_vibr_levels(1));
   kb = kf;
   kf(reaction.index{1}, reaction.index{3}) = ...
@@ -39,6 +37,7 @@ switch reaction.type
   R_exch_data = n_M3' * n_M4 .* kb  -  n_M1 * n_M2 .* kf;
   dE_Q = dE + M3.ev_0(1) + M3.ev_i{1} - M1.ev_0(1) + M1.ev_i{1}';
   Q = sum(- R_exch_data .* dE_Q, 'all');
+  warning('recheck the energy in Q')
  case "ATn"
         error("Exchange reactions of this type are still not " + ...
             "implemented " + reaction.type)
