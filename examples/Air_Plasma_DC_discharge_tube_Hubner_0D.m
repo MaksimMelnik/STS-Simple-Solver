@@ -9,8 +9,8 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% fix the n0 and n3
-% fix the flux in the Zeldovich reactions
+% fix the flux in the Zeldovich reactions (2nd reaction)
+% rename the function
 % add VT rates from V. Guerra works and fix the VT fluxes
 % - N2-N    % first five transitions, same as i->i-1
 % - add all particles:
@@ -82,26 +82,27 @@ O2.num_vibr_levels(1) = 1;  O2.ev_i{1} = 0;
     % initial conditions
     % f_M_i are fractions of particle M at the moment i (i=0 is initial,
     %   i=3 is when the discharge is off. Fractions_3 are approximate.
-init_c=[% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
-          133     0.2     0.008   300    440    1.2e-1 3.8e-3  2e-3 ...
-      ... f_N2A_3
-          5.8e-5
+init_c = [% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
+            133     0.2     0.008   300    440    1.2e-1 3.8e-3  2e-3 ...
+        ... f_N2A_3
+            5.8e-5
         ];
-for i_ini=1             % choosing desired initial coonditions
+for i_ini = 1           % choosing desired initial coonditions
  for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
   for i_vibr = 3 % [1 2 3] % choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO;
                         %   3 is for kinetics from V. Guerra works
-   T0     = init_c(i_ini, 4);         % K
-   n0     = init_c(i_ini, 1)/k/T0;    % m-3
-   f_O2_0 = init_c(i_ini, 2);
-   f_NO_0 = init_c(i_ini, 3);
-   T3     = init_c(i_ini, 5) /T0;
-   f_O_3  = init_c(i_ini, 6);
-   f_N_3  = init_c(i_ini, 8);
-   f_NO_3 = init_c(i_ini, 7);
-   f_N2A_3= init_c(i_ini, 9);
+   T0      = init_c(i_ini, 4);         % K
+   n0      = init_c(i_ini, 1)/k/T0;    % m-3
+   f_O2_0  = init_c(i_ini, 2);
+   f_NO_0  = init_c(i_ini, 3);
+   T3      = init_c(i_ini, 5) /T0;
+   f_O_3   = init_c(i_ini, 6);
+   f_N_3   = init_c(i_ini, 8);
+   f_NO_3  = init_c(i_ini, 7);
+   f_N2A_3 = init_c(i_ini, 9);
+   n3      = init_c(i_ini, 1)/k/T3/T0; % m-3
    
    sigma0 = pi*N2.diameter^2;
    Delta = 1 / sqrt(2) / n0 / sigma0; % characteristic length, m
@@ -197,11 +198,13 @@ for i_ini=1             % choosing desired initial coonditions
    n_N2 = n_N2 * f_N2_3;
    n_O2 = density_f_exc(Tv1, f_O2_3, O2);
    n_NO = density_f_exc(Tv1, f_NO_3, NO);
-     % N2(X,v), N2(A3Σu+), O2(X), NO(X), N(X),  O(X),  T
-   y0=[n_N2;               n_O2;  n_NO;  f_N_3; f_O_3; T3];
+       % N2(X,v), N2(A3Σu+), O2(X), NO(X), N(X),  O(X)
+   y0 = [n_N2;               n_O2;  n_NO;  f_N_3; f_O_3];
 if N2.num_elex_levels == 2
-   y0=[n_N2;    f_N2A_3;   n_O2;  n_NO;  f_N_3; f_O_3; T3];
+   y0 = [n_N2;    f_N2A_3;   n_O2;  n_NO;  f_N_3; f_O_3];
 end
+       % t3 correction, T
+   y0 = [y0 * n3/n0;    T3];
    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-20, ...
                                     'NonNegative', 1:kinetics.num_eq+1); 
    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-13, ...
