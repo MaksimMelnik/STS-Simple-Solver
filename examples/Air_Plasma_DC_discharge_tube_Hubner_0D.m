@@ -141,10 +141,9 @@ for i_ini = 1           % choosing desired initial coonditions
    ReactZel_1 = Reactions("N2 + O -> NO + N");
    ReactZel_2 = Reactions("O2 + N -> NO + O");
    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
+%    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
         % V Guerra Zeldovich model
    Exch = [ReactZel_1("Guerra95"), ReactZel_2("Kunova")];
-   Reacs_keys = {'None'};
-   reacs_val = {1};
    Reacs_keys = {'VT'};
    reacs_val = {model_VT};
    Reacs_keys={'Diss', 'VT'};
