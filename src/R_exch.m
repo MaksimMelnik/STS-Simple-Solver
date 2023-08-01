@@ -37,9 +37,14 @@ switch reaction.type
         error("Exchange reactions of this type are still not " + ...
             "implemented " + reaction.type)    
 end
-
+   
 	% rate coefficient of backward (b) reaction
-kb = zeros(M1.num_vibr_levels(1), M3.num_vibr_levels(1));
+kb = zeros(M1.num_vibr_levels(1), M3.num_vibr_levels(1)); 
+    % if the reaction prceeds in the opposite direction
+if ~reaction.direction_forward
+ kb = kf;
+ kf = zeros(M1.num_vibr_levels(1), M3.num_vibr_levels(1));
+end
 if reaction.reverse     % if backward reaction included
  Theta_r_M1 = M1.Be(1) * h * c / k;
  Z_rot_M1 = T ./ (M1.sigma .* Theta_r_M1);  % statistical rotational sum
@@ -48,7 +53,11 @@ if reaction.reverse     % if backward reaction included
  Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) ...
         * (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 ...
                                                    * exp( dE_fb / (k*T));
- kb = kf .* Kfb;
+ if reaction.direction_forward
+  kb = kf .* Kfb;
+ else
+  kf = kb ./ Kfb;
+ end
 end
 R_exch_data = n_M3' * n_M4 .* kb  -  n_M1 * n_M2 .* kf;
     % energy change in the reaction (after - before)
