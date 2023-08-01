@@ -15,10 +15,17 @@ k = 1.380649e-23;
 
 switch model
     case 'FHO'
-        k_down = kvt_fho_old(T, M1, M2, ind_e)';
+        k_down = kvt_fho_old(T, M1, M2, ind_e);
     case 'SSH'
-        k_down = kvt_ssh(T, M1, M2, ind_e, 1)';
+        k_down = kvt_ssh(T, M1, M2, ind_e, 1);
+    case 'Guerra'
+        if M1.name=="N2" && M2.name=="O"
+            k_down = kvt_Gordietst(T, M1, ind_e);
+        else
+            k_down = kvt_ssh(T, M1, M2, ind_e, 1);
+        end
 end
+k_down = k_down';
 k_up  = k_down.*exp((M1.ev_i{ind_e}(1:end-1)-M1.ev_i{ind_e}(2:end))/k/T)';
 core  = 1:M1.num_vibr_levels(ind_e) - 1;
 R_down = n_M2 * n_m(core+1) .* k_down;
