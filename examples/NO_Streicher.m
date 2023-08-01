@@ -169,8 +169,6 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
         % only the ground vibrational state of NO
     Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
-        % test
-%     Exch = [ReactZel_1("Guerra95"), ReactZel_2("Kunova")];
     Reacs_keys={'Diss','Exch', 'VT', 'VV'};
     reacs_val={Diss, Exch,  model_VT, model_VT};
 
