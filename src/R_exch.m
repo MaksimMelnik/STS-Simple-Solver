@@ -66,7 +66,7 @@ dE_Q = M1.diss_e(1) - M3.diss_e(1) ...
 Q = sum(R_exch_data .* dE_Q, 'all');
 end
 
-function [kf, dE_fb] = R_exch_Heaviside(M1, M2, M3, M4, T, reaction)
+function [kf, dE_fb] = R_exch_Heaviside(M1, M3, T, reaction)
     % constants
 V_K = 1.380649e-23;
 

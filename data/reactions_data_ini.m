@@ -73,8 +73,18 @@ react3.index = {1+13:N2.num_vibr_levels(1), 1, 1, 1};
 react3.A = 1e-13 / 1e6;
 react3.n = 0;
 react3.E = 0;
-keySet = {react1.source, react2.source, react3.source};
-valueSet = {react1, react2, react3};
+react4 = react1;
+react4.source = 'Guerra95_reverse';
+react4.type = "ATn";
+react4.direction_forward = false;
+react4.reverse = false;
+% react4.index = {1+1:1+5, 1, 1, 1};
+react4.index = {1+3, 1, 1, 1};
+react4.A = 1.05e-12 / 1e6;
+react4.n = 0.5;
+react4.E = 0;
+keySet = {react1.source, react2.source, react3.source, react4.source};
+valueSet = {react1, react2, react3, react4};
 Zeldovich1.data = containers.Map(keySet, valueSet);
 
      % Zeldovich reaction O2 + N -> NO + O

@@ -9,7 +9,6 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% fix the flux in the Zeldovich reactions (2nd reaction)
 % rename the function
 % add VT rates from V. Guerra works and fix the VT fluxes
 % - N2-N    % first five transitions, same as i->i-1
@@ -45,6 +44,8 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 %   (9) Diffusion of molecular and atomic metastable states to the wall
 %   (10) Chemical reactions, Qchem
 %   (11) Electron–ion recombination involving nitrogen or oxygen ions,Qe−i
+% Consider the second Zeldovich reaction. It's not included in 
+%   prof. Guerra's works, but it affects
 
 
 warning("The present test case is unfinished")
@@ -139,13 +140,13 @@ for i_ini = 1           % choosing desired initial coonditions
    end
    load('../data/reactions.mat', 'Reactions');
    ReactZel_1 = Reactions("N2 + O -> NO + N");
-   ReactZel_2 = Reactions("O2 + N -> NO + O");
-   Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
+%    ReactZel_2 = Reactions("O2 + N -> NO + O");
+%    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
 %    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
         % V Guerra Zeldovich model
-   Exch = [ReactZel_1("Guerra95"), ReactZel_2("Kunova")];
-   Reacs_keys = {'VT'};
-   reacs_val = {model_VT};
+%    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
+%                                                     ReactZel_2("Kunova")];
+   Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse")];
    Reacs_keys={'Diss', 'VT'};
    reacs_val={Diss, model_VT};
    Reacs_keys = {'Diss', 'VT', 'Wall'};
@@ -156,8 +157,8 @@ for i_ini = 1           % choosing desired initial coonditions
    reacs_val={Diss, model_VT, model_VT, 1};
    Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
    reacs_val={Diss, model_VT, model_VT, Exch};
-%    Reacs_keys={'Diss', 'VT', 'VV', 'Exch', 'Wall'};
-%    reacs_val={Diss, model_VT, model_VT, 1, 1};
+   Reacs_keys={'Diss', 'VT', 'VV', 'Exch', 'Wall'};
+   reacs_val={Diss, model_VT, model_VT, Exch, 1};
    kinetics.Ps = Ps(2:end);
    kinetics.num_Ps = length(kinetics.Ps);
    kinetics.num_eq = num;
