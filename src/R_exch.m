@@ -24,8 +24,10 @@ switch reaction.type
                     kf(reaction.index{1}, reaction.index{3}) + reaction.A;
   dE_fb = M1.diss_e(1) - M3.diss_e(1);
  case "ATn"
-        error("Exchange reactions of this type are still not " + ...
-            "implemented " + reaction.type)
+  kf = zeros(M1.num_vibr_levels(1), M3.num_vibr_levels(1));
+  kf(reaction.index{1}, reaction.index{3}) = ...
+   kf(reaction.index{1}, reaction.index{3}) + reaction.A * T ^ reaction.n;
+  dE_fb = M1.diss_e(1) - M3.diss_e(1);
  case "Arrhenius"
         error("Exchange reactions of this type are still not " + ...
             "implemented " + reaction.type)
