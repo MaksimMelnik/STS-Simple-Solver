@@ -117,7 +117,7 @@ Q_VT = zeros(length(t), 1);
 Q_VT_wall = zeros(length(t), 1);
 Q_rec_wall = zeros(length(t), 1);
 Q_VV = zeros(length(t), 1);
-Q_exch_NO_N = zeros(length(t), 1);
+Q_exch_N2_O = zeros(length(t), 1);
 for i_out = 1:length(t)
 [~, Q_VT_data] = R_VT(N2, Y(i_out, i1_N2)', O, ...
                 Y(i_out, iO(1)), T(i_out), 1, kinetics.reactions('VT'));
@@ -142,7 +142,7 @@ if isKey(kinetics.reactions, 'Exch')
  [~, Q_exch_NO_N_data] = R_exch(N2, O, NO, N, Y(i_out, i1_N2)', ...
      Y(i_out, iO(1))', Y(i_out, kinetics.index{3})', ...
      Y(i_out, kinetics.index{4}(1))', T(i_out), Exch_reactions(1));
- Q_exch_NO_N(i_out) = Q_exch_NO_N_data;
+ Q_exch_N2_O(i_out) = Q_exch_NO_N_data;
 end
 end
 c_p_N2 = c_p(N2, T);
@@ -169,10 +169,10 @@ if isKey(kinetics.reactions, 'VV')
  legend_str1 = [legend_str1, "VV N2-N2, Pintassilgo2014"];
 end
 if isKey(kinetics.reactions, 'Exch')
- loglog(Pintassilgo2014_ag_Q_Zel_N_NO(:, 1), ...
-            Pintassilgo2014_ag_Q_Zel_N_NO(:, 2), ...
+ loglog(Pintassilgo2014_ag_Q_Zel_N2_O(:, 1), ...
+            Pintassilgo2014_ag_Q_Zel_N2_O(:, 2), ...
                        'color', [1 0.7 0], 'linewidth', 1.5) %#ok<USENS>
- legend_str1 = [legend_str1, "Zel NO-N, Pintassilgo2014"];
+ legend_str1 = [legend_str1, "Zel N2-O, Pintassilgo2014"];
 end
 loglog(t_ag*1e3, Q_VT_Ks, ':', 'color', [0 0 0.8], 'linewidth', 1.5)
 if isKey(kinetics.reactions, 'Wall') && isKey(kinetics.reactions, 'Diss')
@@ -186,8 +186,8 @@ if isKey(kinetics.reactions, 'VV')
  legend_str2 = [legend_str2, "VV N_2-N_2, code"];
 end
 if isKey(kinetics.reactions, 'Exch')
- Q_exch_NO_N_Ks = Q_exch_NO_N ./ (n_g/N_a) ./ c_p_total;
- loglog(t_ag*1e3, Q_exch_NO_N_Ks, ':', 'color', [1 0.7 0], ...
+ Q_exch_N2_O_Ks = Q_exch_N2_O ./ (n_g/N_a) ./ c_p_total;
+ loglog(t_ag*1e3, Q_exch_N2_O_Ks, ':', 'color', [1 0.7 0], ...
                                                         'linewidth', 1.5) 
  legend_str2 = [legend_str2, "Zel NO-N, code"];
 end

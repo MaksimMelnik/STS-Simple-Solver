@@ -35,9 +35,10 @@ switch reaction.type
    kb = kf .* Kfb;
   end
   R_exch_data = n_M3' * n_M4 .* kb  -  n_M1 * n_M2 .* kf;
-  dE_Q = dE + M3.ev_0(1) + M3.ev_i{1} - M1.ev_0(1) + M1.ev_i{1}';
+                    % energy change in the reaction (after - before)
+  dE_Q = dE + M3.ev_0(1) + M3.ev_i{1} - M1.ev_0(1) - M1.ev_i{1}';
+  dE_Q = - dE_Q;    % reaction gives energy to the gas
   Q = sum(- R_exch_data .* dE_Q, 'all');
-  warning('recheck the energy in Q')
  case "ATn"
         error("Exchange reactions of this type are still not " + ...
             "implemented " + reaction.type)
@@ -45,8 +46,6 @@ switch reaction.type
         error("Exchange reactions of this type are still not " + ...
             "implemented " + reaction.type)
  case "Heaviside"
-%   error("Exchange reactions of this type are still not " + ...
-%                                         "implemented " + reaction.type)
   coll.ArrA = reaction.A(T);
   coll.ArrN = reaction.n(T);
   coll.ArrE = reaction.E / k;   % in K
@@ -55,7 +54,7 @@ switch reaction.type
       VDOP = 0;
   end
   [R_exch_data, Q] = R_exch_Heaviside(M1, M2, M3, M4, ...
-                                n_M1, n_M2, n_M3, n_M4, T, coll, VDOP);
+                        n_M1, n_M2, n_M3, n_M4, T, coll, VDOP, reaction);
  otherwise
         error("Exchange reactions of this type are still not " + ...
             "implemented " + reaction.type)    
@@ -63,8 +62,8 @@ end
 
 end
 
-function [RExch1, Q] = ...
-   R_exch_Heaviside(M1, M2, M3, M4, n_M1, n_M2, n_M3, n_M4, T, coll, VDOP)
+function [RExch1, Q] = R_exch_Heaviside(M1, M2, M3, M4, ...
+                        n_M1, n_M2, n_M3, n_M4, T, coll, VDOP, reaction)
 
     % constants
 V_C = 299792458; V_K = 1.380649e-23; V_H = 6.626070041e-34;
@@ -97,18 +96,21 @@ B_M1 = kf_eq / sum(EXP_M1 .* nM1i','all');
 
 %rate of forward (f) reaction
 kf = B_M1 * EXP_M1;
+kb = kf * 0;
 
 %ratio of rate of backward reaction to rate of forward reaction
 dE = (repmat(M3.ev_i{1}*VDOP + M3.ev_0(1), M1.num_vibr_levels(1), 1) ...
     - repmat((M1.ev_i{1} + M1.ev_0(1))', 1, M3.num_vibr_levels(1))) + ...
                                             (M1.diss_e(1) - M3.diss_e(1));
-Kfb = (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 * ...
- exp( dE / (V_K*T));
-Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) * Kfb;
+if reaction.reverse
+ Kfb = (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 * ...
+                                                    exp( dE / (V_K*T));
+ Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) * Kfb;
 
-%rate of backward (b) reaction
-kb = kf .* Kfb;
+    % rate of backward (b) reaction
+ kb = kf .* Kfb;
+end
 RExch1 = n_M3' * n_M4 .* kb  -  n_M1 * n_M2 .* kf;
 
-Q = sum(- RExch1 .* dE, 'all');
+Q = sum(RExch1 .* dE, 'all');
 end
