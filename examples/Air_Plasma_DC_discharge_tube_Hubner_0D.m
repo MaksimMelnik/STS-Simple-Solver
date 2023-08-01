@@ -49,16 +49,12 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 
 
 warning("The present test case is unfinished")
-warning(['lambda and cp are calculated only for N2-20%O2 mixture ' ...
-                                                    'with T=[300 600] K'])
 warning(['Energy fluxes Q are not finnished, now only VT, VV, Diss, ' ...
     'Zeldovich, wall VT, wall rec are included'])
-warning('Dimentions of Q should be agreed')
 warning('Thermal average velocity in R_VT_wall shoul be recheckerd')
 warning('gamma_v in R_VT_wall is the same for each particle')
 warning('Check energies in the wall recombination function')
 warning('Zeldovich reactions are without electronic excitation')
-warning('Zeldovich reactions were weird. It may affect')
 warning("VV exchanges are with a crutch.")
 disp('Started.')
 

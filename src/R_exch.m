@@ -32,7 +32,7 @@ switch reaction.type
         error("Exchange reactions of this type are still not " + ...
             "implemented " + reaction.type)
  case "Heaviside"
-  [kf, dE_fb] = R_exch_Heaviside(M1, M2, M3, M4, T, reaction);
+  [kf, dE_fb] = R_exch_Heaviside(M1, M3, T, reaction);
  otherwise
         error("Exchange reactions of this type are still not " + ...
             "implemented " + reaction.type)    

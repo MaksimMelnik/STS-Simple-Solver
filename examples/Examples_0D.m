@@ -1,4 +1,4 @@
-function out=Examples_0D
+function out = Examples_0D
 % The main function for the macroparameters calculation for the 0D problem.
 % Test cases are based on 
 %   1) the Hubner's experiment conditions [1] accounting data 
@@ -7,7 +7,7 @@ function out=Examples_0D
 % [1] M Hubner et al Meas. Sci. Technol. 23 (2012) 115602.
 % [2] C D Pintassilgo et al Plasma Sources Sci. Technol. 23 (2014) 025006.
 % [3] Ibraguimova et al J. Chem. Phys. 139, 034317 (2013).
-% 15.02.2023 Maksim Melnik, Shaikhutdinova Asya
+% 15.02.2023 Maksim Melnik, Asya Shaikhutdinova
 
 tic % measuring computing time
     % constants
@@ -25,15 +25,15 @@ NO.num_elex_levels=1;
     %   i=3 is when the discharge is off. Fractions_3 are approximate.
 init_c=[% p0, Pa; T0, K; f_O2_0; f_NO_0; T3, K; f_O_3; f_NO_3; f_N_3 
           133     300    0.2     0.008   440    1.2e-1 3.8e-3  2e-3
-        % p0, Pa; T0, K;                 n1, DN;   v1, DN;   T1, DN
+        % p0, Pa; T0, K;                 n1, DN;                T1, DN
           133     3.098808789880962e+02  5.808077724421962e+00	...
             3.036555281554731e+01 0 0 0 0
      ];
-for i_ini=2 % [1 2]     % choosing desired initial coonditions
+for i_ini = 1 % [1 2]   % choosing desired initial coonditions
                         % 1 is for Hubner; 2 is for Shatalov
- for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
+ for i_U = 3 % [2 3 4]  % choosing desired U dissociation parameter model
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr=1 % [1 2]  % choosing vibrational energy exchange model
+  for i_vibr = 1 % [1 2]% choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO
     
    T0      = init_c(i_ini, 2);         % K
@@ -81,21 +81,15 @@ for i_ini=2 % [1 2]     % choosing desired initial coonditions
 	case 2
 	 model_VT='FHO';
    end
-   Exch=1;
-   %Reacs_keys={'VT'};
-   %reacs_val={model_VT};
-   %Reacs_keys={'Diss', 'VT'};
-   %reacs_val={Diss, model_VT};
-   %Reacs_keys={'Diss', 'VT', 'VV'};
-   %reacs_val={Diss, model_VT, model_VT};
-   %Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
-   %reacs_val={Diss, model_VT, model_VT, Exch};
+   load('../data/reactions.mat', 'Reactions');
+   ReactZel_1 = Reactions("N2 + O -> NO + N");
+   ReactZel_2 = Reactions("O2 + N -> NO + O");
+   Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
    Reacs_keys={{'Diss', 'VT', 'VV', 'Exch'}, {'Diss', 'VT', 'VV'}};
    reacs_val={{Diss, model_VT, model_VT, Exch}, {Diss, model_VT, model_VT}};
    kinetics.Ps=Ps{i_ini}(2:end);
    kinetics.num_Ps=length(kinetics.Ps);
    kinetics.num_eq=num;
-   %kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
    kinetics.reactions=containers.Map(Reacs_keys{i_ini}, reacs_val{i_ini});
    kinetics.index=index(2:end);
    kinetics.n0=n0;
