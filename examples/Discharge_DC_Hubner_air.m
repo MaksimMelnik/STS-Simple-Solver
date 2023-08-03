@@ -1,4 +1,4 @@
-function out = Air_Plasma_DC_discharge_tube_Hubner_0D
+function out = Discharge_DC_Hubner_air
 % The main function for the macroparameters calculation in the afterglow
 % of the electric discharge. Air plasma DC discharge in the tube.
 % 0D simplification.
@@ -9,9 +9,11 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% rename the function
-% add VT rates from V. Guerra works and fix the VT fluxes
-% - N2-N    % first five transitions, same as i->i-1
+% - adding N2(A3Σ+u)
+%   recheck if all included reactions interact with N2(A) (VT, Diss of N2A,
+%       diss with N2A)
+%   diffusion on the wall
+%   N2(A) + O2 -> N2(X) + O + O
 % - add all particles:
 %   N2(A3Σ+u, B3Пg, B'3Σ−u, C3Пu, a'1Σ−u, a1Пg, w1Δu)
 %   O2(a1Δg, b1Σ+g)
@@ -44,6 +46,8 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 %   (9) Diffusion of molecular and atomic metastable states to the wall
 %   (10) Chemical reactions, Qchem
 %   (11) Electron–ion recombination involving nitrogen or oxygen ions,Qe−i
+% add VT rates from V. Guerra works and fix the VT fluxes
+% - N2-N    % first five transitions, same as i->i-1
 % Consider the second Zeldovich reaction. It's not included in 
 %   prof. Guerra's works, but it affects
 
@@ -65,7 +69,7 @@ addpath('../src/')
 load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO')
     % electronic excitation
 N2.num_elex_levels = 1;         % N2(X1Σg+)
-% N2.num_elex_levels = 2;         % N2(X1Σg+, A3Σu+)
+N2.num_elex_levels = 2;         % N2(X1Σg+, A3Σu+)
 N2.num_vibr_levels(2) = 1;  N2.ev_i{2} = 0;
     % no electronic excitation
 O2.num_elex_levels = 1;         
@@ -143,16 +147,16 @@ for i_ini = 1           % choosing desired initial coonditions
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
 %                                                     ReactZel_2("Kunova")];
    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse")];
-   Reacs_keys={'Diss', 'VT'};
-   reacs_val={Diss, model_VT};
-   Reacs_keys = {'Diss', 'VT', 'Wall'};
-   reacs_val = {Diss, model_VT, 1};
-   Reacs_keys={'Diss', 'VT', 'VV'};
-   reacs_val={Diss, model_VT, model_VT};
-   Reacs_keys={'Diss', 'VT', 'VV', 'Wall'};
-   reacs_val={Diss, model_VT, model_VT, 1};
-   Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
-   reacs_val={Diss, model_VT, model_VT, Exch};
+%    Reacs_keys={'Diss', 'VT'};
+%    reacs_val={Diss, model_VT};
+%    Reacs_keys = {'Diss', 'VT', 'Wall'};
+%    reacs_val = {Diss, model_VT, 1};
+%    Reacs_keys={'Diss', 'VT', 'VV'};
+%    reacs_val={Diss, model_VT, model_VT};
+%    Reacs_keys={'Diss', 'VT', 'VV', 'Wall'};
+%    reacs_val={Diss, model_VT, model_VT, 1};
+%    Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
+%    reacs_val={Diss, model_VT, model_VT, Exch};
    Reacs_keys={'Diss', 'VT', 'VV', 'Exch', 'Wall'};
    reacs_val={Diss, model_VT, model_VT, Exch, 1};
    kinetics.Ps = Ps(2:end);
@@ -201,12 +205,12 @@ if N2.num_elex_levels == 2
 end
        % t3 correction, T
    y0 = [y0 * n3/n0;    T3];
-   options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-20, ...
-                                    'NonNegative', 1:kinetics.num_eq+1); 
-   options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-13, ...
-                                    'NonNegative', 1:kinetics.num_eq+1); 
-   options_s = odeset('RelTol', 1e-12, 'AbsTol', 1e-12, ...
-                                    'NonNegative', 1:kinetics.num_eq+1); 
+%    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-20, ...
+%                                     'NonNegative', 1:kinetics.num_eq+1); 
+%    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-13, ...
+%                                     'NonNegative', 1:kinetics.num_eq+1); 
+%    options_s = odeset('RelTol', 1e-12, 'AbsTol', 1e-12, ...
+%                                     'NonNegative', 1:kinetics.num_eq+1); 
    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
                                     'NonNegative', 1:kinetics.num_eq+1); 
    [X, Y] = ode15s(@(t, y) ...

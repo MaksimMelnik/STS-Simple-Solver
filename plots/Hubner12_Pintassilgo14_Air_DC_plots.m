@@ -210,5 +210,22 @@ title('Q_{in}')
 xlim([6e-3 1e2])
 ylim([6e0 1e5])
 
+
+if N2.num_elex_levels > 1
+ i2_N2 = iN2(1 + N2.num_vibr_levels(1):...
+                        N2.num_vibr_levels(1) + N2.num_vibr_levels(2));
+ figure('Position', fsize) % N2(A), N2(a'), N2(B) and N2(w) ag plot
+ loglog(Pintassilgo2014_ag_N2A(:, 1), Pintassilgo2014_ag_N2A(:, 2), ...
+                        'color', [0.9 0 0], 'linewidth', 1.5) %#ok<USENS>
+ hold on
+ loglog(t_ag*1e3, Y(:, i2_N2)./n_g, ':', ...
+                                    'color', [0.9 0 0], 'linewidth', 1.5)
+ legend('N2(A)/Ng, Pintassilgo2014', 'N2(A)/Ng, code', ...
+                                                    'location', 'best')
+ xlabel('Afterglow time (ms)')
+ xlim([1e-4 1.1e0])
+ grid on
+end
+
 rmpath('../src/')
 end
