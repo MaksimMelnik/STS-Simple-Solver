@@ -30,15 +30,15 @@ n_N2=sum(Y(:, kinetics.index{1}), 2);
 t_ag=t-0.005;
 fsize = [200 50 900 550];
 
-
-    figure  % T and Tv plot
+%% T and Tv plot
+    figure  
 plot(t*1e3, T, t*1e3, Tv, '-.', 'linewidth', 1.5)
 legend('T', 'Tv', 'location', 'best')
 xlabel('t, ms')
 % xlim([6e-2 1.5e-1])
 
-
-    figure  % T vs exp plot
+%% T vs exp plot
+    figure  
 plot(Hubner_2012_T(:, 1), Hubner_2012_T(:, 2), 'sq', t*1e3, T, ...
                         t*1e3, Tv, '-.', 'linewidth', 1.5) %#ok<USENS>
 % errorbar T Hubner +- 40 K
@@ -47,8 +47,8 @@ xlabel('t, ms')
 xlim([-2 14])
 ylim([250 620])
 
-
-    figure('Position', fsize)  % N, O and NO ag plot
+%% N, O and NO ag plot
+    figure('Position', fsize)  
 loglog(Pintassilgo2014_ag_N(:, 1), Pintassilgo2014_ag_N(:, 2), ...
                         'color', [0.9 0 0], 'linewidth', 1.5) %#ok<USENS>
 hold on
@@ -72,8 +72,8 @@ xlim([1e-2 2.5e2])
 ylim([1e-4 1])
 grid on
 
-
-    figure('Position', fsize) % VDF ag plot
+%% VDF ag plot
+    figure('Position', fsize)
 time_ind0=1;
 [~, time_ind1] = min( abs(t_ag*1e3 - 1) );
 [~, time_ind10] = min( abs(t_ag*1e3 - 10) );
@@ -108,8 +108,8 @@ semilogy(lvls4plot, ...
 xlim([0 30])
 ylim([1e-6 1])
 
-
-    figure('Position', fsize)  % heating rates, K/s
+%% heating rates, K/s
+    figure('Position', fsize)
 iN2 = kinetics.index{1};
 i1_N2 = iN2(1:N2.num_vibr_levels(1));
 iO = kinetics.index{5};
@@ -127,7 +127,7 @@ if isKey(kinetics.reactions, 'Wall')
 %  [~, Q_VT_wall_data] = ...
 %                     R_VT_wall(N2, Y(i_out, i1_N2)', T(i_out), kinetics);
 %  Q_VT_wall(i_out) = Q_VT_wall_data;
- if isKey(kinetics.reactions, 'Diss')
+ if isKey(kinetics.reactions, 'Rec_wall')
   [~, Q_rec_wall_data] = R_rec_wall(O, Y(i_out, kinetics.index{5}), ...
                                                     T(i_out), kinetics);
   Q_rec_wall(i_out) = Q_rec_wall_data;
@@ -162,7 +162,8 @@ loglog(Pintassilgo2014_ag_Q_VT_N2_O(:, 1), ...
             Pintassilgo2014_ag_Q_VT_N2_O(:, 2), ...
                         'color', [0 0 0.8], 'linewidth', 1.5) %#ok<USENS>
 hold on
-if isKey(kinetics.reactions, 'Wall') && isKey(kinetics.reactions, 'Diss')
+if isKey(kinetics.reactions, 'Wall') && ...
+                                    isKey(kinetics.reactions, 'Rec_wall')
  loglog(Pintassilgo2014_ag_Q_rec_O_wall(:, 1), ...
     Pintassilgo2014_ag_Q_rec_O_wall(:, 2), ...
                         'color', [0.8 0 0], 'linewidth', 1.5) %#ok<USENS>
@@ -185,7 +186,8 @@ if isKey(kinetics.reactions, 'Exch')
                                             "Zel N-NO, Pintassilgo2014"];
 end
 loglog(t_ag*1e3, Q_VT_Ks, ':', 'color', [0 0 0.8], 'linewidth', 1.5)
-if isKey(kinetics.reactions, 'Wall') && isKey(kinetics.reactions, 'Diss')
+if isKey(kinetics.reactions, 'Wall') && ...
+                                    isKey(kinetics.reactions, 'Rec_wall')
  Q_rec_wall_Ks = Q_rec_wall ./ (n_g/N_a) ./ c_p_total;
  loglog(t_ag*1e3, Q_rec_wall_Ks, ':', 'color', [0.8 0 0], 'linewidth',1.5)
  legend_str2 = [legend_str2, "O+wall rec, code"];

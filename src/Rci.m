@@ -129,7 +129,7 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
      Qin = Qin + Qwall/kinetics.n0;
     end
    end
-   if isKey(kinetics.reactions, 'Diss')
+   if isKey(kinetics.reactions, 'Rec_wall')
     if M1.sigma == 2
      for indM3 = 1:kinetics.num_Ps   % finding indexes of diss parts of M1
       if kinetics.Ps{indM3}.name == M1.diss_parts(1)
