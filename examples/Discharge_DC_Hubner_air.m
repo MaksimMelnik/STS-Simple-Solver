@@ -9,8 +9,6 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% add a separate indication for the wall dissociation reaction
-% remove 0th level energies
 % - adding N2(A3Σ+u)
 %   N2(A) + O2 -> N2(X) + O + O
 % - add all particles:
@@ -69,15 +67,15 @@ load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO')
     % electronic excitation
 N2.num_elex_levels = 1;         % N2(X1Σg+)
 N2.num_elex_levels = 2;         % N2(X1Σg+, A3Σu+)
-N2.num_vibr_levels(2) = 1;  N2.ev_i{2} = 0;
+N2.num_vibr_levels(2) = 1;  N2.ev_0(2) = 0;  N2.ev_i{2} = 0;
     % no electronic excitation
 O2.num_elex_levels = 1;         
 O.num_elex_levels = 1;
 N.num_elex_levels=1;
 NO.num_elex_levels=1;
     % no vibrational excitation
-NO.num_vibr_levels(1) = 1;  NO.ev_i{1} = 0;
-O2.num_vibr_levels(1) = 1;  O2.ev_i{1} = 0;
+NO.num_vibr_levels(1) = 1;  NO.ev_0(1) = 0;  NO.ev_i{1} = 0;
+O2.num_vibr_levels(1) = 1;  O2.ev_0(1) = 0;  O2.ev_i{1} = 0;
 
     % initial conditions
     % f_M_i are fractions of particle M at the moment i (i=0 is initial,
