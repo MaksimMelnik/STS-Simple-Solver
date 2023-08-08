@@ -20,6 +20,10 @@ function reactions_data_ini
 % for .type = "ATn"
 %  - .A
 %  - .n
+% for .type = "A(T/d_T)^n/N"  % for diffusion coefficients
+%  - .A
+%  - .n
+%  - .d_T
 % for .type = "Arrhenius"
 %  - .A
 %  - .n
@@ -40,14 +44,26 @@ template.type = NaN;
 template.direction_forward = NaN;
 template.reverse = NaN;
 template.index = NaN;
-template.A = NaN;
-template.n = NaN;
-template.E = NaN;
+template.A   = 0;
+template.n   = 0;
+template.E   = NaN;
+template.d_T = 1;
+
+     % zero reaction
+zero_r.name = 'zero';
+react1 = template;
+react1.type = "const";
+react1.A   = 0;
+react1.n   = 0;
+zero_r.data = react1;
+
+
 
      % Zeldovich reaction N2 + O -> NO + N
 Zeldovich1.name = 'N2 + O -> NO + N';
 Zeldovich1.particles = ["N2", "O", "NO", "N"];
    % from works by O. Kunova
+react1 = template;
 react1.name = Zeldovich1.name;
 react1.source = 'Kunova';
 react1.particles = Zeldovich1.particles;
@@ -73,6 +89,7 @@ react3.index = {1+13:N2.num_vibr_levels(1), 1, 1, 1};
 react3.A = 1e-13 / 1e6;
 react3.n = 0;
 react3.E = 0;
+   % from works by V. Guerra [1]
 react4 = react1;
 react4.source = 'Guerra95_reverse';
 react4.type = "ATn";
@@ -113,12 +130,31 @@ valueSet = {react1, react2};%, react3};
 Zeldovich2.data = containers.Map(keySet, valueSet);
 
 
+     % Diffusion coeff of metastable N2 on the wall N2(A) + wall -> N2(X)
+N2A_wall_diffusion.name = 'N2(A) + wall -> N2(X) + wall';
+N2A_wall_diffusion.particles = ["N2A", "wall", "N2X", "wall"];
+   % from works by C D Pintassilgo [2] and V Guerra, data from [3]
+react1 = template;
+react1.source = 'Levron1978';
+react1.type = "A(T/d_T)^n";
+react1.A   = 5e18 * 1e2;
+react1.d_T = 300;
+react1.n   = 0.5;
+keySet = {react1.source};
+valueSet = {react1};
+N2A_wall_diffusion.data = containers.Map(keySet, valueSet);
+
+
     % summarizing all reactions in the one container and file
-keySet = {Zeldovich1.name, Zeldovich2.name};
-valueSet = {Zeldovich1.data, Zeldovich2.data};
+keySet = {zero_r.name, Zeldovich1.name, Zeldovich2.name, ...
+    N2A_wall_diffusion.name};
+valueSet = {zero_r.data, Zeldovich1.data, Zeldovich2.data, ...
+    N2A_wall_diffusion.data};
 Reactions = containers.Map(keySet, valueSet);
 save reactions.mat Reactions
 
     % references
 % [1] V Guerra et al 1995 J. Phys. D: Appl. Phys. 28 1903
+% [2] C D Pintassilgo et al Plasma Sources Sci. Technol. 18 (2009) 025005
+% [3] D Levron et al J. Chem. Phys. 69, 2260 (1978); doi: 10.1063/1.436788
 end

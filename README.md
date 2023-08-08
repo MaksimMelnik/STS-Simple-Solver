@@ -1,5 +1,5 @@
 # STSe-01D-Solver
-Universal State-to-state modeling code. Allows to simulate 1D and 0D chemical-electronic-vabrational relaxation. It's importans fiture is accounting of electronic excitation. Only for atoms and diatomic molecules.
+Universal State-to-state modeling code. Allows to simulate 1D and 0D chemical-electronic-vabrational relaxation. It's importans feature is accounting of electronic excitation. Only for atoms and diatomic molecules.
 ### todo
 - add a brief description how to use the code to the README
 - add a reference on the prof. Nagnibeda's and prof. Kustova's book

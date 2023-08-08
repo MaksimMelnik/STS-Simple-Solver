@@ -13,6 +13,7 @@ R_diss_data = zeros(kinetics.num_eq, 1);
 R_VE_data   = zeros(kinetics.num_eq, 1);
 R_exch_data = zeros(kinetics.num_eq, 1);
 R_wall_data = zeros(kinetics.num_eq, 1);
+R_ET_data   = zeros(kinetics.num_eq, 1);
 Qin = 0;
 
 for indM1 = 1:kinetics.num_Ps   % considering each particle
@@ -147,6 +148,13 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
 	 Qin = Qin + Q_rec_wall/kinetics.n0;
     end
    end
+   if isKey(kinetics.reactions, 'ET')
+    if M1.num_elex_levels > 1
+     [R_ET_data_temp, Q_ET] = R_ET_diff_wall(M1, y, T, kinetics);
+     R_ET_data(i1) = R_ET_data(i1) + R_ET_data_temp/n0^2;
+     Qin = Qin + Q_ET/n0^2;
+    end
+   end
   end
   
  end
@@ -178,5 +186,5 @@ if isKey(kinetics.reactions, 'Exch') % exchange reactions universal attempt
 end
 
 R = R_VT_data + R_VV_data + R_diss_data + R_VE_data + ... 
-                                            R_exch_data + R_wall_data;
+                                    R_exch_data + R_wall_data + R_ET_data;
 end

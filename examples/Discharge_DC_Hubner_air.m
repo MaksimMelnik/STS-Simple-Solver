@@ -9,10 +9,9 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
+% add a separate indication for the wall dissociation reaction
+% remove 0th level energies
 % - adding N2(A3Σ+u)
-%   recheck if all included reactions interact with N2(A) (VT, Diss of N2A,
-%       diss with N2A)
-%   diffusion on the wall
 %   N2(A) + O2 -> N2(X) + O + O
 % - add all particles:
 %   N2(A3Σ+u, B3Пg, B'3Σ−u, C3Пu, a'1Σ−u, a1Пg, w1Δu)
@@ -119,6 +118,9 @@ for i_ini = 1           % choosing desired initial coonditions
     first=index{ind-1}(end)+1;
     index{ind}=first:first+num_v_states-1;
    end
+   kinetics.Ps = Ps(2:end);
+   kinetics.num_Ps = length(kinetics.Ps);
+   
    Diss.Arrhenius='Park';
    Diss.rec=true;
    Diss.NEmodel='MT';
@@ -147,6 +149,9 @@ for i_ini = 1           % choosing desired initial coonditions
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
 %                                                     ReactZel_2("Kunova")];
    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse")];
+   N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");
+   ET_diff_c    = cell(1, kinetics.num_Ps);
+   ET_diff_c{1} = [Reactions("zero"), N2A_diff("Levron1978")];
 %    Reacs_keys={'Diss', 'VT'};
 %    reacs_val={Diss, model_VT};
 %    Reacs_keys = {'Diss', 'VT', 'Wall'};
@@ -159,8 +164,8 @@ for i_ini = 1           % choosing desired initial coonditions
 %    reacs_val={Diss, model_VT, model_VT, Exch};
    Reacs_keys={'Diss', 'VT', 'VV', 'Exch', 'Wall'};
    reacs_val={Diss, model_VT, model_VT, Exch, 1};
-   kinetics.Ps = Ps(2:end);
-   kinetics.num_Ps = length(kinetics.Ps);
+   Reacs_keys = {'Diss', 'VT',     'VV',     'Exch', 'Wall', 'ET'};
+   reacs_val  = {Diss,   model_VT, model_VT, Exch,   1,      ET_diff_c};
    kinetics.num_eq = num;
    kinetics.reactions = containers.Map(Reacs_keys, reacs_val);
    kinetics.index = index(2:end);
