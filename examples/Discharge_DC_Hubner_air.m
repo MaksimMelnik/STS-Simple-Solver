@@ -10,8 +10,6 @@ function out = Discharge_DC_Hubner_air
 
 %  todo:
 % adding N2(B3Пg)
-%   add it
-%   the n_N2B plot
 %   VT with it
 %   N2B desactivation on the wall
 %   (R7) N2B + O2 -> N2X + O + O
