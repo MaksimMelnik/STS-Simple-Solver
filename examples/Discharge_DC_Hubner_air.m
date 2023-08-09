@@ -139,14 +139,17 @@ for i_ini = 1           % choosing desired initial coonditions
 	 model_VT = 'Guerra';
    end
    load('../data/reactions.mat', 'Reactions');
-   ReactZel_1 = Reactions("N2 + O -> NO + N");
+   ReactZel_1   = Reactions("N2 + O -> NO + N");
+   React_N2A_O2 = Reactions("N2(A) + O2 -> N2(X) + O + O");
 %    ReactZel_2 = Reactions("O2 + N -> NO + O");
 %    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
 %    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
         % V Guerra Zeldovich model
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
 %                                                     ReactZel_2("Kunova")];
-   Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse")];
+%    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse")];
+   Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
+       React_N2A_O2("Pintassilgo2009")];
    N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");
    ET_diff_c    = cell(1, kinetics.num_Ps);
    ET_diff_c{1} = [Reactions("zero"), N2A_diff("Levron1978")];

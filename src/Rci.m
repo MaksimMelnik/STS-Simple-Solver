@@ -170,17 +170,38 @@ if isKey(kinetics.reactions, 'Exch') % exchange reactions universal attempt
   IOM_M3 = IndexOfMolecules(reaction.particles(3));
   IOM_M4 = IndexOfMolecules(reaction.particles(4));
   indM1 = kinetics.index{IOM_M1};
-  indM1 = indM1(1:kinetics.Ps{IOM_M1}.num_vibr_levels(1));
   indM2 = kinetics.index{IOM_M2};
   indM3 = kinetics.index{IOM_M3};
   indM4 = kinetics.index{IOM_M4};
-  [R_exch_temp, Q_exch] = R_exch(kinetics.Ps{IOM_M1}, ...
+  switch length(reaction.particles)
+   case 4
+    indM1 = indM1(1:kinetics.Ps{IOM_M1}.num_vibr_levels(1));
+    [R_exch_temp, Q_exch] = R_exch(kinetics.Ps{IOM_M1}, ...
         kinetics.Ps{IOM_M2}, kinetics.Ps{IOM_M3}, kinetics.Ps{IOM_M4}, ...
                      y(indM1), y(indM2), y(indM3), y(indM4), T, reaction);
-  R_exch_data(indM1) = R_exch_data(indM1) + sum(R_exch_temp, 2);
-  R_exch_data(indM3) = R_exch_data(indM3) - sum(R_exch_temp, 1)';  
-  R_exch_data(indM2) = R_exch_data(indM2) + sum(R_exch_temp, 'all');
-  R_exch_data(indM4) = R_exch_data(indM4) - sum(R_exch_temp, 'all');
+    R_exch_data(indM1) = R_exch_data(indM1) + sum(R_exch_temp, 2);
+    R_exch_data(indM3) = R_exch_data(indM3) - sum(R_exch_temp, 1)';  
+    R_exch_data(indM2) = R_exch_data(indM2) + sum(R_exch_temp, 'all');
+    R_exch_data(indM4) = R_exch_data(indM4) - sum(R_exch_temp, 'all');
+   case 5
+    IOM_M5 = IndexOfMolecules(reaction.particles(5));
+    indM5  = kinetics.index{IOM_M5};
+    [R_exch_temp, Q_exch] = R_exch_23(...
+        kinetics.Ps{IOM_M1}, kinetics.Ps{IOM_M2}, kinetics.Ps{IOM_M3}, ...
+        kinetics.Ps{IOM_M4}, kinetics.Ps{IOM_M5}, ...
+        y(indM1), y(indM2), y(indM3), y(indM4), y(indM5), T, reaction);
+    R_exch_data(indM1) = R_exch_data(indM1) + sum(R_exch_temp, [2, 3]);
+    R_exch_data(indM2) = R_exch_data(indM2) + sum(R_exch_temp, [1, 3])';
+    R_exch_data(indM3) = R_exch_data(indM3) ...
+                            - reshape(sum(R_exch_temp, [1, 2]), [], 1);
+	ie4 = indM4(reaction.index{4});
+    ie5 = indM5(reaction.index{5});
+    R_exch_data(ie4)   = R_exch_data(ie4)   - sum(R_exch_temp, 'all');
+    R_exch_data(ie5)   = R_exch_data(ie5)   - sum(R_exch_temp, 'all');
+   otherwise
+       error(["Reactions with current number of particles are not " ...
+                                                    "implemented yet"])
+  end
   Qin = Qin + Q_exch;
  end   
 end

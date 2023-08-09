@@ -20,7 +20,7 @@ function reactions_data_ini
 % for .type = "ATn"
 %  - .A
 %  - .n
-% for .type = "A(T/d_T)^n/N"  % for diffusion coefficients
+% for .type = "A(T/d_T)^n"
 %  - .A
 %  - .n
 %  - .d_T
@@ -41,8 +41,8 @@ template.name = NaN;
 template.source = NaN;
 template.particles = NaN;
 template.type = NaN;
-template.direction_forward = NaN;
-template.reverse = NaN;
+template.direction_forward = true;
+template.reverse = false;
 template.index = NaN;
 template.A   = 0;
 template.n   = 0;
@@ -145,11 +145,29 @@ valueSet = {react1};
 N2A_wall_diffusion.data = containers.Map(keySet, valueSet);
 
 
+     % N2(A) + O2 -> N2(X) + O + O
+N2A_O2__N2X_O_O.name = 'N2(A) + O2 -> N2(X) + O + O';
+N2A_O2__N2X_O_O.particles = ["N2", "O2", "N2", "O", "O"];
+   % from works by C D Pintassilgo [2] and V Guerra
+react1 = template;
+react1.name = N2A_O2__N2X_O_O.name;
+react1.particles = N2A_O2__N2X_O_O.particles;
+react1.source = 'Pintassilgo2009';
+react1.type = "A(T/d_T)^n";
+react1.A   = 1.63e-12 / 1e6;
+react1.d_T = 300;
+react1.n   = 0.55;
+react1.index = {{2, 1}, {1, 1}, {1, 1}, 1, 1};
+keySet = {react1.source};
+valueSet = {react1};
+N2A_O2__N2X_O_O.data = containers.Map(keySet, valueSet);
+
+
     % summarizing all reactions in the one container and file
 keySet = {zero_r.name, Zeldovich1.name, Zeldovich2.name, ...
-    N2A_wall_diffusion.name};
+    N2A_wall_diffusion.name, N2A_O2__N2X_O_O.name};
 valueSet = {zero_r.data, Zeldovich1.data, Zeldovich2.data, ...
-    N2A_wall_diffusion.data};
+    N2A_wall_diffusion.data, N2A_O2__N2X_O_O.data};
 Reactions = containers.Map(keySet, valueSet);
 save reactions.mat Reactions
 
