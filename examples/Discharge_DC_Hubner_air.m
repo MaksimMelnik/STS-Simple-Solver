@@ -9,10 +9,18 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% - adding N2(A3Σ+u)
-%   N2(A) + O2 -> N2(X) + O + O
+% adding N2(B3Пg)
+%   add it
+%   the n_N2B plot
+%   VT with it
+%   N2B desactivation on the wall
+%   (R7) N2B + O2 -> N2X + O + O
+%   plot N2B + O2 -> N2X + O + O
+%   (R12) N2B + N2 -> N2A + N2
+%   plot N2B + N2 -> N2A + N2
+% send application
 % - add all particles:
-%   N2(A3Σ+u, B3Пg, B'3Σ−u, C3Пu, a'1Σ−u, a1Пg, w1Δu)
+%   N2(B3Пg, B'3Σ−u, C3Пu, a'1Σ−u, a1Пg, w1Δu)
 %   O2(a1Δg, b1Σ+g)
 %   N(2D, 2P)
 %   NO(A2Σ+, B2П)
@@ -21,38 +29,36 @@ function out = Discharge_DC_Hubner_air
 %   N+2, N+4, O+2, O+, NO+, O−
 %   e-
 % - add all 15 reactions:
-%   (R1) e+N2 → e+N∗2 → e+N(4S) + N(2D)
-%   (R2) e+O2 → e+O2(A, C, c) → e+O(3P) + O(3P)
-%   (R3) e+O2 → e+O2(B) → e+O(3P) + O(1D)
-%   (R4) N(4S) + NO(X) → N2(X, v ∼ 3) + O
-%   (R5) N2(X, v  13) + O → NO(X) + N(4S)
-%   (R6) N2(A) + O2 → N2(X) +O+O
-%   (R7) N2(B) + O2 → N2(X) +O+O
-%   (R8) N2(a') + O2 → N2(X) +O+O
-%   (R9) N2(a) + O2 → N2(X) +O+O
-%   (R10) N2(w) + O2 → N2(X) +O+O
-%   (R11) N2(A) + O → NO(X) + N(2D)
-%   (R12) N2(B) + N2 → N2(A) + N2
-%   (R13) e+N+2 → N(4S) + N(4S)
+%   (R1)  e      + N2  → e+N∗2 → e+N(4S) + N(2D)
+%   (R2)  e      + O2  → e+O2(A, C, c) → e+O(3P) + O(3P)
+%   (R3)  e      + O2  → e+O2(B) → e+O(3P) + O(1D)
+%   (R7)  N2(B)  + O2  → N2(X) + O + O
+%   (R8)  N2(a') + O2  → N2(X) + O + O
+%   (R9)  N2(a)  + O2  → N2(X) + O + O
+%   (R10) N2(w)  + O2  → N2(X) + O + O
+%   (R11) N2(A)  + O   → NO(X) + N(2D)
+%   (R12) N2(B)  + N2  → N2(A) + N2
+%   (R13) e      + N+2 → N(4S) + N(4S)
 %   (R14) e+O+2 → O(3P) + O(3P)
 %   (R15) e + NO+ → N(4S) + O(3P)
 % - add 11 processes and corresponding Qin:
 %   (1) Elastic collisions of electrons with N2 and O2
 %   (2) Nitrogen and oxygen dissociation by electron
+%   (4) VV N2-O2
 %   (6) V–T energy exchanges in N2–N collisions involving multiquantum
 %   (9) Diffusion of molecular and atomic metastable states to the wall
 %   (10) Chemical reactions, Qchem
 %   (11) Electron–ion recombination involving nitrogen or oxygen ions,Qe−i
+% add vibrational excitation of O2
 % add VT rates from V. Guerra works and fix the VT fluxes
 % - N2-N    % first five transitions, same as i->i-1
 % Consider the second Zeldovich reaction. It's not included in 
 %   prof. Guerra's works, but it affects
 
-
 warning("The present test case is unfinished")
 warning(['Energy fluxes Q are not finnished, now only VT, VV, Diss, ' ...
-    'Zeldovich, wall VT, wall rec are included'])
-warning('Thermal average velocity in R_VT_wall shoul be recheckerd')
+    'Zeldovich, wall VT, wall rec, wall ET are included'])
+warning('Thermal average velocity in R_VT_wall should be recheckerd')
 warning('gamma_v in R_VT_wall is the same for each particle')
 warning('Check energies in the wall recombination function')
 warning('Zeldovich reactions are without electronic excitation')
@@ -68,6 +74,8 @@ load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO')
 N2.num_elex_levels = 1;         % N2(X1Σg+)
 N2.num_elex_levels = 2;         % N2(X1Σg+, A3Σu+)
 N2.num_vibr_levels(2) = 1;  N2.ev_0(2) = 0;  N2.ev_i{2} = 0;
+N2.num_elex_levels = 3;         % N2(X1Σg+, A3Σu+, B3Пg)
+N2.num_vibr_levels(3) = 1;  N2.ev_0(3) = 0;  N2.ev_i{3} = 0;
     % no electronic excitation
 O2.num_elex_levels = 1;         
 O.num_elex_levels = 1;
@@ -82,8 +90,8 @@ O2.num_vibr_levels(1) = 1;  O2.ev_0(1) = 0;  O2.ev_i{1} = 0;
     %   i=3 is when the discharge is off. Fractions_3 are approximate.
 init_c = [% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
             133     0.2     0.008   300    440    1.2e-1 3.8e-3  2e-3 ...
-        ... f_N2A_3
-            5.8e-5
+        ... f_N2A_3 f_N2B_3
+            5.8e-5  7e-6
         ];
 for i_ini = 1           % choosing desired initial coonditions
  for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
@@ -100,6 +108,7 @@ for i_ini = 1           % choosing desired initial coonditions
    f_N_3   = init_c(i_ini, 8);
    f_NO_3  = init_c(i_ini, 7);
    f_N2A_3 = init_c(i_ini, 9);
+   f_N2B_3 = init_c(i_ini, 10);
    n3      = init_c(i_ini, 1)/k/T3/T0; % m-3
    
    sigma0 = pi*N2.diameter^2;
@@ -152,7 +161,10 @@ for i_ini = 1           % choosing desired initial coonditions
        React_N2A_O2("Pintassilgo2009")];
    N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");
    ET_diff_c    = cell(1, kinetics.num_Ps);
-   ET_diff_c{1} = [Reactions("zero"), N2A_diff("Levron1978")];
+                    % N2(X),          N2(A)
+   ET_diff_c{1} = [Reactions("zero"), N2A_diff("Levron1978"), ...
+       ...                                          N2(B)
+                                                    Reactions("zero")];
    Reacs_keys = {'VT',     'VV',     'Exch', 'Wall', 'ET',    'Rec_wall'};
    reacs_val  = {model_VT, model_VT, Exch,   1,      ET_diff_c, 1};
    kinetics.num_eq = num;
@@ -164,7 +176,7 @@ for i_ini = 1           % choosing desired initial coonditions
    kinetics.t0 = t0;
    kinetics.tube_R = 0.01;      % m
    kinetics.Tw = 300;           % wall temperature, K
-        %determine index numbers of molecules
+        % determine index numbers of molecules
    names=repmat("", length(kinetics.Ps), 1);
    serial_index=zeros(length(kinetics.Ps), 1);
    for i=1:length(kinetics.Ps)
@@ -188,14 +200,14 @@ for i_ini = 1           % choosing desired initial coonditions
    n_N2 = n_N2';
    Tv1 = N2.ev_i{1}(2)./(k*log(n_N2(1)./n_N2(2)));
    f_O2_3 = ((2-f_O_3-f_N_3)*(f_O2_0+f_NO_0/2) - f_O_3 - f_NO_3)/2;
-   f_N2_3 = 1 - f_O2_3 - f_NO_3 - f_O_3 - f_N_3;
+   f_N2_3 = 1 - f_O2_3 - f_NO_3 - f_O_3 - f_N_3 - f_N2A_3 - f_N2B_3;
    n_N2 = n_N2 * f_N2_3;
    n_O2 = density_f_exc(Tv1, f_O2_3, O2);
    n_NO = density_f_exc(Tv1, f_NO_3, NO);
-       % N2(X,v), N2(A3Σu+), O2(X), NO(X), N(X),  O(X)
-   y0 = [n_N2;               n_O2;  n_NO;  f_N_3; f_O_3];
-if N2.num_elex_levels == 2
-   y0 = [n_N2;    f_N2A_3;   n_O2;  n_NO;  f_N_3; f_O_3];
+       % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X)
+   y0 = [n_N2;    f_N2A_3;             n_O2;  n_NO;  f_N_3; f_O_3];
+if N2.num_elex_levels == 3
+   y0 = [n_N2;    f_N2A_3;   f_N2B_3;  n_O2;  n_NO;  f_N_3; f_O_3];
 end
        % t3 correction, T
    y0 = [y0 * n3/n0;    T3];
@@ -215,12 +227,12 @@ end
    Y(:, end)=Y(:, end)*T0;
    T=Y(:, end);
    Tv = N2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
-   out(i_ini, i_vibr, i_U).res=[t, Y, Tv];
-   out(i_ini, i_vibr, i_U).Y = Y;
-   out(i_ini, i_vibr, i_U).t = t;
-   out(i_ini, i_vibr, i_U).T = T;
-   out(i_ini, i_vibr, i_U).Tv = Tv;
-   out(i_ini, i_vibr, i_U).kinetics = kinetics;
+   out.res=[t, Y, Tv];
+   out.Y = Y;
+   out.t = t;
+   out.T = T;
+   out.Tv = Tv;
+   out.kinetics = kinetics;
   end
  end
 end
@@ -237,7 +249,7 @@ end
 rmpath('../src/')
 
 addpath('../plots/')
-Hubner12_Pintassilgo14_Air_DC_plots(out(i_ini, i_U, i_vibr))
+Hubner12_Pintassilgo14_Air_DC_plots(out)
 rmpath('../plots/')
 
 toc
