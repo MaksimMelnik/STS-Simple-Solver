@@ -9,12 +9,20 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
+% ions:
+%   N2+
+% check URM
+% check the paper
+% ions:
+%   O2+
+%   O+
+%   NO+
+%   O-
+% add back N2B
+% add N2(B3Пg) formation reaction
 % adding N2(B3Пg)
 %   (R12) N2B + N2 -> N2A + N2
 %   plot N2B + N2 -> N2A + N2
-% check the URM application
-% check the paper
-% ions
 % send application
 % fix n_N2B and Q_R7 N2B + O2 -> N2X + O + O
 % - add all particles:
@@ -24,7 +32,7 @@ function out = Discharge_DC_Hubner_air
 %   NO(A2Σ+, B2П)
 %   NO2(X, A)
 %   O3
-%   N+2, N+4, O+2, O+, NO+, O−
+%   N2+, N4+, O2+, O+, NO+, O−
 %   e-
 % - add all 15 reactions:
 %   (R1)  e      + N2  → e+N∗2 → e+N(4S) + N(2D)
@@ -72,8 +80,8 @@ load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO')
 N2.num_elex_levels = 1;         % N2(X1Σg+)
 N2.num_elex_levels = 2;         % N2(X1Σg+, A3Σu+)
 N2.num_vibr_levels(2) = 1;  N2.ev_0(2) = 0;  N2.ev_i{2} = 0;
-N2.num_elex_levels = 3;         % N2(X1Σg+, A3Σu+, B3Пg)
-N2.num_vibr_levels(3) = 1;  N2.ev_0(3) = 0;  N2.ev_i{3} = 0;
+% N2.num_elex_levels = 3;         % N2(X1Σg+, A3Σu+, B3Пg)
+% N2.num_vibr_levels(3) = 1;  N2.ev_0(3) = 0;  N2.ev_i{3} = 0;
     % no electronic excitation
 O2.num_elex_levels = 1;         
 O.num_elex_levels = 1;
@@ -106,7 +114,8 @@ for i_ini = 1           % choosing desired initial coonditions
    f_N_3   = init_c(i_ini, 8);
    f_NO_3  = init_c(i_ini, 7);
    f_N2A_3 = init_c(i_ini, 9);
-   f_N2B_3 = init_c(i_ini, 10);
+   f_N2B_3 = 0;
+%    f_N2B_3 = init_c(i_ini, 10);
    n3      = init_c(i_ini, 1)/k/T3/T0; % m-3
    
    sigma0 = pi*N2.diameter^2;
@@ -148,7 +157,7 @@ for i_ini = 1           % choosing desired initial coonditions
    load('../data/reactions.mat', 'Reactions');
    ReactZel_1   = Reactions("N2 + O -> NO + N");
    React_N2A_O2 = Reactions("N2(A) + O2 -> N2(X) + O + O");
-   React_N2B_O2 = Reactions("N2(B) + O2 -> N2(X) + O + O");
+%    React_N2B_O2 = Reactions("N2(B) + O2 -> N2(X) + O + O");
 %    ReactZel_2 = Reactions("O2 + N -> NO + O");
 %    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
 %    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
@@ -157,7 +166,9 @@ for i_ini = 1           % choosing desired initial coonditions
 %                                                     ReactZel_2("Kunova")];
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse")];
    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
-       React_N2A_O2("Pintassilgo2009"), React_N2B_O2("Kossyi1992")];
+       React_N2A_O2("Pintassilgo2009")];
+%    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
+%        React_N2A_O2("Pintassilgo2009"), React_N2B_O2("Kossyi1992")];
    N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");
    ET_diff_c    = cell(1, kinetics.num_Ps);
                     % N2(X),          N2(A)
