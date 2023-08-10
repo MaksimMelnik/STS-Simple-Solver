@@ -11,8 +11,6 @@ function out = Discharge_DC_Hubner_air
 %  todo:
 % ions:
 %   N2+
-%       add N2+
-%       add some N2+
 %       add N2+ processes
 % check URM
 % check the paper
@@ -101,8 +99,8 @@ O2.num_vibr_levels(1) = 1;  O2.ev_0(1) = 0;  O2.ev_i{1} = 0;
     %   i=3 is when the discharge is off. Fractions_3 are approximate.
 init_c = [% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
             133     0.2     0.008   300    440    1.2e-1 3.8e-3  2e-3 ...
-        ... f_N2A_3 f_N2B_3
-            5.8e-5  7e-6
+        ... f_N2A_3 f_N2B_3 ion degree
+            5.8e-5  7e-6    1e-6
         ];
 for i_ini = 1           % choosing desired initial coonditions
  for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
@@ -110,17 +108,18 @@ for i_ini = 1           % choosing desired initial coonditions
   for i_vibr = 3 % [1 2 3] % choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO;
                         %   3 is for kinetics from V. Guerra works
-   T0      = init_c(i_ini, 4);         % K
-   n0      = init_c(i_ini, 1)/k/T0;    % m-3
-   f_O2_0  = init_c(i_ini, 2);
-   f_NO_0  = init_c(i_ini, 3);
-   T3      = init_c(i_ini, 5) /T0;
-   f_O_3   = init_c(i_ini, 6);
-   f_N_3   = init_c(i_ini, 8);
-   f_NO_3  = init_c(i_ini, 7);
-   f_N2A_3 = init_c(i_ini, 9);
-   f_N2B_3 = 0;
+   T0         = init_c(i_ini, 4);         % K
+   n0         = init_c(i_ini, 1)/k/T0;    % m-3
+   f_O2_0     = init_c(i_ini, 2);
+   f_NO_0     = init_c(i_ini, 3);
+   T3         = init_c(i_ini, 5) /T0;
+   f_O_3      = init_c(i_ini, 6);
+   f_N_3      = init_c(i_ini, 8);
+   f_NO_3     = init_c(i_ini, 7);
+   f_N2A_3    = init_c(i_ini, 9);
+   f_N2B_3    = 0;
 %    f_N2B_3 = init_c(i_ini, 10);
+   ion_degree = init_c(i_ini, 11);
    n3      = init_c(i_ini, 1)/k/T3/T0; % m-3
    
    sigma0 = pi*N2.diameter^2;
@@ -191,7 +190,7 @@ for i_ini = 1           % choosing desired initial coonditions
    kinetics.Delta = Delta;
    kinetics.t0 = t0;
    kinetics.tube_R = 0.01;      % m
-   kinetics.Tw = 300;           % wall temperature, K
+   kinetics.Tw     = 300;       % wall temperature, K
         % determine index numbers of molecules
    names=repmat("", length(kinetics.Ps), 1);
    serial_index=zeros(length(kinetics.Ps), 1);
@@ -217,13 +216,17 @@ for i_ini = 1           % choosing desired initial coonditions
    Tv1 = N2.ev_i{1}(2)./(k*log(n_N2(1)./n_N2(2)));
    f_O2_3 = ((2-f_O_3-f_N_3)*(f_O2_0+f_NO_0/2) - f_O_3 - f_NO_3)/2;
    f_N2_3 = 1 - f_O2_3 - f_NO_3 - f_O_3 - f_N_3 - f_N2A_3 - f_N2B_3;
-   n_N2 = n_N2 * f_N2_3;
+   n_N2 = n_N2 * (f_N2_3 - ion_degree);
    n_O2 = density_f_exc(Tv1, f_O2_3, O2);
    n_NO = density_f_exc(Tv1, f_NO_3, NO);
-       % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  N2+
-   y0 = [n_N2;    f_N2A_3;             n_O2;  n_NO;  f_N_3; f_O_3; 0];
+       % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
+   y0 = [n_N2;    f_N2A_3;             n_O2;  n_NO;  f_N_3; f_O_3; ...
+     ... N2+
+         f_N2_3*ion_degree];
 if N2.num_elex_levels == 3
-   y0 = [n_N2;    f_N2A_3;   f_N2B_3;  n_O2;  n_NO;  f_N_3; f_O_3; 0];
+   y0 = [n_N2;    f_N2A_3;   f_N2B_3;  n_O2;  n_NO;  f_N_3; f_O_3; ...
+     ... N2+
+         f_N2_3*ion_degree];
 end
        % t3 correction, T
    y0 = [y0 * n3/n0;    T3];

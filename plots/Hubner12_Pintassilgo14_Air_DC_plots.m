@@ -355,7 +355,7 @@ if length(kinetics.Ps) > 5
  legend('N2+/n_g', 'location', 'best')
  xlabel('Afterglow time (ms)')
  xlim([1e-4 1.1e0])
-%  ylim([1e-8 1e-4])
+ ylim([1e-8 1e-4])
 end
 
 rmpath('../src/')
