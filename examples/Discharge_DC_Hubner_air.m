@@ -10,7 +10,6 @@ function out = Discharge_DC_Hubner_air
 
 %  todo:
 % ions:
-%   O2+
 %   some O2+
 %   O2+ reactions
 % check URM
@@ -222,12 +221,12 @@ for i_ini = 1           % choosing desired initial coonditions
    f_O2_3 = ((2-f_O_3-f_N_3)*(f_O2_0+f_NO_0/2) - f_O_3 - f_NO_3)/2;
    f_N2_3 = 1 - f_O2_3 - f_NO_3 - f_O_3 - f_N_3 - f_N2A_3 - f_N2B_3;
    n_N2 = n_N2 * f_N2_3 * (1 - ion_degree);
-   n_O2 = density_f_exc(Tv1, f_O2_3, O2);
+   n_O2 = density_f_exc(Tv1, f_O2_3 * (1 - ion_degree), O2);
    n_NO = density_f_exc(Tv1, f_NO_3, NO);
        % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
    y0 = [n_N2;    f_N2A_3;             n_O2;  n_NO;  f_N_3; f_O_3; ...
      ... N2+,               O2+
-         f_N2_3*ion_degree; 0];
+         f_N2_3*ion_degree; f_O2_3*ion_degree];
 if N2.num_elex_levels == 3
    y0 = [n_N2;    f_N2A_3;   f_N2B_3;  n_O2;  n_NO;  f_N_3; f_O_3; ...
      ... N2+
