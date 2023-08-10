@@ -24,6 +24,7 @@ NO = kinetics.Ps{3};
 N  = kinetics.Ps{4};
 O  = kinetics.Ps{5};
 Exch_reactions = kinetics.reactions("Exch");
+IndexOfMolecules = kinetics.IndexOfMolecules;
 
 n_g=sum(Y(:, 1:end-1), 2);
 n_N2=sum(Y(:, kinetics.index{1}), 2);
@@ -346,6 +347,16 @@ xlim([6e-3 1e2])
 ylim([6e0 1e5])
 end
 
+%% N2+ ag plot
+if length(kinetics.Ps) > 5
+ figure
+ loglog(t_ag*1e3, Y(:, kinetics.index{IndexOfMolecules("N2+")})./n_g, ...
+                                ':', 'color', [0.9 0 0], 'linewidth', 1.5)
+ legend('N2+/n_g', 'location', 'best')
+ xlabel('Afterglow time (ms)')
+ xlim([1e-4 1.1e0])
+%  ylim([1e-8 1e-4])
+end
 
 rmpath('../src/')
 end

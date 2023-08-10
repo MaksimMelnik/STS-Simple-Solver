@@ -11,6 +11,9 @@ function out = Discharge_DC_Hubner_air
 %  todo:
 % ions:
 %   N2+
+%       add N2+
+%       add some N2+
+%       add N2+ processes
 % check URM
 % check the paper
 % ions:
@@ -69,13 +72,14 @@ warning('gamma_v in R_VT_wall is the same for each particle')
 warning('Check energies in the wall recombination function')
 warning('Zeldovich reactions are without electronic excitation')
 warning("VV exchanges are with a crutch.")
+warning('Find correct N2+ EM value.')
 disp('Started.')
 
 tic                             % measuring computing time
     % constants
 k = 1.380649e-23;               % Boltzmann constant, J/K
 addpath('../src/')
-load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO')
+load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO', 'N2p')
     % electronic excitation
 N2.num_elex_levels = 1;         % N2(X1Σg+)
 N2.num_elex_levels = 2;         % N2(X1Σg+, A3Σu+)
@@ -83,10 +87,11 @@ N2.num_vibr_levels(2) = 1;  N2.ev_0(2) = 0;  N2.ev_i{2} = 0;
 % N2.num_elex_levels = 3;         % N2(X1Σg+, A3Σu+, B3Пg)
 % N2.num_vibr_levels(3) = 1;  N2.ev_0(3) = 0;  N2.ev_i{3} = 0;
     % no electronic excitation
-O2.num_elex_levels = 1;         
-O.num_elex_levels = 1;
-N.num_elex_levels=1;
-NO.num_elex_levels=1;
+O2.num_elex_levels  = 1;         
+O.num_elex_levels   = 1;
+N.num_elex_levels   = 1;
+NO.num_elex_levels  = 1;
+N2p.num_elex_levels = 1;
     % no vibrational excitation
 NO.num_vibr_levels(1) = 1;  NO.ev_0(1) = 0;  NO.ev_i{1} = 0;
 O2.num_vibr_levels(1) = 1;  O2.ev_0(1) = 0;  O2.ev_i{1} = 0;
@@ -124,6 +129,7 @@ for i_ini = 1           % choosing desired initial coonditions
 
    num=0;
    Ps={num, N2, O2, NO, N, O};
+   Ps = {num, N2, O2, NO, N, O, N2p};
    index = cell(1, length(Ps));
    index{1}=0;
    for ind=2:length(Ps)
@@ -214,10 +220,10 @@ for i_ini = 1           % choosing desired initial coonditions
    n_N2 = n_N2 * f_N2_3;
    n_O2 = density_f_exc(Tv1, f_O2_3, O2);
    n_NO = density_f_exc(Tv1, f_NO_3, NO);
-       % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X)
-   y0 = [n_N2;    f_N2A_3;             n_O2;  n_NO;  f_N_3; f_O_3];
+       % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  N2+
+   y0 = [n_N2;    f_N2A_3;             n_O2;  n_NO;  f_N_3; f_O_3; 0];
 if N2.num_elex_levels == 3
-   y0 = [n_N2;    f_N2A_3;   f_N2B_3;  n_O2;  n_NO;  f_N_3; f_O_3];
+   y0 = [n_N2;    f_N2A_3;   f_N2B_3;  n_O2;  n_NO;  f_N_3; f_O_3; 0];
 end
        % t3 correction, T
    y0 = [y0 * n3/n0;    T3];
