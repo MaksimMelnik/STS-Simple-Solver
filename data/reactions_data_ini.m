@@ -33,6 +33,8 @@ function reactions_data_ini
 %  - .n
 %  - .E
 
+warning('Fix indexes in O2 + N -> NO + O, Kossyi1992')
+
 load('particles.mat') %#ok<LOAD>
 k = 1.380649e-23;         % Boltzmann constant, J/K
 
@@ -125,8 +127,17 @@ react2 = react1;
 react2.source = 'Kunova, NO(1)';
  % only ground NO state included
 react2.index = {1:O2.num_vibr_levels(1), 1, 1, 1};
-keySet = {react1.source, react2.source};%, react3.source};
-valueSet = {react1, react2};%, react3};
+   % from works by C D Pintassilgo [2] and V Guerra, data from [4]
+react3 = react1;
+react3.source = 'Kossyi1992';
+react3.type   = "Arrhenius";
+react3.reverse = false;
+react3.A      = 1.1e-14 / 1e6;
+react3.n      = 1;
+react3.E      = 3150 * k; % = E/k => E = 3150*k
+react3.index = {1, 1, 1, 1};
+keySet = {react1.source, react2.source, react3.source};
+valueSet = {react1, react2, react3};
 Zeldovich2.data = containers.Map(keySet, valueSet);
 
 

@@ -71,6 +71,7 @@ warning('Check energies in the wall recombination function')
 warning('Zeldovich reactions are without electronic excitation')
 warning("VV exchanges are with a crutch.")
 warning('Find correct N2+ EM value.')
+warning('Fix indexes in O2 + N -> NO + O, Kossyi1992')
 disp('Started.')
 
 tic                             % measuring computing time
@@ -163,7 +164,7 @@ for i_ini = 1           % choosing desired initial coonditions
    ReactZel_1   = Reactions("N2 + O -> NO + N");
    React_N2A_O2 = Reactions("N2(A) + O2 -> N2(X) + O + O");
 %    React_N2B_O2 = Reactions("N2(B) + O2 -> N2(X) + O + O");
-%    ReactZel_2 = Reactions("O2 + N -> NO + O");
+   ReactZel_2 = Reactions("O2 + N -> NO + O");
 %    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
 %    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
         % V Guerra Zeldovich model
@@ -171,7 +172,7 @@ for i_ini = 1           % choosing desired initial coonditions
 %                                                     ReactZel_2("Kunova")];
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse")];
    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
-       React_N2A_O2("Pintassilgo2009")];
+       React_N2A_O2("Pintassilgo2009"), ReactZel_2("Kossyi1992")];
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
 %        React_N2A_O2("Pintassilgo2009"), React_N2B_O2("Kossyi1992")];
    N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");
