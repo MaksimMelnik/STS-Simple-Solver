@@ -10,12 +10,16 @@ function out = Discharge_DC_Hubner_air
 
 %  todo:
 % ions:
-%   N2+
-%       add N2+ processes
+%   O2+
+%   some O2+
+%   O2+ reactions
 % check URM
 % check the paper
+% e-
+% turn on discharge
+% add N(4S) +O+N2 → NO(X) + N2
+% add N(4S) +O+O2 → NO(X) + O2
 % ions:
-%   O2+
 %   O+
 %   NO+
 %   O-
@@ -78,7 +82,7 @@ tic                             % measuring computing time
     % constants
 k = 1.380649e-23;               % Boltzmann constant, J/K
 addpath('../src/')
-load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO', 'N2p')
+load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO', 'N2p', 'O2p')
     % electronic excitation
 N2.num_elex_levels = 1;         % N2(X1Σg+)
 N2.num_elex_levels = 2;         % N2(X1Σg+, A3Σu+)
@@ -91,6 +95,7 @@ O.num_elex_levels   = 1;
 N.num_elex_levels   = 1;
 NO.num_elex_levels  = 1;
 N2p.num_elex_levels = 1;
+O2p.num_elex_levels = 1;
     % no vibrational excitation
 NO.num_vibr_levels(1) = 1;  NO.ev_0(1) = 0;  NO.ev_i{1} = 0;
 O2.num_vibr_levels(1) = 1;  O2.ev_0(1) = 0;  O2.ev_i{1} = 0;
@@ -128,8 +133,7 @@ for i_ini = 1           % choosing desired initial coonditions
    t0    = 1 / (4 * n0 * N2.diameter^2 * sqrt(pi * k * T0 / N2.mass));
 
    num=0;
-   Ps={num, N2, O2, NO, N, O};
-   Ps = {num, N2, O2, NO, N, O, N2p};
+   Ps = {num, N2, O2, NO, N, O, N2p, O2p};
    index = cell(1, length(Ps));
    index{1}=0;
    for ind=2:length(Ps)
@@ -217,13 +221,13 @@ for i_ini = 1           % choosing desired initial coonditions
    Tv1 = N2.ev_i{1}(2)./(k*log(n_N2(1)./n_N2(2)));
    f_O2_3 = ((2-f_O_3-f_N_3)*(f_O2_0+f_NO_0/2) - f_O_3 - f_NO_3)/2;
    f_N2_3 = 1 - f_O2_3 - f_NO_3 - f_O_3 - f_N_3 - f_N2A_3 - f_N2B_3;
-   n_N2 = n_N2 * (f_N2_3 - ion_degree);
+   n_N2 = n_N2 * f_N2_3 * (1 - ion_degree);
    n_O2 = density_f_exc(Tv1, f_O2_3, O2);
    n_NO = density_f_exc(Tv1, f_NO_3, NO);
        % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
    y0 = [n_N2;    f_N2A_3;             n_O2;  n_NO;  f_N_3; f_O_3; ...
-     ... N2+
-         f_N2_3*ion_degree];
+     ... N2+,               O2+
+         f_N2_3*ion_degree; 0];
 if N2.num_elex_levels == 3
    y0 = [n_N2;    f_N2A_3;   f_N2B_3;  n_O2;  n_NO;  f_N_3; f_O_3; ...
      ... N2+

@@ -3,7 +3,7 @@ N_a=6.02214076e23;        % Avogadro constant
 c = 299792458;            % speed of light
 k = 1.380649e-23;         % Boltzmann constant, J/K
 warning('Only anharmonic oscillator parameters are used.')
-warning('Find correct N2+ EM value.')
+warning('Find correct N2+ and O2+ EM value.')
 addpath('../src/')
 
 
@@ -195,6 +195,20 @@ O2.fr_deg_c=5;                      % freedom degree for room temperature
 O2.EM=107.4;                        % Parameter ε/k (Lennard-Jones), К
 O2.BMbeta=3.964;            % beta parameter of Born-Mayer potential, A^-1
 
+O2p.name = 'O2+';
+O2p.mass = O2.mass;
+O2p.diameter = O2.diameter;
+O2p.sigma  = 2;
+O2p.form_e = 1.93378E-18;
+O2p.Be = [	169.13      110.46      106.17      128.72      128.72     ...
+            128.72      128.72];
+O2p.num_elex_levels = length(O2p.Be); % number of electronical levels
+O2p.e_E = [	0.00000E+00 6.54812E-19 8.07868E-19 9.84324E-19 1.06513E-18 ...
+            1.24610E-18 1.32534E-18];
+O2p.fr_deg_c = 5;
+O2p.num_vibr_levels = O2p.Be * 0 + 1;
+O2p.EM    = O2.EM; % Parameter ε/k (Lennard-Jones), К, should be rechecked
+
 
 N2.name='N2';                       % data from DB work-v5
 N2.mass=4.65173E-26;                % kg
@@ -379,7 +393,7 @@ NO.BMbeta=3.303;            % beta parameter of Born-Mayer potential, A^-1
     Coll_C2.ArrA(7)   =3.72e14/N_a*1e-6;    Coll_C2.ArrN(7)   =0;
     Coll_CO_C__C2_O.ArrA(7)=6e-10/1e6;       Coll_CO_C__C2_O.ArrN(7)=0; 
 
-save particles.mat C O N CO C2 Ar O2 N2 NO N2p
+save particles.mat C O N CO C2 Ar O2 N2 NO N2p O2p
 
 rmpath('../src/')
 
