@@ -163,11 +163,27 @@ valueSet = {react1};
 N2A_O2__N2X_O_O.data = containers.Map(keySet, valueSet);
 
 
+     % N2(B) + O2 -> N2(X) + O + O
+N2B_O2__N2X_O_O.name = 'N2(B) + O2 -> N2(X) + O + O';
+N2B_O2__N2X_O_O.particles = ["N2", "O2", "N2", "O", "O"];
+   % from works by C D Pintassilgo [2] and V Guerra, data from [4]
+react1 = template;
+react1.name = N2B_O2__N2X_O_O.name;
+react1.particles = N2B_O2__N2X_O_O.particles;
+react1.source = 'Kossyi1992';
+react1.type = "const";
+react1.A   = 3e-10 / 1e6;% / 1e2;
+react1.index = {{3, 1}, {1, 1}, {1, 1}, 1, 1};
+keySet = {react1.source};
+valueSet = {react1};
+N2B_O2__N2X_O_O.data = containers.Map(keySet, valueSet);
+
+
     % summarizing all reactions in the one container and file
 keySet = {zero_r.name, Zeldovich1.name, Zeldovich2.name, ...
-    N2A_wall_diffusion.name, N2A_O2__N2X_O_O.name};
+    N2A_wall_diffusion.name, N2A_O2__N2X_O_O.name, N2B_O2__N2X_O_O.name};
 valueSet = {zero_r.data, Zeldovich1.data, Zeldovich2.data, ...
-    N2A_wall_diffusion.data, N2A_O2__N2X_O_O.data};
+    N2A_wall_diffusion.data, N2A_O2__N2X_O_O.data, N2B_O2__N2X_O_O.data};
 Reactions = containers.Map(keySet, valueSet);
 save reactions.mat Reactions
 
@@ -175,4 +191,5 @@ save reactions.mat Reactions
 % [1] V Guerra et al 1995 J. Phys. D: Appl. Phys. 28 1903
 % [2] C D Pintassilgo et al Plasma Sources Sci. Technol. 18 (2009) 025005
 % [3] D Levron et al J. Chem. Phys. 69, 2260 (1978); doi: 10.1063/1.436788
+% [4] Kossyi I A et al 1992 Plasma Sources Sci. Technol. 1 207
 end

@@ -10,13 +10,13 @@ function out = Discharge_DC_Hubner_air
 
 %  todo:
 % adding N2(B3Пg)
-%   VT with it
-%   N2B desactivation on the wall
-%   (R7) N2B + O2 -> N2X + O + O
-%   plot N2B + O2 -> N2X + O + O
 %   (R12) N2B + N2 -> N2A + N2
 %   plot N2B + N2 -> N2A + N2
+% check the URM application
+% check the paper
+% ions
 % send application
+% fix n_N2B and Q_R7 N2B + O2 -> N2X + O + O
 % - add all particles:
 %   N2(B3Пg, B'3Σ−u, C3Пu, a'1Σ−u, a1Пg, w1Δu)
 %   O2(a1Δg, b1Σ+g)
@@ -148,6 +148,7 @@ for i_ini = 1           % choosing desired initial coonditions
    load('../data/reactions.mat', 'Reactions');
    ReactZel_1   = Reactions("N2 + O -> NO + N");
    React_N2A_O2 = Reactions("N2(A) + O2 -> N2(X) + O + O");
+   React_N2B_O2 = Reactions("N2(B) + O2 -> N2(X) + O + O");
 %    ReactZel_2 = Reactions("O2 + N -> NO + O");
 %    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
 %    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
@@ -156,7 +157,7 @@ for i_ini = 1           % choosing desired initial coonditions
 %                                                     ReactZel_2("Kunova")];
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse")];
    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
-       React_N2A_O2("Pintassilgo2009")];
+       React_N2A_O2("Pintassilgo2009"), React_N2B_O2("Kossyi1992")];
    N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");
    ET_diff_c    = cell(1, kinetics.num_Ps);
                     % N2(X),          N2(A)
@@ -209,6 +210,7 @@ if N2.num_elex_levels == 3
 end
        % t3 correction, T
    y0 = [y0 * n3/n0;    T3];
+%    y0 = [y0;            T3];
 %    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-20, ...
 %                                     'NonNegative', 1:kinetics.num_eq+1); 
 %    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-13, ...

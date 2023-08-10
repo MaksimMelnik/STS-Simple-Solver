@@ -23,13 +23,15 @@ i1sum = sum(M1.num_vibr_levels(1:i1{1}-1)) + i1{2};
 i2sum = sum(M2.num_vibr_levels(1:i2{1}-1)) + i2{2};
 i3sum = sum(M3.num_vibr_levels(1:i3{1}-1)) + i3{2};
 switch reaction.type
+ case "const"
+  kf(i1sum, i2sum, i3sum) = reaction.A;
  case "A(T/d_T)^n"
      % it has a potential for optimizaation
 %   kf(i1{2}, i2{2}, i3{2}) = reaction.A * (T / reaction.d_T) ^ reaction.n;
   kf(i1sum, i2sum, i3sum) = reaction.A * (T / reaction.d_T) ^ reaction.n;
  otherwise
         error("Exchange reactions of this type are still not " + ...
-            "implemented " + reaction.type)    
+            "implemented: " + reaction.type)    
 end
    
 	% rate coefficient of backward (b) reaction
