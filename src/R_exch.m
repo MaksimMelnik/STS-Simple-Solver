@@ -17,20 +17,19 @@ if (M2.fr_deg_c + M4.fr_deg_c ~= 6)
     error("M2 and M4 must be atoms.");
 end
 
+kf = zeros(M1.num_vibr_levels(1), M3.num_vibr_levels(1));
+
 switch reaction.type
  case "const"
-  kf = zeros(M1.num_vibr_levels(1), M3.num_vibr_levels(1));
-  kf(reaction.index{1}, reaction.index{3}) = ...
-                    kf(reaction.index{1}, reaction.index{3}) + reaction.A;
+  kf(reaction.index{1}, reaction.index{3}) = reaction.A;
   dE_fb = M1.diss_e(1) - M3.diss_e(1);
  case "ATn"
-  kf = zeros(M1.num_vibr_levels(1), M3.num_vibr_levels(1));
-  kf(reaction.index{1}, reaction.index{3}) = ...
-   kf(reaction.index{1}, reaction.index{3}) + reaction.A * T ^ reaction.n;
+  kf(reaction.index{1}, reaction.index{3}) = reaction.A * T ^ reaction.n;
   dE_fb = M1.diss_e(1) - M3.diss_e(1);
  case "Arrhenius"
-        error("Exchange reactions of this type are still not " + ...
-            "implemented " + reaction.type)
+  kf(reaction.index{1}, reaction.index{3}) = ...
+                reaction.A * T ^ reaction.n * exp(- reaction.E / k / T);
+  dE_fb = M1.diss_e(1) - M3.diss_e(1);
  case "Heaviside"
   [kf, dE_fb] = R_exch_Heaviside(M1, M3, T, reaction);
  otherwise
