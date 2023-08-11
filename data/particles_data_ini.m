@@ -54,7 +54,6 @@ N.BMbeta=2.68;              % beta parameter of Born-Mayer potential, A^-1
 N.EM=71.4;
 N.fr_deg_c=3;
 N.form_e=7.81808E-19;
-N.e_E=0;                            % electronic excitation energy
 
 
 CO.name='CO';

@@ -9,11 +9,12 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% ions:
-%   some O2+
-%   O2+ reactions
+% rewrite reaction M1+A1->M2+A2 to M1+M2->M3+M4
 % check URM
 % check the paper
+% ions:
+%   O2+ reactions
+% add in R_exch in dE difference in electronic energy
 % e-
 % turn on discharge
 % add N(4S) +O+N2 → NO(X) + N2
@@ -121,6 +122,7 @@ for i_ini = 1           % choosing desired initial coonditions
    f_O_3      = init_c(i_ini, 6);
    f_N_3      = init_c(i_ini, 8);
    f_NO_3     = init_c(i_ini, 7);
+%    f_N2A_3    = 0;
    f_N2A_3    = init_c(i_ini, 9);
    f_N2B_3    = 0;
 %    f_N2B_3 = init_c(i_ini, 10);
@@ -171,8 +173,6 @@ for i_ini = 1           % choosing desired initial coonditions
 %    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
 %    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
         % V Guerra Zeldovich model
-%    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
-%                                                     ReactZel_2("Kunova")];
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse")];
    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
        React_N2A_O2("Pintassilgo2009"), ReactZel_2("Kossyi1992")];
