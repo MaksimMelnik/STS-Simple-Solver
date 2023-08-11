@@ -208,6 +208,25 @@ N2B_O2__N2X_O_O.data = containers.Map(keySet, valueSet);
 % N2B_N2__N2A_N2.data = containers.Map(keySet, valueSet);
 
 
+% 'all' implemented
+     % N2+(X) + O2(X) -> O2+(X) + N2
+N2pX_O2X__O2pX_N2.name = 'N2+(X) + O2(X) -> O2+(X) + N2';
+N2pX_O2X__O2pX_N2.particles = ["N2+", "O2", "O2+", "N2"];
+react1 = template;
+react1.name = N2pX_O2X__O2pX_N2.name;
+react1.particles = N2pX_O2X__O2pX_N2.particles;
+react1.source    = 'Kossyi1992';
+react1.type      = "A(T/d_T)^n";
+react1.index     = ...
+            {{1, "all"}, {1, "all"}, {1, "all"}, {1, "all"}, {1, "all"}};
+react1.A         = 6e-11 / 1e6;
+react1.n         = - 0.5;
+react1.d_T       = 300;
+keySet           = {react1.source};
+valueSet         = {react1};
+N2pX_O2X__O2pX_N2.data = containers.Map(keySet, valueSet);
+
+
     % summarizing all reactions in the one container and file
 keySet = {zero_r.name, Zeldovich1.name, Zeldovich2.name, ...
  N2A_wall_diffusion.name, N2A_O2__N2X_O_O.name, N2B_O2__N2X_O_O.name, ...

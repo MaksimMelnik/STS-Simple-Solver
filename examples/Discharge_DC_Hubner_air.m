@@ -9,12 +9,9 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% rewrite reaction M1+A1->M2+A2 to M1+M2->M3+M4
 % check URM
 % check the paper
-% ions:
-%   O2+ reactions
-% add in R_exch in dE difference in electronic energy
+% add in R_exch in dE difference electronic energy (for detailed balance?)
 % e-
 % turn on discharge
 % add N(4S) +O+N2 → NO(X) + N2
@@ -170,12 +167,14 @@ for i_ini = 1           % choosing desired initial coonditions
    React_N2A_O2 = Reactions("N2(A) + O2 -> N2(X) + O + O");
 %    React_N2B_O2 = Reactions("N2(B) + O2 -> N2(X) + O + O");
    ReactZel_2 = Reactions("O2 + N -> NO + O");
+   React_N2pX_O2X__O2pX_N2 = Reactions("N2+(X) + O2(X) -> O2+(X) + N2");
 %    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
 %    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
         % V Guerra Zeldovich model
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse")];
    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
-       React_N2A_O2("Pintassilgo2009"), ReactZel_2("Kossyi1992")];
+       React_N2A_O2("Pintassilgo2009"), ReactZel_2("Kossyi1992"), ...
+       React_N2pX_O2X__O2pX_N2("Kossyi1992")];
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
 %        React_N2A_O2("Pintassilgo2009"), React_N2B_O2("Kossyi1992")];
    N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");

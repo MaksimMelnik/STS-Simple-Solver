@@ -207,6 +207,8 @@ O2p.e_E = [	0.00000E+00 6.54812E-19 8.07868E-19 9.84324E-19 1.06513E-18 ...
 O2p.fr_deg_c = 5;
 O2p.num_vibr_levels = O2p.Be * 0 + 1;
 O2p.EM    = O2.EM; % Parameter ε/k (Lennard-Jones), К, should be rechecked
+O2p.ev_0 = O2p.e_E * 0;
+O2p.ev_i = {0, 0, 0, 0, 0, 0};
 
 
 N2.name='N2';                       % data from DB work-v5
@@ -273,6 +275,8 @@ N2p.e_E = [     0.00000E+00 1.82096E-19 5.05777E-19 5.05888E-19 ...
 N2p.fr_deg_c = 5;
 N2p.num_vibr_levels = N2p.Be * 0 + 1;
 N2p.EM = N2.EM; % Parameter ε/k (Lennard-Jones), К, should be rechecked
+N2p.ev_0 = N2p.e_E * 0;
+N2p.ev_i = {0, 0, 0, 0, 0, 0};
 
 
 
