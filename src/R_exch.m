@@ -43,6 +43,9 @@ switch reaction.type
  case "ATn"
   kf = kf + reaction.A * T ^ reaction.n;
   dE_fb = M3.form_e + M4.form_e - M1.form_e - M2.form_e;
+ case "A(T/d_T)^n"
+  kf = kf + reaction.A * (T / reaction.d_T) ^ reaction.n;
+  dE_fb = M3.form_e + M4.form_e - M1.form_e - M2.form_e;
  case "Arrhenius"
   kf = kf + reaction.A * T ^ reaction.n * exp(- reaction.E / k / T);
   dE_fb = M3.form_e + M4.form_e - M1.form_e - M2.form_e;
