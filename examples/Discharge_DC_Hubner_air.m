@@ -9,10 +9,10 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
+% e-
 % check URM
 % check the paper
 % add in R_exch in dE difference electronic energy (for detailed balance?)
-% e-
 % turn on discharge
 % add N(4S) +O+N2 → NO(X) + N2
 % add N(4S) +O+O2 → NO(X) + O2
@@ -222,10 +222,11 @@ for i_ini = 1           % choosing desired initial coonditions
    n_N2 = n_N2 * f_N2_3 * (1 - ion_degree);
    n_O2 = density_f_exc(Tv1, f_O2_3 * (1 - ion_degree), O2);
    n_NO = density_f_exc(Tv1, f_NO_3, NO);
+   ne   = (f_N2_3 + f_O2_3) * ion_degree;
        % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
    y0 = [n_N2;    f_N2A_3;             n_O2;  n_NO;  f_N_3; f_O_3; ...
-     ... N2+,               O2+
-         f_N2_3*ion_degree; f_O2_3*ion_degree];
+     ... N2+,               O2+,               e-
+         f_N2_3*ion_degree; f_O2_3*ion_degree; ne];
 if N2.num_elex_levels == 3
    y0 = [n_N2;    f_N2A_3;   f_N2B_3;  n_O2;  n_NO;  f_N_3; f_O_3; ...
      ... N2+
