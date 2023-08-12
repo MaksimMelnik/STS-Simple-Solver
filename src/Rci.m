@@ -175,7 +175,7 @@ if isKey(kinetics.reactions, 'Exch') % exchange reactions universal attempt
   indM4 = kinetics.index{IOM_M4};
   switch length(reaction.particles)
    case 4
-    indM1 = indM1(1:kinetics.Ps{IOM_M1}.num_vibr_levels(1));
+%     indM1 = indM1(1:kinetics.Ps{IOM_M1}.num_vibr_levels(1));
     [R_exch_temp, Q_exch] = R_exch(kinetics.Ps{IOM_M1}, ...
         kinetics.Ps{IOM_M2}, kinetics.Ps{IOM_M3}, kinetics.Ps{IOM_M4}, ...
                      y(indM1), y(indM2), y(indM3), y(indM4), T, reaction);
