@@ -9,13 +9,11 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% e-
-%   e + N2+(X) → N(4S) + N(4S)
-%   e + O2+ → O+O
 % check URM
 % check the paper
 % e-
 %   e + N2+(X) + wall -> N2(X)
+% e-
 %   e + O2+(X) + wall -> O2(X)
 %   LoKI-B
 %   e + something using LoKI
@@ -176,6 +174,7 @@ for i_ini = 1           % choosing desired initial coonditions
    ReactZel_2 = Reactions("O2 + N -> NO + O");
    React_N2pX_O2X__O2pX_N2 = Reactions("N2+(X) + O2(X) -> O2+(X) + N2");
    React_e_N2pX__N4S_N4S   = Reactions("e + N2+(X) -> N(4S) + N(4S)");
+   React_e_O2pX__O_O       = Reactions("e + O2+(X) -> O + O");
 %    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
 %    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
         % V Guerra Zeldovich model
@@ -191,7 +190,8 @@ for i_ini = 1           % choosing desired initial coonditions
    ET_diff_c{1} = [Reactions("zero"), N2A_diff("Levron1978"), ...
        ...                                          N2(B)
                                                     Reactions("zero")];
-   Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009")];
+   Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009"), ...
+       React_e_O2pX__O_O("Kossyi1992")];
 %    Reacs_keys = {'VT',     'VV',     'Exch', 'Wall', 'ET',      ...
 %        'Rec_wall'};
 %    reacs_val  = {model_VT, model_VT, Exch,   1,      ET_diff_c, ...

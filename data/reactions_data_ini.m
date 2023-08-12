@@ -245,13 +245,31 @@ valueSet                  = {react1};
 e_N2pX__N4S_N4S.data      = containers.Map(keySet, valueSet);
 
 
+     % e + O2+(X) -> O + O
+e_O2pX__O_O.name = 'e + O2+(X) -> O + O';
+e_O2pX__O_O.particles = ["e", "O2+", "O", "O"];
+   % from works by C D Pintassilgo [2] and V Guerra, data from [4]
+react1                    = template;
+react1.name               = e_O2pX__O_O.name;
+react1.particles          = e_O2pX__O_O.particles;
+react1.source             = 'Kossyi1992';
+react1.type               = "A(T/d_T)^n";
+react1.index              = {{1, 1}, {1, "all"}, {1, 1}, {1, 1}};
+react1.A                  = 2e-7 / 1e6;    % m3 / s
+react1.n                  = - 1;
+react1.d_T                = 300;
+keySet                    = {react1.source};
+valueSet                  = {react1};
+e_O2pX__O_O.data          = containers.Map(keySet, valueSet);
+
+
     % summarizing all reactions in the one container and file
 keySet = {zero_r.name, Zeldovich1.name, Zeldovich2.name, ...
  N2A_wall_diffusion.name, N2A_O2__N2X_O_O.name, N2B_O2__N2X_O_O.name, ...
- N2pX_O2X__O2pX_N2.name, e_N2pX__N4S_N4S.name};
+ N2pX_O2X__O2pX_N2.name, e_N2pX__N4S_N4S.name, e_O2pX__O_O.name};
 valueSet = {zero_r.data, Zeldovich1.data, Zeldovich2.data, ...
  N2A_wall_diffusion.data, N2A_O2__N2X_O_O.data, N2B_O2__N2X_O_O.data, ...
- N2pX_O2X__O2pX_N2.data, e_N2pX__N4S_N4S.data};
+ N2pX_O2X__O2pX_N2.data, e_N2pX__N4S_N4S.data, e_O2pX__O_O.data};
 Reactions = containers.Map(keySet, valueSet);
 save reactions.mat Reactions
 
