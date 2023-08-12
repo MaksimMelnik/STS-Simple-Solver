@@ -10,8 +10,15 @@ function out = Discharge_DC_Hubner_air
 
 %  todo:
 % e-
+%   e + N2+(X) → N(4S) + N(4S)
+%   e + O2+ → O+O
 % check URM
 % check the paper
+% e-
+%   e + N2+(X) + wall -> N2(X)
+%   e + O2+(X) + wall -> O2(X)
+%   LoKI-B
+%   e + something using LoKI
 % add in R_exch in dE difference electronic energy (for detailed balance?)
 % turn on discharge
 % add N(4S) +O+N2 → NO(X) + N2
@@ -168,6 +175,7 @@ for i_ini = 1           % choosing desired initial coonditions
 %    React_N2B_O2 = Reactions("N2(B) + O2 -> N2(X) + O + O");
    ReactZel_2 = Reactions("O2 + N -> NO + O");
    React_N2pX_O2X__O2pX_N2 = Reactions("N2+(X) + O2(X) -> O2+(X) + N2");
+   React_e_N2pX__N4S_N4S   = Reactions("e + N2+(X) -> N(4S) + N(4S)");
 %    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
 %    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
         % V Guerra Zeldovich model
@@ -183,8 +191,15 @@ for i_ini = 1           % choosing desired initial coonditions
    ET_diff_c{1} = [Reactions("zero"), N2A_diff("Levron1978"), ...
        ...                                          N2(B)
                                                     Reactions("zero")];
-   Reacs_keys = {'VT',     'VV',     'Exch', 'Wall', 'ET',    'Rec_wall'};
-   reacs_val  = {model_VT, model_VT, Exch,   1,      ET_diff_c, 1};
+   Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009")];
+%    Reacs_keys = {'VT',     'VV',     'Exch', 'Wall', 'ET',      ...
+%        'Rec_wall'};
+%    reacs_val  = {model_VT, model_VT, Exch,   1,      ET_diff_c, ...
+%        1};
+   Reacs_keys = {'VT',     'VV',     'Exch', 'Wall', 'ET',    ...
+       'Rec_wall', 'free_e'};
+   reacs_val  = {model_VT, model_VT, Exch,   1,      ET_diff_c, ...
+       1,          Free_e};
    kinetics.num_eq = num;
    kinetics.reactions = containers.Map(Reacs_keys, reacs_val);
    kinetics.index = index(2:end);
@@ -194,6 +209,8 @@ for i_ini = 1           % choosing desired initial coonditions
    kinetics.t0 = t0;
    kinetics.tube_R = 0.01;      % m
    kinetics.Tw     = 300;       % wall temperature, K
+        % temporal solution. Should be taken from the LoKI-B
+   kinetics.Te     = 1.73 * 1.60218e-19 / k;
         % determine index numbers of molecules
    names=repmat("", length(kinetics.Ps), 1);
    serial_index=zeros(length(kinetics.Ps), 1);
