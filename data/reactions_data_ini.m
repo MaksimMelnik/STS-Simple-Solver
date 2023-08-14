@@ -263,13 +263,32 @@ valueSet                  = {react1};
 e_O2pX__O_O.data          = containers.Map(keySet, valueSet);
 
 
+%% from LoKI
+        % e+N2(X)->e+2N(4S),Excitation
+e_N2X__e_N4S_N4S.name = 'e+N2(X)->e+2N(4S),Excitation';
+e_N2X__e_N4S_N4S.particles = ["e", "N2", "e", "N", "N"];
+   % from works by C D Pintassilgo [2] and V Guerra, data from [4]
+react1                    = template;
+react1.name               = e_N2X__e_N4S_N4S.name;
+react1.particles          = e_N2X__e_N4S_N4S.particles;
+react1.source             = 'LoKI-B steady';
+react1.type               = "const";
+react1.index              = {{1, 1}, {1, "all"}, {1, 1}, {1, 1}, {1, 1}};
+react1.A                  = 7.52016817823127e-18;    % m3 / s
+keySet                    = {react1.source};
+valueSet                  = {react1};
+e_N2X__e_N4S_N4S.data          = containers.Map(keySet, valueSet);
+
+
     % summarizing all reactions in the one container and file
 keySet = {zero_r.name, Zeldovich1.name, Zeldovich2.name, ...
  N2A_wall_diffusion.name, N2A_O2__N2X_O_O.name, N2B_O2__N2X_O_O.name, ...
- N2pX_O2X__O2pX_N2.name, e_N2pX__N4S_N4S.name, e_O2pX__O_O.name};
+ N2pX_O2X__O2pX_N2.name, e_N2pX__N4S_N4S.name, e_O2pX__O_O.name, ...
+ e_N2X__e_N4S_N4S.name};
 valueSet = {zero_r.data, Zeldovich1.data, Zeldovich2.data, ...
  N2A_wall_diffusion.data, N2A_O2__N2X_O_O.data, N2B_O2__N2X_O_O.data, ...
- N2pX_O2X__O2pX_N2.data, e_N2pX__N4S_N4S.data, e_O2pX__O_O.data};
+ N2pX_O2X__O2pX_N2.data, e_N2pX__N4S_N4S.data, e_O2pX__O_O.data, ...
+ e_N2X__e_N4S_N4S.data};
 Reactions = containers.Map(keySet, valueSet);
 save reactions.mat Reactions
 
