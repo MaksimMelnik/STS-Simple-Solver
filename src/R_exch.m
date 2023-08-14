@@ -1,6 +1,6 @@
 function [R_exch_data, Q] = ...
             R_exch(M1, M2, M3, M4, n_M1, n_M2, n_M3, n_M4, T, reaction)
-% The second iteration of the universal function for exchange reactions
+% The third iteration of the universal function for exchange reactions
 % M1 + M2 -> M3 + M4. 
 % M1 and M3 are molecules; M2 and M4 are currently atoms; 
 % n_Mi are number densities of Mi; T is the gas temperature; 

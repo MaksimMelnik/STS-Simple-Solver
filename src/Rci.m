@@ -196,10 +196,10 @@ if isKey(kinetics.reactions, 'Exch') % exchange reactions universal attempt
     R_exch_data(indM2) = R_exch_data(indM2) + sum(R_exch_temp, [1, 3])';
     R_exch_data(indM3) = R_exch_data(indM3) ...
                             - reshape(sum(R_exch_temp, [1, 2]), [], 1);
-	ie4 = indM4(reaction.index{4});
-    ie5 = indM5(reaction.index{5});
-    R_exch_data(ie4)   = R_exch_data(ie4)   - sum(R_exch_temp, 'all');
-    R_exch_data(ie5)   = R_exch_data(ie5)   - sum(R_exch_temp, 'all');
+    R_exch_data(indM4) = R_exch_data(indM4) ...
+                            - reshape(sum(R_exch_temp, [1 2 3 5]), [], 1);
+    R_exch_data(indM5) = R_exch_data(indM5) ...
+                            - reshape(sum(R_exch_temp, [1 2 3 4]), [], 1);
    otherwise
        error(["Reactions with current number of particles are not " ...
                                                     "implemented yet"])
