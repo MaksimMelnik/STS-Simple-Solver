@@ -9,13 +9,15 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
+% e-
+% 
 % check the paper
 % check URM
 % e-
-%   e + N2+(X) + wall -> N2(X)  (mb in LoKI)
 %   e + something using LoKI
 % properly include: 
 %   e + O2+(X) + wall -> O2(X) (mb take from LoKI)
+%   e + N2+(X) + wall -> N2(X)  (mb in LoKI)
 % properly take kr from LoKI:
 %   e+N2(X) → e+N(4S) + N(4S) from LoKI
 % add in R_exch in dE difference electronic energy (for detailed balance?)

@@ -60,6 +60,9 @@ end
 Ps_i_O2p = IndexOfMolecules("O2+");
 O2p = Ps{Ps_i_O2p};
 O2 = Ps{IndexOfMolecules("O2")};
+Ps_i_N2p = IndexOfMolecules("N2+");
+N2p = Ps{Ps_i_N2p};
+N2 = Ps{IndexOfMolecules("N2")};
 
 [R_ions_wall_data, Q_ions_wall_data] = ...
                     R_ions_wall(O2p, O2, y(index{Ps_i_O2p}), T, kinetics);
@@ -68,6 +71,18 @@ Q_ions_wall_data = Q_ions_wall_data / kinetics.n0;
 R(index{IndexOfMolecules("O2")}) = R(index{IndexOfMolecules("O2")}) + ...
     R_ions_wall_data;
 R(index{IndexOfMolecules("O2+")}) = R(index{IndexOfMolecules("O2+")}) ...
+    - R_ions_wall_data;
+R(index{IndexOfMolecules("e")}) = R(index{IndexOfMolecules("e")}) ...
+    - R_ions_wall_data;
+Qin = Qin + Q_ions_wall_data;
+
+[R_ions_wall_data, Q_ions_wall_data] = ...
+                    R_ions_wall(N2p, N2, y(index{Ps_i_N2p}), T, kinetics);
+R_ions_wall_data = R_ions_wall_data / kinetics.n0;
+Q_ions_wall_data = Q_ions_wall_data / kinetics.n0;
+R(index{IndexOfMolecules("N2")}(1)) = R(index{IndexOfMolecules("N2")}(1)) + ...
+    R_ions_wall_data;
+R(index{IndexOfMolecules("N2+")}) = R(index{IndexOfMolecules("N2+")}) ...
     - R_ions_wall_data;
 R(index{IndexOfMolecules("e")}) = R(index{IndexOfMolecules("e")}) ...
     - R_ions_wall_data;
