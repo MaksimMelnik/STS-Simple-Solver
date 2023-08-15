@@ -10,16 +10,18 @@ function out = Discharge_DC_Hubner_air
 
 %  todo:
 % e-
-% 
+%   e + without LoKI
 % check the paper
 % check URM
 % e-
 %   e + something using LoKI
+%       e+N2(X)->e+N2(A3Su+,v=0-4),Excitation
 % properly include: 
 %   e + O2+(X) + wall -> O2(X) (mb take from LoKI)
 %   e + N2+(X) + wall -> N2(X)  (mb in LoKI)
 % properly take kr from LoKI:
 %   e+N2(X) → e+N(4S) + N(4S) from LoKI
+%   e+N2(X)->e+e+N2(+,X),Ionization
 % add in R_exch in dE difference electronic energy (for detailed balance?)
 % turn on discharge
 % add N(4S) +O+N2 → NO(X) + N2
