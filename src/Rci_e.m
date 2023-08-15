@@ -55,6 +55,21 @@ for ind_free_e = 1:length(free_e_reactions)
                                                     "implemented yet"])
  end
  Qin = Qin + Q_exch;
-end   
+end
 
+Ps_i_O2p = IndexOfMolecules("O2+");
+O2p = Ps{Ps_i_O2p};
+O2 = Ps{IndexOfMolecules("O2")};
+
+[R_ions_wall_data, Q_ions_wall_data] = ...
+                    R_ions_wall(O2p, O2, y(index{Ps_i_O2p}), T, kinetics);
+R_ions_wall_data = R_ions_wall_data / kinetics.n0;
+Q_ions_wall_data = Q_ions_wall_data / kinetics.n0;
+R(index{IndexOfMolecules("O2")}) = R(index{IndexOfMolecules("O2")}) + ...
+    R_ions_wall_data;
+R(index{IndexOfMolecules("O2+")}) = R(index{IndexOfMolecules("O2+")}) ...
+    - R_ions_wall_data;
+R(index{IndexOfMolecules("e")}) = R(index{IndexOfMolecules("e")}) ...
+    - R_ions_wall_data;
+Qin = Qin + Q_ions_wall_data;
 end
