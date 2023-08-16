@@ -15,7 +15,7 @@ k = 1.380649e-23;
 
 switch model
     case 'FHO'
-        k_down = kvt_fho_old(T, M1, M2, ind_e);
+        k_down = get_k_VT_FHO_FR(T, M1, M2, 'coefs_for_poly_FHO_FR.dat', 55.22595141171274);
     case 'SSH'
         k_down = kvt_ssh(T, M1, M2, ind_e, 1);
     case 'Guerra'

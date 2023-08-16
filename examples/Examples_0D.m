@@ -29,11 +29,11 @@ init_c=[% p0, Pa; T0, K; f_O2_0; f_NO_0; T3, K; f_O_3; f_NO_3; f_N_3
           133     3.098808789880962e+02  5.808077724421962e+00	...
             3.036555281554731e+01 0 0 0 0
      ];
-for i_ini = 1 % [1 2]   % choosing desired initial coonditions
+for i_ini = 2 % [1 2]   % choosing desired initial coonditions
                         % 1 is for Hubner; 2 is for Shatalov
  for i_U = 3 % [2 3 4]  % choosing desired U dissociation parameter model
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr = 1 % [1 2]% choosing vibrational energy exchange model
+  for i_vibr = 2 % [1 2]% choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO
     
    T0      = init_c(i_ini, 2);         % K
