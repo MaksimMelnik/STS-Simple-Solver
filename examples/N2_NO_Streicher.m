@@ -17,7 +17,6 @@ O2.num_elex_levels=1;
 N2.num_elex_levels=1;
 %O2.num_vibr_levels=1;
 %N2.num_vibr_levels=1;
-
 % initial conditions
 init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
     0.02 1.52 1768 296 636    % 2% NO; 98% N2
@@ -36,7 +35,7 @@ init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
 for i_ini=1:12
 for i_U=2:4 %choosing desired U dissociation parameter model
 %2 is for D/6k; 3 is for 3T; 4 is for inf
-for i_vibr=2% choosing desired vibrational energy exchange model
+for i_vibr=1:2 % choosing desired vibrational energy exchange model
 %1 for SSH; 2 for FHO
 for rel=2 % 1 -relaxation off; 2 - relaxation on
     f=init_c(i_ini, 1); %molar fraction of NO
@@ -84,12 +83,15 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     case 2
          model_VT='FHO';
     end
-    Exch=1;
-    Reacs_keys={'VT','VV'}; %chemical relaxation and dissociation between 
+    load('../data/reactions.mat');
+    ReactZel_1 = Reactions("N2 + O -> NO + N");
+    ReactZel_2 = Reactions("O2 + N -> NO + O");
+    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
+    %Reacs_keys={'Diss', 'VT','VV'}; %chemical relaxation and dissociation between 
     %SWs is negligible, only VT and VV processes 
-    %Reacs_keys={'Diss','Exch', 'VT', 'VV'};
-    %reacs_val={Diss, Exch, model_VT, model_VT};
-    reacs_val={model_VT, model_VT};
+     Reacs_keys={'Diss','Exch', 'VT', 'VV'};
+     reacs_val={Diss, Exch, model_VT, model_VT};
+    %reacs_val={Diss, model_VT, model_VT};
     kinetics.Ps=Ps(2:end);
     kinetics.num_Ps=length(kinetics.Ps);
     kinetics.num_eq=num;
@@ -190,12 +192,17 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     end
     
     %% REFL
+    load('../data/reactions.mat');
+    ReactZel_1 = Reactions("N2 + O -> NO + N");
+    ReactZel_2 = Reactions("O2 + N -> NO + O");
+    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
+    
     Reacs_keys={'Diss','Exch', 'VT', 'VV'};
     %taking into account chemical processes
     reacs_val={Diss, Exch,  model_VT, model_VT};
 
-    %Reacs_keys={'Diss', 'VT', 'VV'};
-    %reacs_val={Diss,  model_VT, model_VT};
+%     Reacs_keys={'Diss', 'VT', 'VV'};
+%     reacs_val={Diss,  model_VT, model_VT};
     kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
     if rel==2
     n0=sum(Y(end, 1:end-2),2);   % m-3
@@ -262,7 +269,7 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     n_O2_1 = sum(Y_1(:, kinetics.index{IndexOfMolecules("O2")}), 2);
     n_N2_1 = sum(Y_1(:, kinetics.index{IndexOfMolecules("N2")}),2);
     p_1=(n_NO_1+n_O_1+ + n_N_1 + n_Ar_1 + n_O2_1 + n_N2_1)*k.*T_1 /Torr;
-    PPP(i_ini)=p_1(1)*Torr*1e-5;
+    PPP(i_ini)=p_1(1);%*Torr*1e-5;
     Tv_NO_1 = NO.ev_i{1}(2)./(k*log(Y_1(:, ...
         kinetics.index{IndexOfMolecules("NO")}(1))./...
         Y_1(:,kinetics.index{IndexOfMolecules("NO")}(2))));
@@ -287,6 +294,17 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     Ep0_1=(En0_1+n0*k*T0)/rho0+0.5*v0^2;       % (E0+p0)/rho0+v0^2/2
     disp('Conservation laws check behind RSW')
     check_CL_SW([rhov0_1 rhov2p0_1 Ep0_1], Y_1, kinetics, 0);
+
+%     v0_2=v0_i;
+%     Y_1(:,end-1)=Y_1(:,end-1) - v0_i;
+%     rho0_2=n0buf*(f*NO.mass + (1-f)*Ar.mass);
+%     rhov0_2=rho0_2*v0_2;
+%     rhov2p0_2=rho0_2*v0_2^2 + n0buf*k*T0buf;
+%     En0_2=n0buf*e_i*n/n1buf + k*T0buf*n0buf*f + 1.5*n0buf*k*T0buf + n0buf*f*NO.form_e;
+%     Ep0_2=(En0_2 + n0buf*k*T0buf)/rho0_2 + 0.5*v0_2^2;
+%     disp('Conservation laws check ALL');
+%     check_CL_SW([rhov0_2 rhov2p0_2 Ep0_2], Y_1, kinetics, 0);
+
 
     %This is where the output data is stored. 
     % They contain the evolution of temperatures, number densities,
@@ -318,6 +336,8 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     resSt_1.nN=n_O_1/Na;
     resSt_1.nAr=n_Ar_1/Na;
     dat1(i_vibr,i_U,i_ini,rel)=resSt_1;
+
+
 end
 end
 end
@@ -326,8 +346,8 @@ end
 
 %%
 %if you want to save your data in .mat file, uncomment following raws
-save(['NO_N2_betweenSWs_withexch_VDOP1_PARK.mat'], 'dat');
-save(['NO_N2_behindRSW_withexch_VDOP1_PARK.mat'], 'dat1');
+save(['NO_N2_betweenSWs_withexch_Arrhenius.mat'], 'dat');
+save(['NO_N2_behindRSW_withexch_Arrhenius.mat'], 'dat1');
 rmpath('../src/')
 rmpath('../data/')
 toc       

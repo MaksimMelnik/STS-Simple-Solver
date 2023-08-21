@@ -122,6 +122,7 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
    end
    R_diss_data(iP1) = R_diss_data(iP1) - sum(R_diss_data(i1));
    R_diss_data(iP2) = R_diss_data(iP2) - sum(R_diss_data(i1));
+
   end
 
 %   if isKey(kinetics.reactions, 'Exch') %exchange reactions
@@ -240,12 +241,19 @@ if isKey(kinetics.reactions, 'Exch') % exchange reactions universal attempt
   [R_exch_temp, Q_exch] = R_exch_2(kinetics.Ps{IOM_M1}, ...
         kinetics.Ps{IOM_M2}, kinetics.Ps{IOM_M3}, kinetics.Ps{IOM_M4}, ...
                      y(indM1), y(indM2), y(indM3), y(indM4), T, reaction);
-  R_exch_data(indM1) = R_exch_data(indM1) + sum(R_exch_temp, 2);
-  R_exch_data(indM3) = R_exch_data(indM3) - sum(R_exch_temp, 1)';  
+
+  if reaction.source=="Kunova, NO(1)"
+    R_exch_data(indM3(1)) = R_exch_data(indM3(1)) - sum(R_exch_temp, 1)';
+     R_exch_data(indM1(1)) = R_exch_data(indM1(1)) + sum(R_exch_temp, 2);
+  else
+    R_exch_data(indM3) = R_exch_data(indM3) - sum(R_exch_temp, 1)';  
+     R_exch_data(indM1) = R_exch_data(indM1) + sum(R_exch_temp, 2);
+  end
   R_exch_data(indM2) = R_exch_data(indM2) + sum(R_exch_temp, 'all');
   R_exch_data(indM4) = R_exch_data(indM4) - sum(R_exch_temp, 'all');
   Qin = Qin + Q_exch;
- end   
+ end 
+   REXCH=[REXCH R_exch_data(indM3)];
 end
 
 R = R_VT_data + R_VV_data + R_diss_data + R_VE_data + ... 

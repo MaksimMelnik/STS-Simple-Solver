@@ -27,12 +27,12 @@ init_c=[ %  f;  p0,     Torr;   v0, m/s;    T0, K;   v0_1
         1 0.07 2510 296 870     % pure O2
         1 0.05 2760 296 950     % pure O2
         ];
-for i_ini=9 % [1 2 3 4 5 6 7 8 9] % choosing desired initial coonditions
-for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
+for i_ini=1:9 % [1 2 3 4 5 6 7 8 9] % choosing desired initial coonditions
+for i_U=2 % [2 3 4]    % choosing desired U dissociation parameter model
 % 2 is for D/6k; 3 is for 3T; 4 is for inf
 for i_vibr=1 % [1 2]  % choosing vibrational energy exchange model
 % 1 is for SSH; 2 is for FHO
-for rel=2     % if relaxation between incident and reflected waves 
+for rel=1     % if relaxation between incident and reflected waves 
 % frozen? 1 -relaxation off; 2 - relaxation on
     f=init_c(i_ini, 1); %molar fraction of O2
     p0=init_c(i_ini, 2)*Torr; %initial pressure in shock tube
@@ -241,6 +241,8 @@ for rel=2     % if relaxation between incident and reflected waves
     else
         p_1=(n_m_1 + n_a_1)*k.*T_1/Torr;
     end
+    PPP(i_ini)=p_1(1);
+    TTT(i_ini)=T_1(1);
     Tv_1 = O2.ev_i{1}(2)./(k*log(Y_1(:,1)./Y_1(:,2)));
     time_ms_1=X_1./v0_r*1e6;
     if f~=1

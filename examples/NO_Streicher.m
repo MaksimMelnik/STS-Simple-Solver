@@ -35,7 +35,7 @@ init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
 for i_ini=1:11
 for i_U=2:4 %choosing desired U dissociation parameter model
 %2 is for D/6k; 3 is for 3T; 4 is for inf
-for i_vibr=2% choosing desired vibrational energy exchange model
+for i_vibr=1:2% choosing desired vibrational energy exchange model
 %1 for SSH; 2 for FHO
 for rel=2 % 1 -relaxation off; 2 - relaxation on
     f=init_c(i_ini, 1); %molar fraction of NO
@@ -54,7 +54,7 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
 
     rho0=n0*((1-f)*Ar.mass + f*NO.mass);
     [n1, v1, T1]=in_con_SW(n0, v0, T0, rho0 ,f);
-
+    n1buf=n1;
     sigma0 = pi*NO.diameter^2;
     Delta = 1 / sqrt(2) / n0 / sigma0; %free path length
     num=0;
@@ -83,12 +83,18 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     case 2
          model_VT='FHO';
     end
-    Exch=1;
-    Reacs_keys={'VT','VV'}; %chemical relaxation and dissociation between 
+    load('../data/reactions.mat');
+    ReactZel_1 = Reactions("N2 + O -> NO + N");
+    ReactZel_2 = Reactions("O2 + N -> NO + O");
+    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
+    %Reacs_keys={'VT','VV'}; %chemical relaxation and dissociation between 
     %SWs is negligible, only VT and VV processes 
     %Reacs_keys={'Diss', 'VT', 'VV'};
-    reacs_val={model_VT, model_VT};
+    %reacs_val={model_VT, model_VT};
     %reacs_val={Diss,  model_VT, model_VT};
+
+    Reacs_keys={'Diss','Exch', 'VT', 'VV'};
+    reacs_val={Diss, Exch, model_VT, model_VT};
     kinetics.Ps=Ps(2:end);
     kinetics.num_Ps=length(kinetics.Ps);
     kinetics.num_eq=num;
@@ -170,9 +176,9 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     load('../data/reactions.mat');
     ReactZel_1 = Reactions("N2 + O -> NO + N");
     ReactZel_2 = Reactions("O2 + N -> NO + O");
-    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
-        % only the ground vibrational state of NO
     Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
+        % only the ground vibrational state of NO
+    %Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
         % test
 %     Exch = [ReactZel_1("Guerra95"), ReactZel_2("Kunova")];
     Reacs_keys={'Diss','Exch', 'VT', 'VV'};
@@ -261,6 +267,16 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     disp('Conservation laws check behind RSW')
     check_CL_SW([rhov0_1 rhov2p0_1 Ep0_1], Y_1, kinetics, 0);
 
+    v0_2=v0_i;
+    Y_1(:,end-1)=Y_1(:,end-1) - v0_i;
+    rho0_2=n0buf*(f*NO.mass + (1-f)*Ar.mass);
+    rhov0_2=rho0_2*v0_2;
+    rhov2p0_2=rho0_2*v0_2^2 + n0buf*k*T0buf;
+    En0_2=n0buf*e_i*n/n1buf + k*T0buf*n0buf*f + 1.5*n0buf*k*T0buf + n0buf*f*NO.form_e;
+    Ep0_2=(En0_2 + n0buf*k*T0buf)/rho0_2 + 0.5*v0_2^2;
+    disp('Conservation laws check ALL');
+    check_CL_SW([rhov0_2 rhov2p0_2 Ep0_2], Y_1, kinetics, 0);
+
     %This is where the output data is stored. 
     % They contain the evolution of temperatures, number densities,
     % and pressure between the SWs and behind the reflected SW
@@ -299,8 +315,8 @@ end
 
 %%
 %if you want to save your data in .mat file, uncomment following raws
-save(['NO_between_SWs_withexch_VDOP1_PARK.mat'], 'dat');
-save(['NO_behind_ReflSW_withexch_VDOP1_PARK.mat'], 'dat1');
+save(['NO_between_SWs_withexch_VDOP0.mat'], 'dat');
+save(['NO_behind_ReflSW_withexch_VDOP0.mat'], 'dat1');
 rmpath('../src/')
 rmpath('../data/')
 toc                

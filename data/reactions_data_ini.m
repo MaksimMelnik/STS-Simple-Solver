@@ -63,6 +63,7 @@ react1.E = 37484 * k;   % J
 react2 = react1;
 react2.source = 'Kunova, NO(1)';
  % only ground NO state included
+react2.type='Arrhenius';
 react2.index = {1:N2.num_vibr_levels(1), 1, 1, 1};
    % from works by V. Guerra [1]
 react3 = react1;
@@ -96,6 +97,7 @@ react1.E = 1449 * k;   % J
    % from works by O. Kunova, but only the ground vibrational state of NO
 react2 = react1;
 react2.source = 'Kunova, NO(1)';
+react2.type='Arrhenius';
  % only ground NO state included
 react2.index = {1:O2.num_vibr_levels(1), 1, 1, 1};
 keySet = {react1.source, react2.source};%, react3.source};
