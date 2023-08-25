@@ -21,6 +21,10 @@ dat=data_betweenSWs_withexch_VDOP1;
 %dat1=data_behindRSW_withoutexch;
 %dat=data_betweenSWs_withoutexch;
 
+
+%dat1=data_behindRSW_withexch_Arrhenius; 
+%dat=data_betweenSWs_withexch_Arrhenius;
+
 for var=12
 %testcases     
 %var: %1 - 2-02 T=3560 P=0.561;  2 - 2-14 T=5460 P=0.325; 3 - 2-32 T=7070
@@ -141,24 +145,24 @@ nexttile
 set(gca, 'FontName', 'Palatino Linotype');
 hold on
 p1=plot(time_n_exp, n_exp, 'k-', 'LineWidth', 2, 'DisplayName', "{\it n}_{NO} - experiment");
-g1=spline(data_behindRSW_withexch_VDOP1(i_vibr,2,var,rel).time, data_behindRSW_withexch_VDOP1(i_vibr,2,var,rel).nNO*1e3, data_behindRSW_withexch_VDOP0(i_vibr,2,var,rel).time);
-g2=spline(data_behindRSW_withexch_VDOP1(i_vibr,3,var,rel).time, data_behindRSW_withexch_VDOP1(i_vibr,3,var,rel).nNO*1e3, data_behindRSW_withexch_VDOP0(i_vibr,3,var,rel).time);
-g3=spline(data_behindRSW_withexch_VDOP1(i_vibr,4,var,rel).time, data_behindRSW_withexch_VDOP1(i_vibr,4,var,rel).nNO*1e3, data_behindRSW_withexch_VDOP0(i_vibr,4,var,rel).time);
+g1=spline(data_behindRSW_withexch_VDOP1(i_vibr,2,var,rel).time, data_behindRSW_withexch_VDOP1(i_vibr,2,var,rel).nNO*1e3, data_behindRSW_withexch_Arrhenius(i_vibr,2,var,rel).time);
+g2=spline(data_behindRSW_withexch_VDOP1(i_vibr,3,var,rel).time, data_behindRSW_withexch_VDOP1(i_vibr,3,var,rel).nNO*1e3, data_behindRSW_withexch_Arrhenius(i_vibr,3,var,rel).time);
+g3=spline(data_behindRSW_withexch_VDOP1(i_vibr,4,var,rel).time, data_behindRSW_withexch_VDOP1(i_vibr,4,var,rel).nNO*1e3, data_behindRSW_withexch_Arrhenius(i_vibr,4,var,rel).time);
 
-p2=plot(data_behindRSW_withexch_VDOP0(i_vibr,2,var,rel).time, g1,'r-', 'LineWidth', 1.5, 'DisplayName', "{\it n}_{NO} -\it U=D/6k\rm all vibr. lvl." );
-p3=plot(data_behindRSW_withexch_VDOP0(i_vibr,3,var,rel).time, g2,'b-', 'LineWidth', 1.5, 'DisplayName', "{\it n}_{NO} -\it U=3T\rm all vibr. lvl." );
-p4=plot(data_behindRSW_withexch_VDOP0(i_vibr,4,var,rel).time, g3, 'm-','LineWidth', 1.5, 'DisplayName', "{\it n}_{NO} -\it U=\infty\rm all vibr. lvl." );
-otkl1=max(abs(g1-data_behindRSW_withexch_VDOP0(i_vibr,2,var,rel).nNO*1e3)./g1)
-otkl2=max(abs(g2-data_behindRSW_withexch_VDOP0(i_vibr,3,var,rel).nNO*1e3)./g2)
-otkl3=max(abs(g3-data_behindRSW_withexch_VDOP0(i_vibr,4,var,rel).nNO*1e3)./g3)
+p2=plot(data_behindRSW_withexch_Arrhenius(i_vibr,2,var,rel).time, g1,'r-', 'LineWidth', 1.5, 'DisplayName', "{\it n}_{NO} -\it U=D/6k\rm all vibr. lvl." );
+p3=plot(data_behindRSW_withexch_Arrhenius(i_vibr,3,var,rel).time, g2,'b-', 'LineWidth', 1.5, 'DisplayName', "{\it n}_{NO} -\it U=3T\rm all vibr. lvl." );
+p4=plot(data_behindRSW_withexch_Arrhenius(i_vibr,4,var,rel).time, g3, 'm-','LineWidth', 1.5, 'DisplayName', "{\it n}_{NO} -\it U=\infty\rm all vibr. lvl." );
+otkl1=max(abs(g1-data_behindRSW_withexch_Arrhenius(i_vibr,2,var,rel).nNO*1e3)./g1)
+otkl2=max(abs(g2-data_behindRSW_withexch_Arrhenius(i_vibr,3,var,rel).nNO*1e3)./g2)
+otkl3=max(abs(g3-data_behindRSW_withexch_Arrhenius(i_vibr,4,var,rel).nNO*1e3)./g3)
 
-otkl4=mean(abs(g1-data_behindRSW_withexch_VDOP0(i_vibr,2,var,rel).nNO*1e3)./g1)
-otkl5=mean(abs(g2-data_behindRSW_withexch_VDOP0(i_vibr,3,var,rel).nNO*1e3)./g2)
-otkl6=mean(abs(g3-data_behindRSW_withexch_VDOP0(i_vibr,4,var,rel).nNO*1e3)./g3)
+otkl4=mean(abs(g1-data_behindRSW_withexch_Arrhenius(i_vibr,2,var,rel).nNO*1e3)./g1)
+otkl5=mean(abs(g2-data_behindRSW_withexch_Arrhenius(i_vibr,3,var,rel).nNO*1e3)./g2)
+otkl6=mean(abs(g3-data_behindRSW_withexch_Arrhenius(i_vibr,4,var,rel).nNO*1e3)./g3)
 
-p5=plot(data_behindRSW_withexch_VDOP0(i_vibr,2,var,rel).time, data_behindRSW_withexch_VDOP0(i_vibr,2,var,rel).nNO*1e3,'r--', 'LineWidth', 1.5, 'DisplayName', "{\it n}_{NO} -\it U=D/6k \rm ground vibr. lvl." );
-p6=plot(data_behindRSW_withexch_VDOP0(i_vibr,3,var,rel).time, data_behindRSW_withexch_VDOP0(i_vibr,3,var,rel).nNO*1e3,'b--', 'LineWidth', 1.5, 'DisplayName', "{\it n}_{NO} -\it U=3T\rm ground vibr. lvl." );
-p7=plot(data_behindRSW_withexch_VDOP0(i_vibr,4,var,rel).time, data_behindRSW_withexch_VDOP0(i_vibr,4,var,rel).nNO*1e3, 'm--','LineWidth', 1.5, 'DisplayName', "{\it n}_{NO} -\it U=\infty\rm ground vibr. lvl." );
+p5=plot(data_behindRSW_withexch_Arrhenius(i_vibr,2,var,rel).time, data_behindRSW_withexch_Arrhenius(i_vibr,2,var,rel).nNO*1e3,'r--', 'LineWidth', 1.5, 'DisplayName', "{\it n}_{NO} -\it U=D/6k \rm Arrhenius" );
+p6=plot(data_behindRSW_withexch_Arrhenius(i_vibr,3,var,rel).time, data_behindRSW_withexch_Arrhenius(i_vibr,3,var,rel).nNO*1e3,'b--', 'LineWidth', 1.5, 'DisplayName', "{\it n}_{NO} -\it U=3T\rm Arrhenius" );
+p7=plot(data_behindRSW_withexch_Arrhenius(i_vibr,4,var,rel).time, data_behindRSW_withexch_Arrhenius(i_vibr,4,var,rel).nNO*1e3, 'm--','LineWidth', 1.5, 'DisplayName', "{\it n}_{NO} -\it U=\infty\rm Arrhenius" );
 
 errorbar(time_n_err, n_err, err_n, 'sqk', 'MarkerFaceColor', 'k','MarkerSize',1, 'LineWidth', 1);
 xlim([-10 tlim_n]);
@@ -239,13 +243,13 @@ set(gca, 'FontName', 'Palatino Linotype');
 hold on;
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(1, :) ,'-','color',[0 0.6 0],'LineWidth',2.0, "DisplayName","Without exch. react.");
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(1, :) , 'm-','LineWidth',2.0, "DisplayName","With exch. react. and vibr. activation of react. prod. (NO)");
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(1, :) , '-','color',[0.9 0 0], 'LineWidth',2.0, "DisplayName","With exch. react. and only ground vibr. state of react. prod. (NO)");
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_Arrhenius(i_vibr, i_U, var, rel).ni_NO(1, :) , '-','color',[0 0 0.9], 'LineWidth',2.0, "DisplayName","With exch. react. Arrhenius");
+%semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(1, :) , '-','color',[0.9 0 0], 'LineWidth',2.0, "DisplayName","With exch. react. and only ground vibr. state of react. prod. (NO)");
+semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_Arrhenius(i_vibr, i_U, var, rel).ni_NO(1, :) , '-','color',[0 0 0.9], 'LineWidth',2.0, "DisplayName","With exch. react. modified Arrhenius");
 xlabel('NO vibr. level, \it i');
 ylabel('\it n_{\rm NO\iti}, \rm m^{-3}');
 lgd=legend('Location','south');
 xlim([0 NO.num_vibr_levels(1)-1]);
-ylim([1e0 1e20]);
+%ylim([1e0 1e20]);
 text(3,1e5,"{\it t}=0 \mus," + "  {\it T}_v^{NO}(t)="+num2str(round(dat1(i_vibr, i_U, var, rel).TvNO(1)))+" K", 'FontSize',12, 'FontName', 'Palatino Linotype');
 hold off
 box off
@@ -259,7 +263,7 @@ set(gca, 'FontName', 'Palatino Linotype');
 hold on;
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j1, :) ,'-','color',[0 0.6 0],'LineWidth',2.0);
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j1, :) , 'm-','LineWidth',2.0);
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j1, :) , '-','color',[0.9 0 0], 'LineWidth',2.0);
+%semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j1, :) , '-','color',[0.9 0 0], 'LineWidth',2.0);
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_Arrhenius(i_vibr, i_U, var, rel).ni_NO(j1, :) , '-','color',[0 0 0.9], 'LineWidth',2.0);
 xlabel('NO vibr. level, \it i');
 ylabel('\it n_{\rm NO\iti}, \rm m^{-3}');
@@ -278,7 +282,7 @@ set(gca, 'FontName', 'Palatino Linotype');
 hold on;
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j2, :) ,'-','color',[0 0.6 0],'LineWidth',2.0);
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j2, :) , 'm-','LineWidth',2.0);
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j2, :) , '-','color',[0.9 0 0], 'LineWidth',2.0);
+%semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j2, :) , '-','color',[0.9 0 0], 'LineWidth',2.0);
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_Arrhenius(i_vibr, i_U, var, rel).ni_NO(j2, :) , '-','color',[0 0 0.9], 'LineWidth',2.0);
 xlabel('NO vibr. level, \it i');
 ylabel('\it n_{\rm NO\iti}, \rm m^{-3}');
@@ -297,7 +301,7 @@ set(gca, 'FontName', 'Palatino Linotype');
 hold on;
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j3, :) ,'-','color',[0 0.6 0],'LineWidth',2.0);
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j3, :) , 'm-','LineWidth',2.0);
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j3, :) , '-','color',[0.9 0 0], 'LineWidth',2.0);
+%semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j3, :) , '-','color',[0.9 0 0], 'LineWidth',2.0);
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_Arrhenius(i_vibr, i_U, var, rel).ni_NO(j3, :) , '-','color',[0 0 0.9], 'LineWidth',2.0);
 xlabel('NO vibr. level,\it i', 'FontName','Palatino Linotype');
 ylabel('\it n_{\rm NO\iti}, \rm m^{-3}');

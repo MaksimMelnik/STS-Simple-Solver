@@ -20,9 +20,15 @@ switch reaction.type
  case "const"
   kf = zeros(M1.num_vibr_levels(1), M3.num_vibr_levels(1));
   kb = kf;
-  kf(reaction.index{1}, reaction.index{3}) = ...
-      kf(reaction.index{1}, reaction.index{3}) + reaction.A;
+  kf_eq = reaction.A(T) * T^reaction.n(T)*exp(-reaction.E / k/T ); % m^3/sec
+%   kf(reaction.index{1}, reaction.index{3}) = ...
+%       kf(reaction.index{1}, reaction.index{3}) + reaction.A;
+    kf = ...
+      kf + kf_eq;
   dE = (M1.diss_e(1) - M3.diss_e(1));
+  dE = (repmat(M3.ev_i{1} + M3.ev_0(1), M1.num_vibr_levels(1), 1) ...
+- repmat((M1.ev_i{1} + M1.ev_0(1))', 1, M3.num_vibr_levels(1))) + ...
+                                        (M1.diss_e(1) - M3.diss_e(1));
   if reaction.reverse
    Theta_r_M1 = M1.Be(1) * h * c / k;
    Z_rot_M1 = T ./ (M1.sigma .* Theta_r_M1);
@@ -34,10 +40,11 @@ switch reaction.type
     % rate coefficient of backward (b) reaction
    kb = kf .* Kfb;
   end
+
   R_exch_data = n_M3' * n_M4 .* kb  -  n_M1 * n_M2 .* kf;
   dE_Q = dE + M3.ev_0(1) + M3.ev_i{1} - M1.ev_0(1) + M1.ev_i{1}';
   Q = sum(- R_exch_data .* dE_Q, 'all');
-  warning('recheck the energy in Q')
+  %warning('recheck the energy in Q')
  case "ATn"
         error("Exchange reactions of this type are still not " + ...
             "implemented " + reaction.type)
@@ -148,9 +155,9 @@ kf_eq = coll.ArrA * T^coll.ArrN*exp(-coll.ArrE/T ); % m^3/sec
 
 %rate of forward (f) reaction
 kf = kf_eq;
+
 %ratio of rate of backward reaction to rate of forward reaction
-dE = (repmat(M3.ev_0(1), 1, 1) ...
-    - repmat((M1.ev_0(1))', 1, 1)) + (M1.diss_e(1) - M3.diss_e(1));
+dE = (M1.diss_e(1) - M3.diss_e(1));
 Kfb = (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 * ...
  exp( dE / (V_K*T));
 Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) * Kfb;
@@ -159,6 +166,5 @@ Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) * Kfb;
 %rate of backward (b) reaction
 kb = kf .* Kfb;
 RExch1 = sum(n_M3)' * n_M4 .* kb  -  sum(n_M1) * n_M2 .* kf;
-
 Q = sum(- RExch1 .* dE, 'all');
 end

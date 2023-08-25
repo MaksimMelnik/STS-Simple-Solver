@@ -7,6 +7,7 @@ clearvars;
 k=1.380649e-23;  % Boltzmann constant, J/K
 Torr=133.322368;
 Na=6.02214076e23;
+
 addpath('../src/')
 addpath('../data/')
 load('particles.mat', "NO", "N", "O", "Ar", "O2", "N2");
@@ -32,10 +33,10 @@ init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
     0.004 4.63 1470 296 633   % 0.4% NO; 49.8% N2; 49.8% Ar
     0.004 1.18 1959 296 817   % 0.4% NO; 49.8% N2; 49.8% Ar
     ];
-for i_ini=1:12
+for i_ini=[9 12]
 for i_U=2:4 %choosing desired U dissociation parameter model
 %2 is for D/6k; 3 is for 3T; 4 is for inf
-for i_vibr=1:2 % choosing desired vibrational energy exchange model
+for i_vibr=2 % choosing desired vibrational energy exchange model
 %1 for SSH; 2 for FHO
 for rel=2 % 1 -relaxation off; 2 - relaxation on
     f=init_c(i_ini, 1); %molar fraction of NO
@@ -87,11 +88,11 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     ReactZel_1 = Reactions("N2 + O -> NO + N");
     ReactZel_2 = Reactions("O2 + N -> NO + O");
     Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
-    %Reacs_keys={'Diss', 'VT','VV'}; %chemical relaxation and dissociation between 
+    Reacs_keys={'Diss', 'VT','VV'}; %chemical relaxation and dissociation between 
     %SWs is negligible, only VT and VV processes 
-     Reacs_keys={'Diss','Exch', 'VT', 'VV'};
-     reacs_val={Diss, Exch, model_VT, model_VT};
-    %reacs_val={Diss, model_VT, model_VT};
+    %Reacs_keys={'Diss','Exch', 'VT', 'VV'};
+    %reacs_val={Diss, Exch,  model_VT, model_VT};
+    reacs_val={Diss, model_VT, model_VT};
     kinetics.Ps=Ps(2:end);
     kinetics.num_Ps=length(kinetics.Ps);
     kinetics.num_eq=num;
@@ -192,17 +193,15 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     end
     
     %% REFL
-    load('../data/reactions.mat');
-    ReactZel_1 = Reactions("N2 + O -> NO + N");
-    ReactZel_2 = Reactions("O2 + N -> NO + O");
     Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
-    
+%     
     Reacs_keys={'Diss','Exch', 'VT', 'VV'};
     %taking into account chemical processes
-    reacs_val={Diss, Exch,  model_VT, model_VT};
+    reacs_val={Diss, Exch, model_VT, model_VT};
 
-%     Reacs_keys={'Diss', 'VT', 'VV'};
-%     reacs_val={Diss,  model_VT, model_VT};
+     %Reacs_keys={'Diss', 'VT', 'VV'};
+    %reacs_val={Diss,  model_VT, model_VT};
+
     kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
     if rel==2
     n0=sum(Y(end, 1:end-2),2);   % m-3
@@ -346,8 +345,8 @@ end
 
 %%
 %if you want to save your data in .mat file, uncomment following raws
-save(['NO_N2_betweenSWs_withexch_Arrhenius.mat'], 'dat');
-save(['NO_N2_behindRSW_withexch_Arrhenius.mat'], 'dat1');
+%save(['NO_N2_betweenSWs_withexch_Arrhenius.mat'], 'dat');
+%save(['NO_N2_behindRSW_withexch_Arrhenius.mat'], 'dat1');
 rmpath('../src/')
 rmpath('../data/')
 toc       
