@@ -33,8 +33,8 @@ init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
     0.004 4.63 1470 296 633   % 0.4% NO; 49.8% N2; 49.8% Ar
     0.004 1.18 1959 296 817   % 0.4% NO; 49.8% N2; 49.8% Ar
     ];
-for i_ini=[9 12]
-for i_U=2:4 %choosing desired U dissociation parameter model
+for i_ini=9
+for i_U=2 %choosing desired U dissociation parameter model
 %2 is for D/6k; 3 is for 3T; 4 is for inf
 for i_vibr=2 % choosing desired vibrational energy exchange model
 %1 for SSH; 2 for FHO
@@ -194,6 +194,10 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     
     %% REFL
     Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
+    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
+    % testing average for NO lvls to move all R to the ground state
+    Exch(1).source = "Kunova, NO avg";
+    Exch(2).source = "Kunova, NO avg";
 %     
     Reacs_keys={'Diss','Exch', 'VT', 'VV'};
     %taking into account chemical processes

@@ -240,7 +240,8 @@ if isKey(kinetics.reactions, 'Exch') % exchange reactions universal attempt
   [R_exch_temp, Q_exch] = R_exch_2(kinetics.Ps{IOM_M1}, ...
         kinetics.Ps{IOM_M2}, kinetics.Ps{IOM_M3}, kinetics.Ps{IOM_M4}, ...
                      y(indM1), y(indM2), y(indM3), y(indM4), T, reaction);
-if exch_reactions(ind_exch).source=="Kunova, NO(1)"
+switch exch_reactions(ind_exch).source
+ case "Kunova, NO(1)"
     %R_exch_temp_NO=density_f_exc(T, R_exch_temp, kinetics.Ps{IOM_M3});
     %R_exch_temp_N2O2=density_f_exc(T, R_exch_temp, kinetics.Ps{IOM_M1});
     R_exch_temp_NO=R_exch_temp* y(indM3)./sum(y(indM3));
@@ -249,7 +250,12 @@ if exch_reactions(ind_exch).source=="Kunova, NO(1)"
      R_exch_data(indM1) = R_exch_data(indM1) + R_exch_temp_N2O2;
       R_exch_data(indM2) = R_exch_data(indM2) + sum(R_exch_temp_NO);
   R_exch_data(indM4) = R_exch_data(indM4) - sum(R_exch_temp_N2O2);
-else
+ case "Kunova, NO avg"
+    R_exch_data(indM3(1)) = R_exch_data(indM3(1)) - sum(R_exch_temp, 'all')';  
+     R_exch_data(indM1) = R_exch_data(indM1) + sum(R_exch_temp, 2);
+       R_exch_data(indM2) = R_exch_data(indM2) + sum(R_exch_temp, 'all');
+  R_exch_data(indM4) = R_exch_data(indM4) - sum(R_exch_temp, 'all');
+ otherwise
         R_exch_data(indM3) = R_exch_data(indM3) - sum(R_exch_temp, 1)';  
      R_exch_data(indM1) = R_exch_data(indM1) + sum(R_exch_temp, 2);
        R_exch_data(indM2) = R_exch_data(indM2) + sum(R_exch_temp, 'all');

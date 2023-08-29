@@ -25,7 +25,7 @@ dat=data_betweenSWs_withexch_VDOP1;
 %dat1=data_behindRSW_withexch_Arrhenius; 
 %dat=data_betweenSWs_withexch_Arrhenius;
 
-for var=12
+for var=9
 %testcases     
 %var: %1 - 2-02 T=3560 P=0.561;  2 - 2-14 T=5460 P=0.325; 3 - 2-32 T=7070
 %P=0.119; 4 - 2-38 T=8730 P=0.137
@@ -232,6 +232,7 @@ i_U=2;
 [~,j3]=min(abs(dat1(i_vibr, i_U, var, rel).time - tlim_n));
 
 figure("Position", [200, 0, 900, 800])
+ylim_low=1e6;
 set(gca, 'FontName', 'Palatino Linotype');
 t=tiledlayout(2, 2, "TileSpacing", "compact");
 %title(t, "Case " + info(var) + ". T^0=" + num2str(round(max((T_exp)))) + " K", 'FontName', 'Palatino Linotype');
@@ -244,13 +245,14 @@ hold on;
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(1, :) ,'-','color',[0 0.6 0],'LineWidth',2.0, "DisplayName","Without exch. react.");
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(1, :) , 'm-','LineWidth',2.0, "DisplayName","With exch. react. and vibr. activation of react. prod. (NO)");
 %semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(1, :) , '-','color',[0.9 0 0], 'LineWidth',2.0, "DisplayName","With exch. react. and only ground vibr. state of react. prod. (NO)");
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_Arrhenius(i_vibr, i_U, var, rel).ni_NO(1, :) , '-','color',[0 0 0.9], 'LineWidth',2.0, "DisplayName","With exch. react. modified Arrhenius");
-xlabel('NO vibr. level, \it i');
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_Arrhenius(i_vibr, i_U, var, rel).ni_NO(1, :) , '-','color',[0 0 0.9], 'LineWidth',2.0, "DisplayName","With exch. react. modified Arrhenius");
+semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_avg(i_vibr, i_U, var, rel).ni_NO(1, :) , '-','color',[0 0 0.9], 'LineWidth',2.0, "DisplayName","With exch. react. averaged");
+xlabel('NO vibr. level,\it i');
 ylabel('\it n_{\rm NO\iti}, \rm m^{-3}');
 lgd=legend('Location','south');
 xlim([0 NO.num_vibr_levels(1)-1]);
-%ylim([1e0 1e20]);
-text(3,1e5,"{\it t}=0 \mus," + "  {\it T}_v^{NO}(t)="+num2str(round(dat1(i_vibr, i_U, var, rel).TvNO(1)))+" K", 'FontSize',12, 'FontName', 'Palatino Linotype');
+ylim([ylim_low 1e21])
+text(3,ylim_low*1e3,"{\it t} = 0 \mus," + " {\it T}_v^{NO}(t) = "+num2str(round(dat1(i_vibr, i_U, var, rel).TvNO(1)))+" K", 'FontSize',12, 'FontName', 'Palatino Linotype');
 hold off
 box off
 grid minor
@@ -264,12 +266,14 @@ hold on;
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j1, :) ,'-','color',[0 0.6 0],'LineWidth',2.0);
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j1, :) , 'm-','LineWidth',2.0);
 %semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j1, :) , '-','color',[0.9 0 0], 'LineWidth',2.0);
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_Arrhenius(i_vibr, i_U, var, rel).ni_NO(j1, :) , '-','color',[0 0 0.9], 'LineWidth',2.0);
-xlabel('NO vibr. level, \it i');
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_Arrhenius(i_vibr, i_U, var, rel).ni_NO(j1, :) , '-','color',[0 0 0.9], 'LineWidth',2.0);
+semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_avg(i_vibr, i_U, var, rel).ni_NO(j1, :) , '-','color',[0 0 0.9], 'LineWidth',2.0);
+xlabel('NO vibr. level,\it i');
 ylabel('\it n_{\rm NO\iti}, \rm m^{-3}');
 %legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
 xlim([0 NO.num_vibr_levels(1)-1]);
-text(3,1e12,"{\it t}="+num2str(round(tlim_n/3))+" \mus,"  + "  {\it T}_v^{NO}(t)="+num2str(round(dat1(i_vibr, i_U, var, rel).TvNO(j1)))+" K", 'FontSize',12, 'FontName', 'Palatino Linotype')
+ylim([ylim_low 1e21])
+text(3,ylim_low*1e3,"{\it t} = "+num2str(round(tlim_n/3))+" \mus,"  + " {\it T}_v^{NO}(t) = "+num2str(round(dat1(i_vibr, i_U, var, rel).TvNO(j1)))+" K", 'FontSize',12, 'FontName', 'Palatino Linotype')
 hold off
 box off
 grid minor
@@ -283,12 +287,14 @@ hold on;
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j2, :) ,'-','color',[0 0.6 0],'LineWidth',2.0);
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j2, :) , 'm-','LineWidth',2.0);
 %semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j2, :) , '-','color',[0.9 0 0], 'LineWidth',2.0);
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_Arrhenius(i_vibr, i_U, var, rel).ni_NO(j2, :) , '-','color',[0 0 0.9], 'LineWidth',2.0);
-xlabel('NO vibr. level, \it i');
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_Arrhenius(i_vibr, i_U, var, rel).ni_NO(j2, :) , '-','color',[0 0 0.9], 'LineWidth',2.0);
+semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_avg(i_vibr, i_U, var, rel).ni_NO(j2, :) , '-','color',[0 0 0.9], 'LineWidth',2.0);
+xlabel('NO vibr. level,\it i');
 ylabel('\it n_{\rm NO\iti}, \rm m^{-3}');
 %legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
 xlim([0 NO.num_vibr_levels(1)-1]);
-text(3,1e12,"{\it t}="+num2str(round(2*tlim_n/3))+" \mus," + "  {\it T}_v^{NO}(t)="+num2str(round(dat1(i_vibr, i_U, var, rel).TvNO(j2)))+" K", 'FontSize',12, 'FontName', 'Palatino Linotype')
+ylim([ylim_low 1e21])
+text(3,ylim_low*1e3,"{\it t} = "+num2str(round(2*tlim_n/3))+" \mus," + " {\it T}_v^{NO}(t) = "+num2str(round(dat1(i_vibr, i_U, var, rel).TvNO(j2)))+" K", 'FontSize',12, 'FontName', 'Palatino Linotype')
 hold off
 box off
 grid minor
@@ -302,12 +308,14 @@ hold on;
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withoutexch(i_vibr, i_U, var, rel).ni_NO(j3, :) ,'-','color',[0 0.6 0],'LineWidth',2.0);
 semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP1(i_vibr, i_U, var, rel).ni_NO(j3, :) , 'm-','LineWidth',2.0);
 %semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_VDOP0(i_vibr, i_U, var, rel).ni_NO(j3, :) , '-','color',[0.9 0 0], 'LineWidth',2.0);
-semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_Arrhenius(i_vibr, i_U, var, rel).ni_NO(j3, :) , '-','color',[0 0 0.9], 'LineWidth',2.0);
+% semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_Arrhenius(i_vibr, i_U, var, rel).ni_NO(j3, :) , '-','color',[0 0 0.9], 'LineWidth',2.0);
+semilogy(0:NO.num_vibr_levels(1)-1, data_behindRSW_withexch_avg(i_vibr, i_U, var, rel).ni_NO(j3, :) , '-','color',[0 0 0.9], 'LineWidth',2.0);
 xlabel('NO vibr. level,\it i', 'FontName','Palatino Linotype');
 ylabel('\it n_{\rm NO\iti}, \rm m^{-3}');
 %legend('Распределение по Больцману','Распределение без обм. р-й','Распределение с обм. р-ми VDOP=1','Распределение с обм. р-ми VDOP=0','Location','south');
 xlim([0 NO.num_vibr_levels(1)-1]);
-text(3, 1e12,"{\it t}="+num2str(round(tlim_n))+" \mus," + "  {\it T}_v^{NO}(t)="+num2str(round(dat1(i_vibr, i_U, var, rel).TvNO(j3)))+" K", 'FontSize',12, 'FontName', 'Palatino Linotype')
+ylim([ylim_low 1e21])
+text(3, ylim_low*1e3,"{\it t} = "+num2str(round(tlim_n))+" \mus," + " {\it T}_v^{NO}(t) = "+num2str(round(dat1(i_vibr, i_U, var, rel).TvNO(j3)))+" K", 'FontSize',12, 'FontName', 'Palatino Linotype')
 hold off
 box off
 grid minor
