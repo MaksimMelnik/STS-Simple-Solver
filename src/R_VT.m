@@ -1,4 +1,4 @@
-function [R, Q] = R_VT(M1, n_m, M2, n_M2, T, ind_e, model)
+function [R, Q] = R_VT(M1, n_m, M2, n_M2, T, ind_e, model, poly_coefs, val_for_normalization)
 % Universal function for calculation of R_VT relaxation terms.
 % R is the vector of relaxation terms R_VT, Q is the VT energy flow.
 % M1 is the first molecule, n_m is the array of M1's number
@@ -15,7 +15,8 @@ k = 1.380649e-23;
 
 switch model
     case 'FHO'
-        k_down = get_k_VT_FHO_FR(T, M1, M2, 'coefs_for_poly_FHO_FR.dat', 55.22595141171274);
+        display('FHO-FR')
+        k_down = get_k_VT_FHO_FR(T, M1, M2, poly_coefs, val_for_normalization);
     case 'SSH'
         k_down = kvt_ssh(T, M1, M2, ind_e, 1);
     case 'Guerra'

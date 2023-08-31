@@ -30,7 +30,7 @@ init_c=[ %  f;  p0,     Torr;   v0, m/s;    T0, K;   v0_1
 for i_ini=9 % [1 2 3 4 5 6 7 8 9] % choosing desired initial coonditions
 for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
 % 2 is for D/6k; 3 is for 3T; 4 is for inf
-for i_vibr=1 % [1 2]  % choosing vibrational energy exchange model
+for i_vibr=2 % [1 2]  % choosing vibrational energy exchange model
 % 1 is for SSH; 2 is for FHO
 for rel=2     % if relaxation between incident and reflected waves 
 % frozen? 1 -relaxation off; 2 - relaxation on

@@ -43,7 +43,7 @@ for i_ini = 1 % [1 2 3 4 5]         % choosing desired initial coonditions
  
  for i_U = 4 % [2 3 4]   % choosing desired U dissociation parameter model
                           %  2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr = 1 % [1 2]  % choosing vibrational energy exchange model
+  for i_vibr = 2 % [1 2]  % choosing vibrational energy exchange model
                           %  1 is for SSH; 2 is for FHO
                           
    Diss.Arrhenius = 'Park';% parameters in dissociation Arrhenius law
