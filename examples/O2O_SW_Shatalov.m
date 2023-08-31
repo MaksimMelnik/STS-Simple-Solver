@@ -43,7 +43,7 @@ for i_ini = 1 % [1 2 3 4 5]         % choosing desired initial coonditions
  
  for i_U = 4 % [2 3 4]   % choosing desired U dissociation parameter model
                           %  2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr = 2 % [1 2]  % choosing vibrational energy exchange model
+  for i_vibr = 2 % [1 2 3]  % choosing vibrational energy exchange model
                           %  1 is for SSH; 2 is for FHO
                           
    Diss.Arrhenius = 'Park';% parameters in dissociation Arrhenius law
@@ -62,9 +62,15 @@ for i_ini = 1 % [1 2 3 4 5]         % choosing desired initial coonditions
 	 model_VT = 'SSH';
 	case 2
 	 model_VT = 'FHO';
+	case 3
+	 model_VT = 'FHO-FR';
    end
    Reacs_keys = {'Diss', 'VT', 'VV'};
-   reacs_val = {Diss, model_VT, model_VT};
+   model_VV = model_VT;
+   if model_VV == "FHO-FR"
+       model_VV = "FHO";
+   end
+   reacs_val = {Diss, model_VT, model_VV};
    kinetics.Ps = Ps;                 % inicialization of kinetics variable
    kinetics.num_Ps = length(kinetics.Ps);
    kinetics.index = index;
@@ -92,8 +98,11 @@ for i_ini = 1 % [1 2 3 4 5]         % choosing desired initial coonditions
    T = Y(:, end);
         % vibrational temperature
    Tv = O2.ev_i{1}(2) ./ (k * log(Y(:,1)./Y(:,2))); 
-   time_ms = X ./ v0 * 1e6;         % time in ms
-   out(i_ini, i_vibr, i_U).res = [X, Y, Tv, time_ms]; % output variable
+   time_mus = X ./ v0 * 1e6;         % time in microseconds
+   out(i_ini, i_vibr, i_U).res = [X, Y, Tv, time_mus]; % output variable
+   out(i_ini, i_vibr, i_U).time_mus = time_mus;
+   out(i_ini, i_vibr, i_U).Tv = Tv;
+   out(i_ini, i_vibr, i_U).T  = T;
 
         % checking conservation laws
    rhov0  =  rho0 * v0;                        % rho0*v0

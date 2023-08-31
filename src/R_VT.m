@@ -17,6 +17,8 @@ k = 1.380649e-23;
 
 switch model
     case 'FHO'
+        k_down = kvt_fho_old(T, M1, M2, ind_e);
+    case 'FHO-FR'
         k_down = get_k_VT_FHO_FR(T, M1, M2, ...
                                  poly_coefs_MM, val_for_normalization_MM, ...
                                  poly_coefs_MA, val_for_normalization_MA);
