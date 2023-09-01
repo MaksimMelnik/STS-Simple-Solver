@@ -97,35 +97,54 @@ for i=j+1:length(data_experiment(var).n0(:,3))-1
 end
    
 
-figure("Position", [0, 0, 900, 800])
-t=tiledlayout(2, 2, "TileSpacing", "compact");
+figure("Position", [0, 0, 900, 400])
+t=tiledlayout(1, 2, "TileSpacing", "compact");
 %title(t, "Case " + info(var) + "; vibr. model: FHO", 'FontName', 'Palatino Linotype');
-nexttile
-hold on
-set(gca, 'FontName', 'Palatino Linotype');
-%title("Case " + info(var));
-p1=plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).T,'r--', 'LineWidth', 1.5, 'DisplayName', "\it T - U=D/6k " );
-p2=plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).T,'b--', 'LineWidth', 1.5, 'DisplayName', "\it T - U=3T " );
-p3=plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).T, 'm--','LineWidth', 1.5, 'DisplayName', "\it T - U=\infty " );
-errorbar(time_T_err, T_err, err_T, 'sqk', 'MarkerFaceColor', 'k','MarkerSize',1, 'LineWidth', 1);
-time_T_err=[0 time_T_err tlim_T];
-ppp=spline(time_T_exp, T_exp, time_T_err);
-p4=plot(time_T_err, ppp, 'k-', 'LineWidth', 2, 'DisplayName', "\it T - \rm experiment ");
+% nexttile
+% hold on
+% set(gca, 'FontName', 'Palatino Linotype');
+% %title("Case " + info(var));
+% p1=plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).T,'r--', 'LineWidth', 1.5, 'DisplayName', "\it T - U=D/6k " );
+% p2=plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).T,'b--', 'LineWidth', 1.5, 'DisplayName', "\it T - U=3T " );
+% p3=plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).T, 'm--','LineWidth', 1.5, 'DisplayName', "\it T - U=\infty " );
+% errorbar(time_T_err, T_err, err_T, 'sqk', 'MarkerFaceColor', 'k','MarkerSize',1, 'LineWidth', 1);
+% time_T_err=[0 time_T_err tlim_T];
+% ppp=spline(time_T_exp, T_exp, time_T_err);
+% p4=plot(time_T_err, ppp, 'k-', 'LineWidth', 2, 'DisplayName', "\it T - \rm experiment ");
+% 
+% legend([p1 p2 p3 p4],'Location','best');
+% xlim([-10 tlim_T]);
+% ylim([min(T_exp)-300 max(T_exp)+300]);
+% xlabel("\it t\rm, \mus");
+% ylabel("\it T\rm, K");
+% hold off
+% grid minor
 
-legend([p1 p2 p3 p4],'Location','best');
-xlim([-10 tlim_T]);
-ylim([min(T_exp)-300 max(T_exp)+300]);
+
+nexttile
+set(gca, 'FontName', 'Palatino Linotype');
+hold on
+%title("Case " + info(var));
+p1=plot(time_n_exp, n_exp, 'k-', 'LineWidth', 2, 'DisplayName', "\it n_{\rm NO} \rm - experiment" );
+p2=plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).nNO*1e3,'r-', 'LineWidth', 1.5, 'DisplayName', "\it n_{\rm NO} - U=D/6k " );
+%p3=plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).nNO*1e3,'b-', 'LineWidth', 1.5, 'DisplayName', "\it n_{\rm NO} - U=3T " );
+%p4=plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).nNO*1e3, 'm-','LineWidth', 1.5, 'DisplayName', "\it n_{\rm NO} - U=\infty " );
+errorbar(time_n_err, n_err, err_n, 'sqk', 'MarkerFaceColor', 'k','MarkerSize',1, 'LineWidth', 1);
+xlim([-10 tlim_n]);
+ylim([0 max(dat1(i_vibr,2,var,rel).nNO*1e3)+4]);
+legend([p1 p2],'Location','best');
 xlabel("\it t\rm, \mus");
-ylabel("\it T\rm, K");
+ylabel("{\it n}_{NO}, mmol/m^3");
 hold off
 grid minor
+
 nexttile
 hold on
 set(gca, 'FontName', 'Palatino Linotype');
 %title("Case " + info(var));
 plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).TvNO,'r-', 'LineWidth', 1.5, 'DisplayName', "{\it T}_v^{NO} - \it U=D/6k " );
-plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).TvNO,'b-', 'LineWidth', 1.5, 'DisplayName', "{\it T}_v^{NO} - \it U=3T " );
-plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).TvNO, 'm-','LineWidth', 1.5, 'DisplayName', "{\it T}_v^{NO} - \it U=\infty " );
+%plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).TvNO,'b-', 'LineWidth', 1.5, 'DisplayName', "{\it T}_v^{NO} - \it U=3T " );
+%plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).TvNO, 'm-','LineWidth', 1.5, 'DisplayName', "{\it T}_v^{NO} - \it U=\infty " );
 plot(time_TvNO_exp, TvNO_exp, 'k-', 'LineWidth', 2, 'DisplayName', "{\it T}_v^{NO} - experiment");
 xlim([-10 tlim_T]);
 %ylim([0 6000]);
@@ -134,23 +153,7 @@ xlabel("\it t\rm, \mus");
 ylabel("{\it T}_v^{NO}, K");
 hold off
 grid minor
-nexttile
-set(gca, 'FontName', 'Palatino Linotype');
-hold on
-%title("Case " + info(var));
-p1=plot(time_n_exp, n_exp, 'k-', 'LineWidth', 2, 'DisplayName', "\it n_{\rm NO} \rm - experiment" );
-p2=plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).nNO*1e3,'r-', 'LineWidth', 1.5, 'DisplayName', "\it n_{\rm NO} - U=D/6k " );
-p3=plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).nNO*1e3,'b-', 'LineWidth', 1.5, 'DisplayName', "\it n_{\rm NO} - U=3T " );
-p4=plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).nNO*1e3, 'm-','LineWidth', 1.5, 'DisplayName', "\it n_{\rm NO} - U=\infty " );
-errorbar(time_n_err, n_err, err_n, 'sqk', 'MarkerFaceColor', 'k','MarkerSize',1, 'LineWidth', 1);
-xlim([-10 tlim_n]);
-ylim([0 max(dat1(i_vibr,2,var,rel).nNO*1e3)+4]);
-legend([p1 p2 p3 p4],'Location','best');
-xlabel("\it t\rm, \mus");
-ylabel("{\it n}_{NO}, mmol/m^3");
-hold off
-grid minor
-nexttile
+%nexttile
 % hold on
 % title("Case " + info(var));
 % plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).TvNO,'r-', 'LineWidth', 1.5, 'DisplayName', "Tv - U=D/6k " );
@@ -166,19 +169,19 @@ nexttile
 % ylabel("T, K");
 % hold off
 % grid minor
-hold on
-set(gca, 'FontName', 'Palatino Linotype');
-p1=plot(time_n0_exp, n0_exp, 'k-', 'LineWidth', 2, 'DisplayName', "{\it n}^0_{NO} - experiment");
-p2=plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).ni_NO(:,1)/Na*1e3,'r-', 'LineWidth', 1.5, 'DisplayName', "{\it n}^0_{NO} - \it U=D/6k " );
-p3=plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).ni_NO(:,1)/Na*1e3,'b-', 'LineWidth', 1.5, 'DisplayName', "{\it n}^0_{NO} - \it U=3T " );
-p4=plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).ni_NO(:,1)/Na*1e3, 'm-','LineWidth', 1.5, 'DisplayName', "{\it n}^0_{NO} - \it U=\infty " );
-errorbar(time_n0_err, n0_err, err_n0, 'sqk', 'MarkerFaceColor', 'k','MarkerSize',1, 'LineWidth', 1);
-xlim([-10 tlim_n]);
-legend([p1 p2 p3 p4],'Location','best');
-xlabel("\it t\rm, \mus");
-ylabel("{\it n}^0_{NO}, mmol/m^3");
-hold off
-grid minor
+% hold on
+% set(gca, 'FontName', 'Palatino Linotype');
+% p1=plot(time_n0_exp, n0_exp, 'k-', 'LineWidth', 2, 'DisplayName', "{\it n}^0_{NO} - experiment");
+% p2=plot(dat1(i_vibr,2,var,rel).time, dat1(i_vibr,2,var,rel).ni_NO(:,1)/Na*1e3,'r-', 'LineWidth', 1.5, 'DisplayName', "{\it n}^0_{NO} - \it U=D/6k " );
+% p3=plot(dat1(i_vibr,3,var,rel).time, dat1(i_vibr,3,var,rel).ni_NO(:,1)/Na*1e3,'b-', 'LineWidth', 1.5, 'DisplayName', "{\it n}^0_{NO} - \it U=3T " );
+% p4=plot(dat1(i_vibr,4,var,rel).time, dat1(i_vibr,4,var,rel).ni_NO(:,1)/Na*1e3, 'm-','LineWidth', 1.5, 'DisplayName', "{\it n}^0_{NO} - \it U=\infty " );
+% errorbar(time_n0_err, n0_err, err_n0, 'sqk', 'MarkerFaceColor', 'k','MarkerSize',1, 'LineWidth', 1);
+% xlim([-10 tlim_n]);
+% legend([p1 p2 p3 p4],'Location','best');
+% xlabel("\it t\rm, \mus");
+% ylabel("{\it n}^0_{NO}, mmol/m^3");
+% hold off
+% grid minor
 
 
 figure

@@ -252,9 +252,9 @@ switch exch_reactions(ind_exch).source
   R_exch_data(indM4) = R_exch_data(indM4) - sum(R_exch_temp_N2O2);
  case "Kunova, NO avg"
     R_exch_data(indM3(1)) = R_exch_data(indM3(1)) - sum(R_exch_temp, 'all')';  
-     R_exch_data(indM1) = R_exch_data(indM1) + sum(R_exch_temp, 2);
-       R_exch_data(indM2) = R_exch_data(indM2) + sum(R_exch_temp, 'all');
-  R_exch_data(indM4) = R_exch_data(indM4) - sum(R_exch_temp, 'all');
+    R_exch_data(indM1) = R_exch_data(indM1) + sum(R_exch_temp, 2);
+    R_exch_data(indM2) = R_exch_data(indM2) + sum(R_exch_temp, 'all');
+    R_exch_data(indM4) = R_exch_data(indM4) - sum(R_exch_temp, 'all');
  otherwise
         R_exch_data(indM3) = R_exch_data(indM3) - sum(R_exch_temp, 1)';  
      R_exch_data(indM1) = R_exch_data(indM1) + sum(R_exch_temp, 2);
