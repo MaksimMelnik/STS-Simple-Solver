@@ -8,8 +8,18 @@ function out = Rpart_ODE_0D(~, y, kinetics)
 k = 1.380649e-23;       % Boltzmann constant, J/K
 T_DN = y(end);          % dimentionless gas temperature T
 
+coefs_MM = csvread("coefs_for_poly_FHO_FR_O2-O2.dat");
+val_for_normalization_MM = coefs_MM(:,1);
+poly_coefs_MM = coefs_MM(:,2:end);
+
+coefs_MA = csvread("coefs_for_poly_FHO_FR_O2-O.dat");
+val_for_normalization_MA = coefs_MA(:,1);
+poly_coefs_MA = coefs_MA(:,2:end);
+
     % relaxation terms
-[R, ~] = Rci(y, kinetics);
+[R, ~] = Rci(y, kinetics, ...
+                poly_coefs_MM, val_for_normalization_MM, ...
+                poly_coefs_MA, val_for_normalization_MA);
 R = R * kinetics.n0 * kinetics.t0;
 
     % number densities equations
