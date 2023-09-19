@@ -106,14 +106,9 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
     coll2.ArrA=M1.diss_Arrhenius_A(M2.name);
     coll2.ArrN=M1.diss_Arrhenius_n(M2.name);
     y_diss=y(i1);
-    switch kinetics.reactions('Diss').NEmodel
-     case {'MT', 'Aliat'}
-      [R_diss_data_temp, Q_diss] = R_diss_Aliat_onoff(M1, y_diss, nP1, ...
-        nP2, sum(y(i2)), coll2, T, n0, ...
-        kinetics.reactions('Diss').U, kinetics.reactions('Diss').NEmodel);
-     case 'Savelev21'
-       error("Savelev's diss model is still not implemented")
-    end
+    [R_diss_data_temp, Q_diss] = R_diss(M1, y_diss, nP1, nP2, ...
+          sum(y(i2)), coll2, T, n0, kinetics.reactions('Diss').U, ...
+                                    kinetics.reactions('Diss').NEmodel);
     R_diss_data(i1) = R_diss_data(i1) + R_diss_data_temp;
     Qin = Qin + Q_diss;
    end

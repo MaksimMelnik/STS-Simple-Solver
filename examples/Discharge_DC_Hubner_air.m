@@ -9,10 +9,9 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
+% rewrite Arrhenius
 % e-
 %   e + without LoKI
-% check the paper
-% check URM
 % e-
 %   e + something using LoKI
 %       e+N2(X)->e+N2(A3Su+,v=0-4),Excitation
@@ -73,17 +72,16 @@ function out = Discharge_DC_Hubner_air
 % Consider the second Zeldovich reaction. It's not included in 
 %   prof. Guerra's works, but it affects
 % fix Heaviside
+% rewrite Aliat dissociation for cases if electronicaly excited states have
+%   no vibrations
 
 warning("The present test case is unfinished")
-warning(['Energy fluxes Q are not finnished, now only VT, VV, Diss, ' ...
-    'Zeldovich, wall VT, wall rec, wall ET are included'])
 warning('Thermal average velocity in R_VT_wall should be recheckerd')
 warning('gamma_v in R_VT_wall is the same for each particle')
 warning('Check energies in the wall recombination function')
 warning('Zeldovich reactions are without electronic excitation')
 warning("VV exchanges are with a crutch.")
 warning('Find correct N2+ EM value.')
-warning('Fix indexes in O2 + N -> NO + O, Kossyi1992')
 disp('Started.')
 
 tic                             % measuring computing time
@@ -106,7 +104,7 @@ N2p.num_elex_levels = 1;
 O2p.num_elex_levels = 1;
     % no vibrational excitation
 NO.num_vibr_levels(1) = 1;  NO.ev_0(1) = 0;  NO.ev_i{1} = 0;
-O2.num_vibr_levels(1) = 1;  O2.ev_0(1) = 0;  O2.ev_i{1} = 0;
+% O2.num_vibr_levels(1) = 1;  O2.ev_0(1) = 0;  O2.ev_i{1} = 0;
 
     % initial conditions
     % f_M_i are fractions of particle M at the moment i (i=0 is initial,
@@ -119,7 +117,7 @@ init_c = [% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
 for i_ini = 1           % choosing desired initial coonditions
  for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr = 3 % [1 2 3] % choosing vibrational energy exchange model
+  for i_vibr = 2 % [1 2 3] % choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO;
                         %   3 is for kinetics from V. Guerra works
    T0         = init_c(i_ini, 4);         % K
@@ -127,6 +125,7 @@ for i_ini = 1           % choosing desired initial coonditions
    f_O2_0     = init_c(i_ini, 2);
    f_NO_0     = init_c(i_ini, 3);
    T3         = init_c(i_ini, 5) /T0;
+   T3         = 470 / T0;                 % experimental, not calculated T
    f_O_3      = init_c(i_ini, 6);
    f_N_3      = init_c(i_ini, 8);
    f_NO_3     = init_c(i_ini, 7);
@@ -182,12 +181,15 @@ for i_ini = 1           % choosing desired initial coonditions
    React_e_N2pX__N4S_N4S   = Reactions("e + N2+(X) -> N(4S) + N(4S)");
    React_e_O2pX__O_O       = Reactions("e + O2+(X) -> O + O");
    React_e_N2X__e_N4S_N4S  = Reactions("e+N2(X)->e+2N(4S),Excitation");
-%    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
-%    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
+%    Exch = [ReactZel_1("Savelev2018"), ReactZel_2("Savelev2018")];
+%    Exch = [ReactZel_1("Savelev2018, NO(1)"), ReactZel_2("Savelev2018, NO(1)")];
         % V Guerra Zeldovich model
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse")];
    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
        React_N2A_O2("Pintassilgo2009"), ReactZel_2("Kossyi1992"), ...
+       React_N2pX_O2X__O2pX_N2("Kossyi1992")];
+   Exch = [ReactZel_1("Savelev2018"), ... ReactZel_1("Guerra95_reverse"), ...
+       React_N2A_O2("Pintassilgo2009"), ReactZel_2("Savelev2018"), ...
        React_N2pX_O2X__O2pX_N2("Kossyi1992")];
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
 %        React_N2A_O2("Pintassilgo2009"), React_N2B_O2("Kossyi1992")];
@@ -208,6 +210,8 @@ for i_ini = 1           % choosing desired initial coonditions
        'Rec_wall', 'free_e'};
    reacs_val  = {model_VT, model_VT, Exch,   1,      ET_diff_c, ...
        1,          Free_e};
+   % Reacs_keys = {'VT',     'VV',     'Exch'};
+   % reacs_val  = {model_VT, model_VT, Exch};
    kinetics.num_eq = num;
    kinetics.reactions = containers.Map(Reacs_keys, reacs_val);
    kinetics.index = index(2:end);

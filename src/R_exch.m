@@ -10,8 +10,8 @@ function [R_exch_data, Q] = ...
 
     % constants
 k = 1.380649e-23;         % Boltzmann constant, J/K
-% c = 299792458;            % speed of light
-% h = 6.626070041e-34;      % Plank constant, J*sec
+c = 299792458;            % speed of light
+h = 6.626070041e-34;      % Plank constant, J*sec
 
 index = cell(1, 4);       % indexes from the reaction structure
 Ms = {M1, M2, M3, M4};
@@ -50,7 +50,9 @@ switch reaction.type
   kf = kf + reaction.A * T ^ reaction.n * exp(- reaction.E / k / T);
   dE_fb = M3.form_e + M4.form_e - M1.form_e - M2.form_e;
  case "Heaviside"
-     error("rewrite")
+  if (M2.fr_deg_c ~= 3 && M4.fr_deg_c ~= 3)
+     error("rewrite not only for atoms")
+  end
   [kf, dE_fb] = R_exch_Heaviside(M1, M3, T, reaction);
  otherwise
         error("Exchange reactions of this type are still not " + ...
@@ -62,19 +64,30 @@ if ~reaction.direction_forward
  kf = kf * 0;
 end
 if reaction.reverse     % if backward reaction included
-    error('rewrite')
- Theta_r_M1 = M1.Be(1) * h * c / k;
- Z_rot_M1 = T ./ (M1.sigma .* Theta_r_M1);  % statistical rotational sum
- Theta_r_M3 = M3.Be(1) * h * c / k;
- Z_rot_M3 = T ./ (M3.sigma .* Theta_r_M3);
- Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) ...
-        * (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 ...
-                                                   * exp( dE_fb / (k*T));
+ Z_rot = zeros(1, 4) + 1;
+ for ind = 1:4
+  if Ms{ind}.fr_deg_c>3
+   Z_rot(ind) = T / ... % statistical rotational sum
+                (Ms{ind}.Be(index{ind}{1}) * h * c / k * Ms{ind}.sigma);
+  end
+ end
+ Kfb = Ms{1}.s_e(index{1}{1}) * Ms{2}.s_e(index{2}{1}) / ...
+     (Ms{3}.s_e(index{3}{1}) * Ms{4}.s_e(index{4}{1})) * ...
+        (Ms{1}.mass * Ms{2}.mass / (Ms{3}.mass * Ms{4}.mass))^1.5 * ...
+        Z_rot(1) * Z_rot(2) / Z_rot(3) / Z_rot(4) * exp( dE_fb / (k*T));
  if reaction.direction_forward
   kb = kf .* Kfb;
  else
   kf = kb ./ Kfb;
  end
+    % error('rewrite')
+ % Theta_r_M1 = M1.Be(1) * h * c / k;
+ % Z_rot_M1 = T ./ (M1.sigma .* Theta_r_M1);  % statistical rotational sum
+ % Theta_r_M3 = M3.Be(1) * h * c / k;
+ % Z_rot_M3 = T ./ (M3.sigma .* Theta_r_M3);
+ % Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) ...
+ %        * (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 ...
+ %                                                   * exp( dE_fb / (k*T));
 end
 R_exch_data = ...
             zeros(length(n_M1), length(n_M2), length(n_M3), length(n_M4));

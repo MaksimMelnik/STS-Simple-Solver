@@ -33,8 +33,6 @@ function reactions_data_ini
 %  - .n
 %  - .E
 
-warning('Fix indexes in O2 + N -> NO + O, Kossyi1992 and in any reaction')
-
 load('particles.mat') %#ok<LOAD>
 k = 1.380649e-23;         % Boltzmann constant, J/K
 
@@ -64,31 +62,31 @@ zero_r.data = react1;
      % Zeldovich reaction N2 + O -> NO + N
 Zeldovich1.name = 'N2 + O -> NO + N';
 Zeldovich1.particles = ["N2", "O", "NO", "N"];
-   % from works by O. Kunova
+   % Savelev's model [6]
 react1 = template;
 react1.name = Zeldovich1.name;
-react1.source = 'Kunova';
+react1.source = 'Savelev2018';
 react1.particles = Zeldovich1.particles;
 react1.type = "Heaviside";
 react1.direction_forward = true;
 react1.reverse = true;
  % all ground states
-react1.index = {{1, 1:N2.num_vibr_levels(1)}, {1, 1}, ...
-                                    {1, 1:NO.num_vibr_levels(1)}, {1, 1}};
+react1.index = {{1, "all"}, {1, 1}, {1, "all"}, {1, 1}};
 react1.A = @(T) 3e-17^(T < 4000)*1.554e-23^(T >= 4000);
 react1.n = @(T) 0^(T < 4000)*1.745^(T >= 4000);
 react1.E = 37484 * k;   % J
-   % from works by O. Kunova, but only the ground vibrational state of NO
+   % Savelev's model [6], but only the ground vib. state of NO
 react2 = react1;
-react2.source = 'Kunova, NO(1)';
+react2.source = 'Savelev2018, NO(1)';
  % only ground NO state included
-react2.index = {{1, 1:N2.num_vibr_levels(1)}, {1, 1}, {1, 1}, {1, 1}};
+react2.index = {{1, "all"}, {1, 1}, {1, 1}, {1, 1}};
    % from works by V. Guerra [1]
 react3 = react1;
 react3.source = 'Guerra95';
 react3.type = "const";
 react3.reverse = false;
-react3.index = {{1, 1+13:N2.num_vibr_levels(1)}, {1, 1}, {1, 1}, {1, 1}};
+react3.index = {{1, 1+13:N2.num_vibr_levels(1)}, {1, 1}, ...
+                                                    {1, "all"}, {1, 1}};
 react3.A = 1e-13 / 1e6;
 react3.n = 0;
 react3.E = 0;
@@ -99,7 +97,7 @@ react4.type = "ATn";
 react4.direction_forward = false;
 react4.reverse = false;
 % react4.index = {1+1:1+5, 1, 1, 1};
-react4.index = {{1, 1+3}, {1, 1}, {1, 1}, {1, 1}};
+react4.index = {{1, 1+3}, {1, 1}, {1, "all"}, {1, 1}};
 react4.A = 1.05e-12 / 1e6;
 react4.n = 0.5;
 react4.E = 0;
@@ -107,28 +105,28 @@ keySet = {react1.source, react2.source, react3.source, react4.source};
 valueSet = {react1, react2, react3, react4};
 Zeldovich1.data = containers.Map(keySet, valueSet);
 
+
      % Zeldovich reaction O2 + N -> NO + O
 Zeldovich2.name = 'O2 + N -> NO + O';
 Zeldovich2.particles = ["O2", "N", "NO", "O"];
-   % from works by O. Kunova
+   % Savelev's model [6]
 react1 = template;
 react1.name = Zeldovich2.name;
-react1.source = 'Kunova';
+react1.source = 'Savelev2018';
 react1.particles = Zeldovich2.particles;
 react1.type = "Heaviside";
 react1.direction_forward = true;
 react1.reverse = true;
  % all ground states
-react1.index = {{1, 1:O2.num_vibr_levels(1)}, {1, 1}, ...
-                                    {1, 1:NO.num_vibr_levels(1)}, {1, 1}};
+react1.index = {{1, "all"}, {1, 1}, {1, "all"}, {1, 1}};
 react1.A = @(T) 4e-16^(T < 4000)*3.206e-23^(T >= 4000);
 react1.n = @(T) (-0.39)^(T < 4000)*1.58^(T >= 4000);
 react1.E = 1449 * k;   % J
-   % from works by O. Kunova, but only the ground vibrational state of NO
+   % Savelev's model [6], but only the ground vib. state of NO
 react2 = react1;
-react2.source = 'Kunova, NO(1)';
+react2.source = 'Savelev2018, NO(1)';
  % only ground NO state included
-react2.index = {{1, 1:O2.num_vibr_levels(1)}, {1, 1}, {1, 1}, {1, 1}};
+react2.index = {{1, "all"}, {1, 1}, {1, 1}, {1, 1}};
    % from works by C D Pintassilgo [2] and V Guerra, data from [4]
 react3 = react1;
 react3.source = 'Kossyi1992';
@@ -137,7 +135,7 @@ react3.reverse = false;
 react3.A      = 1.1e-14 / 1e6;
 react3.n      = 1;
 react3.E      = 3150 * k; % = E/k => E = 3150*k
-react3.index = {{1, 1}, {1, 1}, {1, 1}, {1, 1}};
+react3.index = {{1, "all"}, {1, 1}, {1, "all"}, {1, 1}};
 keySet = {react1.source, react2.source, react3.source};
 valueSet = {react1, react2, react3};
 Zeldovich2.data = containers.Map(keySet, valueSet);
@@ -170,7 +168,7 @@ react1.type = "A(T/d_T)^n";
 react1.A   = 1.63e-12 / 1e6;
 react1.d_T = 300;
 react1.n   = 0.55;
-react1.index = {{2, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}};
+react1.index = {{2, "all"}, {1, "all"}, {1, "all"}, {1, 1}, {1, 1}};
 keySet = {react1.source};
 valueSet = {react1};
 N2A_O2__N2X_O_O.data = containers.Map(keySet, valueSet);
@@ -186,7 +184,7 @@ react1.particles = N2B_O2__N2X_O_O.particles;
 react1.source = 'Kossyi1992';
 react1.type = "const";
 react1.A   = 3e-10 / 1e6;% / 1e2;
-react1.index = {{3, 1}, {1, 1}, {1, 1}, 1, 1};
+react1.index = {{3, "all"}, {1, "all"}, {1, "all"}, {1, 1}, {1, 1}};
 keySet = {react1.source};
 valueSet = {react1};
 N2B_O2__N2X_O_O.data = containers.Map(keySet, valueSet);
@@ -202,13 +200,12 @@ N2B_O2__N2X_O_O.data = containers.Map(keySet, valueSet);
 % react1.source = 'Guerra1997';
 % react1.type = "const";
 % react1.A   = 0.95*3e-11 / 1e6;
-% react1.index = {{3, 1}, {1, 1}, {2, 1}, 1, 1};
+% react1.index = {{3, "all"}, {1, "all"}, {2, "all"}, {1, "all"}};
 % keySet = {react1.source};
 % valueSet = {react1};
 % N2B_N2__N2A_N2.data = containers.Map(keySet, valueSet);
 
 
-% 'all' implemented
      % N2+(X) + O2(X) -> O2+(X) + N2
 N2pX_O2X__O2pX_N2.name = 'N2+(X) + O2(X) -> O2+(X) + N2';
 N2pX_O2X__O2pX_N2.particles = ["N2+", "O2", "O2+", "N2"];
@@ -289,7 +286,7 @@ react1.name               = e_N2X__e_e_N2pX.name;
 react1.particles          = e_N2X__e_e_N2pX.particles;
 react1.source             = 'LoKI-B steady';
 react1.type               = "const";
-react1.index              = {{1, 1}, {1, "all"}, {1, 1}, {1, 1}, {1, 1}};
+react1.index           = {{1, 1}, {1, "all"}, {1, 1}, {1, 1}, {1, "all"}};
 react1.A                  = 1.14563748590826e-18;    % m3 / s
 keySet                    = {react1.source};
 valueSet                  = {react1};
@@ -314,4 +311,5 @@ save reactions.mat Reactions
 % [3] D Levron et al J. Chem. Phys. 69, 2260 (1978); doi: 10.1063/1.436788
 % [4] Kossyi I A et al 1992 Plasma Sources Sci. Technol. 1 207
 % [5] V Guerra et al 1997 Plasma Sources Sci. Technol. 6 373
+% [6] Kustova E et al AIP Conference Proceedings 1959, 060010 (2018)
 end

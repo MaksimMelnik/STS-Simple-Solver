@@ -140,16 +140,33 @@ if isKey(kinetics.reactions, 'VV')
  Q_VV(i_out) = Q_VV_data;
 end
 if isKey(kinetics.reactions, 'Exch')
+ if Exch_reactions(1).source == "Guerra95"
 %                          N2 + O -> NO + N
- [~, Q_exch_NO_N_data] = R_exch(N2, O, NO, N, Y(i_out, i1_N2)', ...
+  [~, Q_exch_NO_N_data] = R_exch(N2, O, NO, N, Y(i_out, i1_N2)', ...
      Y(i_out, iO(1))', Y(i_out, kinetics.index{3})', ...
      Y(i_out, kinetics.index{4}(1))', T(i_out), Exch_reactions(1));
- Q_exch_N2_O(i_out) = Q_exch_NO_N_data;
+  Q_exch_N2_O(i_out) = Q_exch_NO_N_data;
 %                          N2 + O <- NO + N
- [~, Q_exch_NO_N_data] = R_exch(N2, O, NO, N, Y(i_out, i1_N2)', ...
+  [~, Q_exch_NO_N_data] = R_exch(N2, O, NO, N, Y(i_out, i1_N2)', ...
      Y(i_out, iO(1))', Y(i_out, kinetics.index{3})', ...
      Y(i_out, kinetics.index{4}(1))', T(i_out), Exch_reactions(2));
- Q_exch_N_NO(i_out) = Q_exch_NO_N_data;
+  Q_exch_N_NO(i_out) = Q_exch_NO_N_data;
+ else
+%                          N2 + O -> NO + N
+Exch_reaction_temp = Exch_reactions(1);
+Exch_reaction_temp.reverse = false;
+  [~, Q_exch_NO_N_data] = R_exch(N2, O, NO, N, Y(i_out, iN2)', ...
+     Y(i_out, iO)', Y(i_out, kinetics.index{3})', ...
+     Y(i_out, kinetics.index{4}(1))', T(i_out), Exch_reaction_temp);
+  Q_exch_N2_O(i_out) = Q_exch_NO_N_data;
+%                          N2 + O <- NO + N
+Exch_reaction_temp.direction_forward = false;
+  [~, Q_exch_NO_N_data] = R_exch(N2, O, NO, N, Y(i_out, iN2)', ...
+     Y(i_out, iO)', Y(i_out, kinetics.index{3})', ...
+     Y(i_out, kinetics.index{4}(1))', T(i_out), Exch_reaction_temp);
+  Q_exch_N_NO(i_out) = - Q_exch_NO_N_data;
+
+ end
 end
 end
 c_p_N2 = c_p(N2, T);
@@ -255,6 +272,7 @@ Q_N2B_O2 = zeros(length(t), 1);
 % Q_VV = zeros(length(t), 1);
 % Q_exch_N2_O = zeros(length(t), 1);
 % Q_exch_N_NO = zeros(length(t), 1);
+warning("recheck the number in Exch_reactions")
 for i_out = 1:length(t)
 [~, Q_N2B_O2_data] = R_exch_23(N2, O2, N2, O, O, Y(i_out, iN2)', ...
      Y(i_out, iO2)', Y(i_out, iN2)', Y(i_out, kinetics.index{5}(1))', ...

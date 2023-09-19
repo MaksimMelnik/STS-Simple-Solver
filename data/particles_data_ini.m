@@ -196,6 +196,7 @@ O2.BMbeta=3.964;            % beta parameter of Born-Mayer potential, A^-1
 
 O2p.name = 'O2+';
 O2p.mass = O2.mass;
+O2p.m_mass = O2.m_mass;
 O2p.diameter = O2.diameter;
 O2p.sigma  = 2;
 O2p.form_e = 1.93378E-18;
@@ -260,6 +261,7 @@ N2.BMbeta=2.573;            % beta parameter of Born-Mayer potential, A^-1
 
 N2p.name = 'N2+';
 N2p.mass = N2.mass;
+N2p.m_mass = N2.m_mass;
 N2p.diameter = N2.diameter;
 N2p.sigma = 2;
 N2p.form_e = 2.49635250E-18;
