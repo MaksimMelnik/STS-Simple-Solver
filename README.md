@@ -13,9 +13,9 @@ The code is divided into four sections: `/data`, `/examples`, `/plots` and `/src
 ## How to use?
 Install MATLAB and run one of the `/examples` (better to start with `O2O_SW_Shatalov.m`). You also may use `/src` functions, `/plots` and everything else for your purposes separately.
 ## Where is used?
-- [M Yu Melnik and E V Kustova 2022 J. Phys.: Conf. Ser. 2308 012014](DOI.org/10.1088/1742-6596/2308/1/012014)
+- [M Yu Melnik and E V Kustova 2022 J. Phys.: Conf. Ser. 2308 012014](https://DOI.org/10.1088/1742-6596/2308/1/012014)
 
-- [M Melnik and E Kustova 2021 J. Phys.: Conf. Ser. 1959 012034](DOI.org/10.1088/1742-6596/1959/1/012034)
+- [M Melnik and E Kustova 2021 J. Phys.: Conf. Ser. 1959 012034](https://DOI.org/10.1088/1742-6596/1959/1/012034)
 ## References
 [1] [E. Nagnibeda, E. Kustova, Nonequilibrium Reacting Gas Flows. Kinetic Theory of Transport and Relaxation Processes, Springer-Verlag, Berlin, Heidelberg, 2009.](https://doi.org/10.1007/978-3-642-01390-4)
 

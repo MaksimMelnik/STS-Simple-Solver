@@ -19,3 +19,4 @@
 - check Oblapenko's FHO parameters
 - add a separate functions for lambda
 - add a possibility to vary an oscillator for vibrations
+- add FHO-FR
