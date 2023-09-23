@@ -3,7 +3,7 @@ Universal State-to-State modeling code for strong non-equilibrium. Allows to sim
 ## Objectives
 The code aims to **simulate simple 0D and 1D problems using the detailed state-to-state approach** [1]. This approach considers each vibrational state of molecules as separate gas species. That provides an accurate instrument for the description of strong non-equilibrium in gas mixtures with detailed vibrational and chemical kinetics. The code is flexible in a choice of accounted processes, models for its description, problems formulations and mixture compositions. The described enhances and simplifies the **validation of models and model combinations comparing with experimental data and other models**. The last one is the second important feature of the code.
 ## Restrictions
-The kinetic scheme includes following restrictions. Particles under consideration have to be diatomic molecules, atoms or electrons. Polyatomic molecules are not implemented. The problem has to be 0D, 1D or reducible to a system of ODEs, since only the ODE solver is available. STS for rotational degrees of freedom is not available in the present product.
+The kinetic scheme includes following restrictions. Particles under consideration have to be diatomic molecules, atoms or electrons. Polyatomic molecules are not implemented. The problem has to be 0D, 1D or reducible to a system of ODEs, since only the ODE solver is available. STS for rotational degrees of freedom is not available in the present product. Molecules vibrations are described only by anharmonic oscillator on the current step.
 ## Requirements
 The code was tested on MATLAB 2020a [2] and newest versions. 
 Symbolic Math Toolbox [3] is required for some test cases such as `O2O_SW_Shatalov.m`.

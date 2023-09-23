@@ -10,6 +10,7 @@ function out = Discharge_DC_Hubner_air
 
 %  todo:
 % rewrite Arrhenius
+% add VT switcher for different molecules
 % e-
 %   e + without LoKI
 % e-
