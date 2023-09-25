@@ -48,7 +48,7 @@ init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
     0.004 5.35 1241 296 662
     0.004 2.34 1597 296 830
     ];
-for i_exch=1:3 % [1 2 3]
+for i_exch=2 % [1 2 3]
 % 1 - exchange reactions off; 2 - exchange reactions on
 % 3 - exchange reaction with average Kunova model and disabled NO vibr.
 % spectrum
@@ -56,14 +56,14 @@ for i_exch=1:3 % [1 2 3]
 for i_ini=9 % [1 2 3 4 5 6 7 8 9 10 11]
 %choosing testcase
 
-for i_U=2:4 % [2 3 4]
+for i_U=2 % [2 3 4]
 %choosing desired U dissociation parameter model
 %2 is for D/6k; 3 is for 3T; 4 is for inf
 
-for i_vibr=1:2 %[1 2]
+for i_vibr=2 %[1 2]
 % choosing desired vibrational energy exchange model 1 for SSH; 2 for FHO
 
-for i_rel=1:2 %[1 2]
+for i_rel=2 %[1 2]
 % 1 -relaxation off; 2 - relaxation on
 
     if i_exch==3
