@@ -20,8 +20,8 @@ Na=6.02214076e23;
 % according to the Kunova model. data_minor - is data for comparison 
 % with the data_main, in our case these were models without taking into 
 % account exchange reactions or with averaging of the Kunova model
-data_main=data_behindRSW_withexch_VDOP1;
-data_minor=data_behindRSW_withoutexch;
+data_main=dat1(:,:,:,:,2);
+data_minor=dat1(:,:,:,:,1);
 
 %indicators for plots. True if you want to plot a graph,
 %False if you dont want to.

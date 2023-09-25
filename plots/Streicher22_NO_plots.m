@@ -3,7 +3,7 @@
 
 clearvars;
 %Here you need to load an array with calculated data
-load('..\data\NO Streicher experiment\output_ReflSW_NO_Ar.mat');
+load('..\data\NO Streicher experiment\NO_behind_ReflSW.mat');
 load('..\data\NO Streicher experiment\NO_Streicher22_experiment.mat');
 info=["No.1: NO - 2%; Ar - 98%", "2% No.2", "2% No.3" ,"2% No.4" ,...
     "1% No.5", "1% No.6", "No.7: NO - 1%; Ar - 99%","1% No.8",...
@@ -16,8 +16,8 @@ Na=6.02214076e23;
 % according to the Kunova model. data_minor - is data for comparison 
 % with the data_main, in our case these were models without taking into 
 % account exchange reactions or with averaging of the Kunova model
-data_main=data_behindRSW_withexch_VDOP1;
-data_minor=data_behindRSW_withoutexch;
+data_main=dat1(:,:,:,:,2);
+data_minor=dat1(:,:,:,:,1);
 
 %indicators for plots. True if you want to plot a graph,
 %False if you dont want to.
@@ -33,7 +33,7 @@ VDF_NO_plot=true;
 TVerror_plot=true;
 Nerror_plot=true;
 
-for var=7
+for var=9
 %testcases     
 %var: %1 - 2-02 T=3560 P=0.561;  2 - 2-14 T=5460 P=0.325; 3 - 2-32 T=7070
 %P=0.119; 4 - 2-38 T=8730 P=0.137
