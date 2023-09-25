@@ -28,7 +28,6 @@ switch reaction.type
 %       kf(reaction.index{1}, reaction.index{3}) + reaction.A;
     kf = ...
       kf + kf_eq;
-  dE = (M1.diss_e(1) - M3.diss_e(1));
   dE = (repmat(M3.ev_i{1} + M3.ev_0(1), M1.num_vibr_levels(1), 1) ...
 - repmat((M1.ev_i{1} + M1.ev_0(1))', 1, M3.num_vibr_levels(1))) + ...
                                         (M1.diss_e(1) - M3.diss_e(1));
@@ -63,7 +62,11 @@ switch reaction.type
   coll.ArrA = reaction.A(T);
   coll.ArrN = reaction.n(T);
   coll.ArrE = reaction.E / k;   % in K
+  if reaction.source=="Kunova, NO avg"
+  VDOP = 0;
+  else
   VDOP = 1;
+  end
   [R_exch_data, Q] = R_exch_Heaviside(M1, M2, M3, M4, ...
                                 n_M1, n_M2, n_M3, n_M4, T, coll, VDOP);
  otherwise
@@ -119,7 +122,9 @@ B_M1 = kf_eq / sum(EXP_M1 .* nM1i','all');
 %rate of forward (f) reaction
 kf = B_M1 * EXP_M1;
 
-%kf=sum(kf,2);
+if VDOP==0
+kf=sum(kf,2);
+end
 
 if VDOP==0
 %ratio of rate of backward reaction to rate of forward reaction
@@ -137,7 +142,6 @@ end
 Kfb = (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 * ...
  exp( dE / (V_K*T));
 Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) * Kfb;
-
 
 %rate of backward (b) reaction
 kb = kf .* Kfb;

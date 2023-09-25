@@ -1,16 +1,32 @@
 % The main function for the macroparameters calculation behind reflected SW
 % for Streicher's experiment conditions in NO-Ar mixture.
 % 06.04.2023 Denis Kravchenko
+
 tic
 clearvars;
 % constants
 k=1.380649e-23;  % Boltzmann constant, J/K
 Torr=133.322368;
 Na=6.02214076e23;
-
 addpath('../src/')
 addpath('../data/')
 load('particles.mat', "NO", "N", "O", "Ar", "O2", "N2");
+load('../data/reactions.mat');
+ReactZel_1 = Reactions("N2 + O -> NO + N");
+ReactZel_2 = Reactions("O2 + N -> NO + O");
+Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
+
+%vibrational activation of NO
+VA_parameter=0; %if VA_parameter==1 then all vibrational of NO accounting
+%if VA_parameter==0 then all vibrational levels i>0 of NO cut off
+if VA_parameter==0
+    NO.num_vibr_levels=1;
+    NO.ev_0(1) = 0;
+    NO.ev_i{1}=0;
+    Exch(1).source = "Kunova, NO avg";
+    Exch(2).source = "Kunova, NO avg";  
+end
+
 NO.num_elex_levels=1;       % no electronic excitation
 O.num_elex_levels=1;
 N.num_elex_levels=1;
@@ -18,9 +34,6 @@ O2.num_elex_levels=1;
 N2.num_elex_levels=1;
 %O2.num_vibr_levels=1;
 %N2.num_vibr_levels=1;
-%NO.num_vibr_levels=1;
-%NO.ev_0(1) = 0;
-%NO.ev_i{1}=0;
 % initial conditions
 init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
     0.02 1.52 1768 296 636    % 2% NO; 98% N2
@@ -37,7 +50,7 @@ init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
     0.004 1.18 1959 296 817   % 0.4% NO; 49.8% N2; 49.8% Ar
     ];
 for i_ini=9
-for i_U=2:4 %choosing desired U dissociation parameter model
+for i_U=2 %choosing desired U dissociation parameter model
 %2 is for D/6k; 3 is for 3T; 4 is for inf
 for i_vibr=2 % choosing desired vibrational energy exchange model
 %1 for SSH; 2 for FHO
@@ -87,14 +100,8 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     case 2
          model_VT='FHO';
     end
-    load('../data/reactions.mat');
-    ReactZel_1 = Reactions("N2 + O -> NO + N");
-    ReactZel_2 = Reactions("O2 + N -> NO + O");
-    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
-    Reacs_keys={'Diss', 'VT','VV'}; %chemical relaxation and dissociation between 
-    %SWs is negligible, only VT and VV processes 
-    %Reacs_keys={'Diss','Exch', 'VT', 'VV'};
-    %reacs_val={Diss, Exch,  model_VT, model_VT};
+
+    Reacs_keys={'Diss', 'VT','VV'}; %dissociation between 
     reacs_val={Diss, model_VT, model_VT};
     kinetics.Ps=Ps(2:end);
     kinetics.num_Ps=length(kinetics.Ps);
@@ -152,7 +159,9 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     n_NO=sum(Y(:, kinetics.index{IndexOfMolecules("NO")}), 2);
     T=Y(:, end);
     p=(n_O+n_N + n_NO +n_Ar + n_O2 + n_N2).*k.*T /Torr;
-    %Tv = NO.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
+    if VA_parameter==1 %if VA_parameter==0 then TvNO has no meaning
+    Tv = NO.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
+    end
     time_ms=X./v0*1e6;
     elseif rel==1 
     %if relaxation between SWs is off, than using the R-H relation
@@ -183,11 +192,13 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
         end
 
     if (i_ini<=6)
-        En0=n0*e_i*n/n1 + n0*e_i_*n_/n1 + n0*k*T0 + 1.5*n0*k*T0 + n0*NO.form_e*f + n0*N2.form_e*(1-f);
+        En0=n0*e_i*n/n1 + n0*e_i_*n_/n1 + n0*k*T0 + 1.5*n0*k*T0 +...
+        n0*NO.form_e*f + n0*N2.form_e*(1-f);
         Ep0=(En0+n0*k*T0)/rho0+0.5*v0^2;  
         % (E0+p0)/rho0+v0^2/2
     else
-        En0=n0*e_i*n/n1 + n0*e_i_*n_/n1 + (f + (1-f)/2)*n0*k*T0 + 1.5*n0*k*T0 + n0*NO.form_e*f + n0*N2.form_e*(1-f);
+        En0=n0*e_i*n/n1 + n0*e_i_*n_/n1 + (f + (1-f)/2)*n0*k*T0 + ...
+        1.5*n0*k*T0 + n0*NO.form_e*f + n0*N2.form_e*(1-f);
         Ep0=(En0+n0*k*T0)/rho0+0.5*v0^2;  
     end
     if rel==2
@@ -196,17 +207,13 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     end
     
     %% REFL
-    %Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
-    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
-    % testing average for NO lvls to move all R to the ground state
-    %Exch(1).source = "Kunova, NO avg";
-    %Exch(2).source = "Kunova, NO avg";
-%     
-    Reacs_keys={'Diss','Exch', 'VT', 'VV'};
+
     %taking into account chemical processes
+    Reacs_keys={'Diss','Exch', 'VT', 'VV'};
     reacs_val={Diss, Exch, model_VT, model_VT};
 
-     %Reacs_keys={'Diss', 'VT', 'VV'};
+    %without 
+    %Reacs_keys={'Diss', 'VT', 'VV'};
     %reacs_val={Diss,  model_VT, model_VT};
 
     kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
@@ -238,7 +245,6 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     timewave=1000*1e-6;
     x_w=v0_r*timewave;
     xspan=[0 x_w]./Delta;
-    %n=density_f_exc(T0, f*n1, O2);
     y0_1=zeros(kinetics.num_eq+2, 1);
     if rel==2
     y0_1(1:end)=Y(end, :).*((1/n0)*n1);
@@ -257,7 +263,7 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     y0_1(end-1)=v1;
     y0_1(end)=T1;
     %y0_1(kinetics.index{end})=Y(end, kinetics.index{end});
-    options_s = odeset('RelTol', 1e-8, 'AbsTol', 1e-11, ...
+    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
     'NonNegative', 1:kinetics.num_eq+2);
     [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
         xspan, y0_1, options_s);
@@ -275,10 +281,11 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     n_O2_1 = sum(Y_1(:, kinetics.index{IndexOfMolecules("O2")}), 2);
     n_N2_1 = sum(Y_1(:, kinetics.index{IndexOfMolecules("N2")}),2);
     p_1=(n_NO_1+n_O_1+ + n_N_1 + n_Ar_1 + n_O2_1 + n_N2_1)*k.*T_1 /Torr;
-    PPP(i_ini)=p_1(1);%*Torr*1e-5;
+    if VA_parameter==1  %if VA_parameter==0 then TvNO has no meaning
     Tv_NO_1 = NO.ev_i{1}(2)./(k*log(Y_1(:, ...
-       kinetics.index{IndexOfMolecules("NO")}(1))./...
-       Y_1(:,kinetics.index{IndexOfMolecules("NO")}(2))));
+      kinetics.index{IndexOfMolecules("NO")}(1))./...
+      Y_1(:,kinetics.index{IndexOfMolecules("NO")}(2))));
+    end
     Tv_O2=O2.ev_i{1}(2)./(k*log(Y_1(:, ...
         kinetics.index{IndexOfMolecules("O2")}(1))./...
      Y_1(:,kinetics.index{IndexOfMolecules("O2")}(2))));
@@ -296,21 +303,11 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     En0_1=n0*e_i*y0_1(kinetics.index{IndexOfMolecules("NO")})/n1 +...
     n0*e_i_*y0_1(kinetics.index{IndexOfMolecules("N2")})/n1 ...
     + k*T0*n_NO(end) + k*T0*n_N2(end)  + 1.5*n0*k*T0 +...
-    n_NO(end)*NO.form_e + n_N(end)*N.form_e+n_O(end)*O.form_e + n_N2(end) *N2.form_e;
+    n_NO(end)*NO.form_e + n_N(end)*N.form_e+n_O(end)*O.form_e +...
+    n_N2(end) *N2.form_e;
     Ep0_1=(En0_1+n0*k*T0)/rho0+0.5*v0^2;       % (E0+p0)/rho0+v0^2/2
     disp('Conservation laws check behind RSW')
     check_CL_SW([rhov0_1 rhov2p0_1 Ep0_1], Y_1, kinetics, 0);
-
-%     v0_2=v0_i;
-%     Y_1(:,end-1)=Y_1(:,end-1) - v0_i;
-%     rho0_2=n0buf*(f*NO.mass + (1-f)*Ar.mass);
-%     rhov0_2=rho0_2*v0_2;
-%     rhov2p0_2=rho0_2*v0_2^2 + n0buf*k*T0buf;
-%     En0_2=n0buf*e_i*n/n1buf + k*T0buf*n0buf*f + 1.5*n0buf*k*T0buf + n0buf*f*NO.form_e;
-%     Ep0_2=(En0_2 + n0buf*k*T0buf)/rho0_2 + 0.5*v0_2^2;
-%     disp('Conservation laws check ALL');
-%     check_CL_SW([rhov0_2 rhov2p0_2 Ep0_2], Y_1, kinetics, 0);
-
 
     %This is where the output data is stored. 
     % They contain the evolution of temperatures, number densities,
@@ -318,7 +315,9 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     if rel==2
     resSt.time=time_ms;
     resSt.T=T;
-    %resSt.Tv=Tv;
+    if VA_parameter==1
+    resSt.Tv=Tv;
+    end
     resSt.nO=n_O;
     resSt.nN=n_N;
     resSt.nNO=n_NO;
@@ -330,7 +329,9 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     end
     resSt_1.time=time_ms_1;
     resSt_1.T=T_1;
+    if VA_parameter==1
     resSt_1.TvNO=Tv_NO_1;
+    end
     resSt_1.TvO2=Tv_O2;
     resSt_1.TvN2=Tv_N2;
     resSt_1.ni_NO=Y_1(:, kinetics.index{IndexOfMolecules("NO")});
@@ -344,8 +345,6 @@ for rel=2 % 1 -relaxation off; 2 - relaxation on
     resSt_1.nN=n_O_1/Na;
     resSt_1.nAr=n_Ar_1/Na;
     dat1(i_vibr,i_U,i_ini,rel)=resSt_1;
-
-
 end
 end
 end
@@ -355,7 +354,7 @@ end
 %%
 %if you want to save your data in .mat file, uncomment following raws
 %save(['NO_N2_betweenSWs_withexch_avg.mat'], 'dat');
-save(['NO_N2_behindRSW_withexch_VDOP1.mat'], 'dat1');
+%save(['NO_N2_behindRSW_withexch_VDOP1.mat'], 'dat1');
 rmpath('../src/')
 rmpath('../data/')
 toc       
