@@ -151,17 +151,17 @@ for i_rel=2 %[1 2]
     y0(end-1)=v1;
     y0(end)=T1;
 
-    n=density_f_exc(T0, n1*f, NO);
-    y0(kinetics.index{IndexOfMolecules("NO")})=n;
+    n_bolz_NO=density_f_exc(T0, n1*f, NO);
+    y0(kinetics.index{IndexOfMolecules("NO")})=n_bolz_NO;
 
     if (i_ini<=6)
-        n_=density_f_exc(T0, n1*(1-f), N2);
+        n_bolz_N2=density_f_exc(T0, n1*(1-f), N2);
         y0(kinetics.index{IndexOfMolecules("Ar")})=0;
     else
-        n_=density_f_exc(T0, n1*(1-f)/2, N2);
+        n_bolz_N2=density_f_exc(T0, n1*(1-f)/2, N2);
         y0(kinetics.index{IndexOfMolecules("Ar")})=n1*(1-f)/2;
     end
-    y0(kinetics.index{IndexOfMolecules("N2")})=n_;
+    y0(kinetics.index{IndexOfMolecules("N2")})=n_bolz_N2;
     options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
     'NonNegative', 1:kinetics.num_eq+2);
     if i_rel==2 %if relaxation between SWs on
@@ -202,22 +202,22 @@ for i_rel=2 %[1 2]
         % rho0*v0
         rhov2p0=rho0* v0^2 + n0*k*T0;      
         % rho0*v0^2+p0
-        e_i=[];
-        e_i_=[];
+        e_i_NO=[];
+        e_i_N2=[];
         for ind_e=1:NO.num_elex_levels
-        e_i=[e_i, NO.ev_i{ind_e}+NO.ev_0(ind_e)+NO.e_E(ind_e)];
+        e_i_NO=[e_i_NO, NO.ev_i{ind_e}+NO.ev_0(ind_e)+NO.e_E(ind_e)];
         end
         for ind_e=1:N2.num_elex_levels
-        e_i_=[e_i_, N2.ev_i{ind_e}+N2.ev_0(ind_e)+N2.e_E(ind_e)];
+        e_i_N2=[e_i_N2, N2.ev_i{ind_e}+N2.ev_0(ind_e)+N2.e_E(ind_e)];
         end
 
     if (i_ini<=6)
-        En0=n0*e_i*n/n1 + n0*e_i_*n_/n1 + n0*k*T0 + 1.5*n0*k*T0 +...
+        En0=n0*e_i_NO*n_bolz_NO/n1 + n0*e_i_N2*n_bolz_N2/n1 + n0*k*T0 + 1.5*n0*k*T0 +...
         n0*NO.form_e*f + n0*N2.form_e*(1-f);
         Ep0=(En0+n0*k*T0)/rho0+0.5*v0^2;  
         % (E0+p0)/rho0+v0^2/2
     else
-        En0=n0*e_i*n/n1 + n0*e_i_*n_/n1 + (f + (1-f)/2)*n0*k*T0 + ...
+        En0=n0*e_i_NO*n_bolz_NO/n1 + n0*e_i_N2*n_bolz_N2/n1 + (f + (1-f)/2)*n0*k*T0 + ...
         1.5*n0*k*T0 + n0*NO.form_e*f + n0*N2.form_e*(1-f);
         Ep0=(En0+n0*k*T0)/rho0+0.5*v0^2;  
     end
@@ -273,16 +273,16 @@ for i_rel=2 %[1 2]
     if i_rel==2
     y0_1(1:end)=Y(end, :).*((1/n0)*n1);
     elseif i_rel==1
-    n=density_f_exc(T0buf, n1*f, NO);
-    y0_1(kinetics.index{IndexOfMolecules("NO")})=n;
+    n_bolz_NO=density_f_exc(T0buf, n1*f, NO);
+    y0_1(kinetics.index{IndexOfMolecules("NO")})=n_bolz_NO;
     if (i_ini<=6)
-        n_=density_f_exc(T0, n1*(1-f), N2);
+        n_bolz_N2=density_f_exc(T0, n1*(1-f), N2);
         y0_1(kinetics.index{IndexOfMolecules("Ar")})=0;
     else
-        n_=density_f_exc(T0, n1*(1-f)/2, N2);
+        n_bolz_N2=density_f_exc(T0, n1*(1-f)/2, N2);
         y0_1(kinetics.index{IndexOfMolecules("Ar")})=n1*(1-f)/2;
     end
-    y0_1(kinetics.index{IndexOfMolecules("N2")})=n_;
+    y0_1(kinetics.index{IndexOfMolecules("N2")})=n_bolz_N2;
     end
     y0_1(end-1)=v1;
     y0_1(end)=T1;
@@ -323,8 +323,8 @@ for i_rel=2 %[1 2]
 
     rhov0_1=rho0 * v0;                    % rho0*v0
     rhov2p0_1=rho0* v0^2 + n0*k*T0;      % rho0*v0^2+p0
-    En0_1=n0*e_i*y0_1(kinetics.index{IndexOfMolecules("NO")})/n1 +...
-    n0*e_i_*y0_1(kinetics.index{IndexOfMolecules("N2")})/n1 ...
+    En0_1=n0*e_i_NO*y0_1(kinetics.index{IndexOfMolecules("NO")})/n1 +...
+    n0*e_i_N2*y0_1(kinetics.index{IndexOfMolecules("N2")})/n1 ...
     + k*T0*n_NO(end) + k*T0*n_N2(end)  + 1.5*n0*k*T0 +...
     n_NO(end)*NO.form_e + n_N(end)*N.form_e+n_O(end)*O.form_e +...
     n_N2(end) *N2.form_e;
