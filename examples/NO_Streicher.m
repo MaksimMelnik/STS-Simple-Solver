@@ -70,8 +70,7 @@ for i_rel=2 %[1 2]
     NO.num_vibr_levels=1;
     NO.ev_0(1) = 0;
     NO.ev_i{1}=0;
-    Exch(1).source = "Kunova, NO avg";
-    Exch(2).source = "Kunova, NO avg";  
+    Exch = [ReactZel_1("Kunova, NO avg"), ReactZel_2("Kunova, NO avg")]; 
     end
    
     f=init_c(i_ini, 1); %molar fraction of NO
@@ -83,11 +82,6 @@ for i_rel=2 %[1 2]
     T0buf=T0; %buffer variable for initial temperature
     n0=p0/(k*T0);   % initial number density, m-3
     n0buf=n0; %buffer variable for initial number density
-%     NN=in_con_Ar([NO.mass, v0, T0, Ar.mass ,f]); %dimensionless variables
-%     n1=NN(1);   % DN
-%     v1=NN(3);   % DN
-%     T1=NN(2);   % DN
-
     rho0=n0*((1-f)*Ar.mass + f*NO.mass);
     [n1, v1, T1]=in_con_SW(n0, v0, T0, rho0 ,f);
     n1buf=n1;
@@ -234,7 +228,6 @@ for i_rel=2 %[1 2]
     timewave=1000*1e-6;
     x_w=v0_r*timewave;
     xspan=[0 x_w]./Delta;
-    %n=density_f_exc(T0, f*n1, O2);
     y0_1=zeros(kinetics.num_eq+2, 1);
     if i_rel==2
     y0_1(1:end)=Y(end, :).*((1/n0)*n1);
@@ -245,7 +238,6 @@ for i_rel=2 %[1 2]
     end
     y0_1(end-1)=v1;
     y0_1(end)=T1;
-    %y0_1(kinetics.index{end})=Y(end, kinetics.index{end});
     options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
     'NonNegative', 1:kinetics.num_eq+2);
     [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
@@ -338,8 +330,8 @@ end
 
 %%
 %if you want to save your data in .mat file, uncomment following raws
-%save(['NO_between_SWs_withexch_VDOP0.mat'], 'dat');
-save(['NO_behind_ReflSW.mat'], 'dat1');
+%save(['..\data\NO Streicher experiment\NO_betweenSWs_output.mat'], 'dat');
+%save(['..\data\NO Streicher experiment\NO_behindRSW_output.mat'], 'dat1');
 rmpath('../src/')
 rmpath('../data/')
 toc                

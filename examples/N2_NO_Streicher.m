@@ -33,8 +33,7 @@ O.num_elex_levels=1;
 N.num_elex_levels=1;
 O2.num_elex_levels=1;
 N2.num_elex_levels=1;
-%O2.num_vibr_levels=1;
-%N2.num_vibr_levels=1;
+
 % initial conditions
 init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
     0.02 1.52 1768 296 636    % 2% NO; 98% N2
@@ -73,8 +72,7 @@ for i_rel=2 %[1 2]
     NO.num_vibr_levels=1;
     NO.ev_0(1) = 0;
     NO.ev_i{1}=0;
-    Exch(1).source = "Kunova, NO avg";
-    Exch(2).source = "Kunova, NO avg"; 
+    Exch = [ReactZel_1("Kunova, NO avg"), ReactZel_2("Kunova, NO avg")];
     end
     f=init_c(i_ini, 1); %molar fraction of NO
     p0=init_c(i_ini, 2)*Torr; %initial pressure in shock tube
@@ -288,7 +286,6 @@ for i_rel=2 %[1 2]
     end
     y0_1(end-1)=v1;
     y0_1(end)=T1;
-    %y0_1(kinetics.index{end})=Y(end, kinetics.index{end});
     options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
     'NonNegative', 1:kinetics.num_eq+2);
     [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
@@ -379,8 +376,8 @@ end
 
 %%
 %if you want to save your data in .mat file, uncomment following raws
-%save(['NO_N2_betweenSWs_withexch_avg.mat'], 'dat');
-%save(['NO_N2_behindRSW_withexch_VDOP1.mat'], 'dat1');
+%save(['..\data\NO_N2 Streicher experiment\NO_N2_betweenSWs_output.mat'], 'dat');
+%save(['..\data\NO_N2 Streicher experiment\NO_N2_behindRSW_output.mat'], 'dat1');
 rmpath('../src/')
 rmpath('../data/')
 toc       
