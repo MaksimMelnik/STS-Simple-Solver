@@ -23,9 +23,11 @@ clear tmp tmp1;
 addpath('../src/')
 addpath('../data/')
 load('particles.mat', "NO", "N", "O", "Ar", "O2", "N2");
-load('../data/reactions.mat');
+load('../data/reactions.mat'); %load reaction data
+%We have 2 exchange reaction in this mixture
 ReactZel_1 = Reactions("N2 + O -> NO + N");
 ReactZel_2 = Reactions("O2 + N -> NO + O");
+%initially the default reaction model according to Kunova's model
 Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
 
 NO.num_elex_levels=1;       % no electronic excitation
@@ -50,7 +52,8 @@ init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
     0.004 1.18 1959 296 817   % 0.4% NO; 49.8% N2; 49.8% Ar
     ];
 for i_exch=2 % [1 2 3]
-% 1 - exchange reactions off; 2 - exchange reactions on
+% 1 - full NO vibr. spectrum and exchange reactions off;
+% 2 - full NO vibr. spectrum and exchange reactions on with Kunova model
 % 3 - exchange reaction with average Kunova model and disabled NO vibr.
 % spectrum
 
@@ -67,13 +70,20 @@ for i_vibr=2 %[1 2]
 for i_rel=2 %[1 2]
 % 1 -relaxation off; 2 - relaxation on
 
+    %if the model of exchange reactions is 3rd type, then you need to
+    %turn off the vibrational spectrum of NO and replace the reaction 
+    %model with "Kunova, NO avg". 
 
+    %IMPORTANT: if you run calculations with different exchange models, 
+    %then the 3rd type model should be the last one, 
+    %because it turns off the vibrational spectrum of NO
     if i_exch==3
     NO.num_vibr_levels=1;
     NO.ev_0(1) = 0;
     NO.ev_i{1}=0;
     Exch = [ReactZel_1("Kunova, NO avg"), ReactZel_2("Kunova, NO avg")];
     end
+
     f=init_c(i_ini, 1); %molar fraction of NO
     p0=init_c(i_ini, 2)*Torr; %initial pressure in shock tube
     v0=init_c(i_ini, 3);   % velocity of incident SW, m/s
@@ -228,6 +238,8 @@ for i_rel=2 %[1 2]
     
     %% REFL
     
+    %if exchange reactions are included in mixtures, 
+    %then we include them in the list of general reactions, otherwise not
     if (i_exch==2)||(i_exch==3)
     %taking into account chemical processes
     Reacs_keys={'Diss','Exch', 'VT', 'VV'};
