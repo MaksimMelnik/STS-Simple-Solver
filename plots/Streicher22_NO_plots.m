@@ -1,6 +1,7 @@
 %%Comparison with experimental data and plots
 %Streicher's 2022 experiment with NO\O\N\O2\N2\Ar mixtures
 
+
 clearvars;
 %Here you need to load an array with calculated data
 load('..\data\NO Streicher experiment\NO_behind_ReflSW.mat');

@@ -1,5 +1,11 @@
 % The main function for the macroparameters calculation behind reflected SW
 % for Streicher's experiment conditions in NO-Ar mixture.
+
+%[1] J. Streicher, A. Krish, R. Hanson, High-temperature vibrational
+%relaxation and decomposition of shock-heated nitric oxide. I. Argon 
+%dilution from 2200 to 8700 K, Physics of Fluids 34 (11) (2022) 116122.
+%doi:10.1063/5.0109109.
+
 % 06.04.2023 Denis Kravchenko
 tic
 clearvars;
@@ -15,8 +21,6 @@ O.num_elex_levels=1;
 N.num_elex_levels=1;
 O2.num_elex_levels=1;
 N2.num_elex_levels=1;
-%O2.num_vibr_levels=1;
-%N2.num_vibr_levels=1;
 
 %initialization of structures dat and dat1
 tmp.time=0; tmp.T=0; tmp.Tv=0; tmp.nO=0; tmp.nN=0; tmp.nNO=0; tmp.nAr=0;
@@ -222,16 +226,15 @@ for i_rel=2 %[1 2]
     n0=sum(Y(end, 1:end-2),2);   % m-3
     v0=v0+v0_r-Y(end, end-1);   % m/s
     T0=Y(end, end);   % K
+    rho0=n_N2(end)*N2.mass + n_NO(end)*NO.mass + n_O2(end)*O2.mass...
+    + n_O(end)*O.mass + n_N(end)*N.mass + n_Ar(end)*Ar.mass;
     elseif i_rel==1
     n0=sum(Y(1:end-2));
     v0=v0+v0_r-Y(end-1);
     T0=Y(end);
+    rho0=n0*((1-f)*Ar.mass + f*NO.mass);
     end
-    NN=in_con_Ar([NO.mass, v0, T0, Ar.mass, f]);
-    n1=NN(1);   % DN
-    v1=NN(3);   % DN
-    T1=NN(2);   % DN
-    
+    [n1, v1, T1] = in_con_SW(n0, v0, T0, rho0, f);
     kinetics.n0=n0;
     kinetics.v0=v0;
     kinetics.T0=T0;
@@ -279,12 +282,6 @@ for i_rel=2 %[1 2]
         kinetics.index{IndexOfMolecules("N2")}(1))./...
      Y_1(:,kinetics.index{IndexOfMolecules("N2")}(2))));
     time_ms_1=X_1./v0_r*1e6;
-    if i_rel==2
-    rho0=n_NO(end)*NO.mass + n_O(end)*O.mass + n_N(end)*N.mass + ...
-        n_O2(end)*O2.mass + n_N2(end)*N2.mass + n_Ar(end)*Ar.mass;
-    else
-    rho0=n0*NO.mass*f + n0*Ar.mass*(1-f);
-    end
     rhov0_1=rho0 * v0;                    % rho0*v0
     rhov2p0_1=rho0* v0^2 + n0*k*T0;      % rho0*v0^2+p0
     e_i=[];

@@ -1,5 +1,11 @@
 % The main function for the macroparameters calculation behind reflected SW
 % for Streicher's experiment conditions in O2-Ar mixture.
+
+% [1] J. Streicher, A. Krish, R. Hanson, Coupled vibration-dissociation 
+% time-histories and rate measurements in shock-heated, nondilute O2 and 
+% O2-Ar mixtures from 6000 to 14000 K, Physics of Fluids 33 (5) (2021)
+%056107. doi:10.1063/5.0048059
+
 % 06.04.2023 Denis Kravchenko
 
 tic
@@ -27,7 +33,7 @@ init_c=[ %  f;  p0,     Torr;   v0, m/s;    T0, K;   v0_1
         1 0.07 2510 296 870     % pure O2
         1 0.05 2760 296 950     % pure O2
         ];
-for i_ini=1:9 % [1 2 3 4 5 6 7 8 9] % choosing desired initial coonditions
+for i_ini=2 % [1 2 3 4 5 6 7 8 9] % choosing desired initial coonditions
 for i_U=2 % [2 3 4]    % choosing desired U dissociation parameter model
 % 2 is for D/6k; 3 is for 3T; 4 is for inf
 for i_vibr=1 % [1 2]  % choosing vibrational energy exchange model
@@ -42,16 +48,6 @@ for rel=1     % if relaxation between incident and reflected waves
     T0buf=T0; %buffer variable for initial temperature
     n0=p0/(k*T0); % initial number density, m-3
     n0buf=n0; %buffer variable for initial number density
-%     if f==1
-%     NN=in_con_O2([O2.mass, v0, T0]); %dimensionless for pure oxygen
-%     else
-%     NN=in_con_Ar([O2.mass, v0, T0, Ar.mass ,f]);%dimensionless for diluted 
-%     % oxygen
-%     end
-%     n1=NN(1);   % DN
-%     v1=NN(3);   % DN
-%     T1=NN(2);   % DN
-
     rho0=n0*((1-f)*Ar.mass + f*O2.mass);
     [n1, v1, T1]=in_con_SW(n0, v0, T0, rho0 ,f);
     sigma0 = pi*O2.diameter^2;
@@ -193,15 +189,11 @@ for rel=1     % if relaxation between incident and reflected waves
     T0=Y(end);
     end
     if f~=1
-        NN=in_con_Ar([O2.mass, v0, T0, n_Ar(end)/(n_a(end) +...
-        n_Ar(end))*Ar.mass + n_a(end)/(n_a(end) + n_Ar(end))*O.mass,...
-        n_m(end)/(n_m(end)+n_a(end)+n_Ar(end))]);
+        rho0_1=n_m(end)*O2.mass+ n_a(end)*O.mass+n_Ar(end)*Ar.mass;
     else
-        NN=in_con_Ar([O2.mass, v0, T0, O.mass, n_m(end)/(n_m(end)+n_a(end))]);
+        rho0_1=n_m(end)*O2.mass +n_a(end)*O.mass;
     end
-    n1=NN(1);   % DN
-    v1=NN(3);   % DN
-    T1=NN(2);   % DN
+    [n1, v1, T1]=in_con_SW(n0, v0, T0, rho0_1, f);
     Delta = 1 / sqrt(2) / n0 / sigma0;
     kinetics.n0=n0;
     kinetics.v0=v0;
@@ -211,10 +203,12 @@ for rel=1     % if relaxation between incident and reflected waves
     x_w=v0_r*timewave;
     xspan=[0 x_w]./Delta;
     y0_1=zeros(kinetics.num_eq+2, 1);
-    if rel==2 %if relaxation on then we recalculate distribution from previous
+    if rel==2 
+    %if relaxation on then we recalculate distribution from previous
     % calculation
     y0_1(1:end)=Y(end, :).*((1/n0)*n1); 
-    elseif rel==1 %if relaxation off then we use the equilibrium distribution 
+    elseif rel==1 
+    %if relaxation off then we use the equilibrium distribution 
     % with initial! temperature before incident SW
     n=density_f_exc(T0buf, n1*f, O2);
     y0_1(1:length(n))=n;
@@ -241,8 +235,7 @@ for rel=1     % if relaxation between incident and reflected waves
     else
         p_1=(n_m_1 + n_a_1)*k.*T_1/Torr;
     end
-    PPP(i_ini)=p_1(1);
-    TTT(i_ini)=T_1(1);
+
     Tv_1 = O2.ev_i{1}(2)./(k*log(Y_1(:,1)./Y_1(:,2)));
     time_ms_1=X_1./v0_r*1e6;
     if f~=1
