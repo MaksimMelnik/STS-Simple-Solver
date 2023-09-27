@@ -60,6 +60,8 @@ for i_exch=2 % [1 2 3]
 % 2 - full NO vibr. spectrum and exchange reactions on with Kunova model
 % 3 - exchange reaction with average Kunova model and disabled NO vibr.
 % spectrum
+load("..\data\particles.mat", "NO");
+NO.num_elex_levels=1; 
 
 for i_ini=9 % [1 2 3 4 5 6 7 8 9 10 11]
 %choosing testcase
@@ -77,10 +79,7 @@ for i_rel=2 %[1 2]
     %if the model of exchange reactions is 3rd type, then you need to
     %turn off the vibrational spectrum of NO and replace the reaction 
     %model with "Kunova, NO avg". 
-
-    %IMPORTANT: if you run calculations with different exchange models, 
-    %then the 3rd type model should be the last one, 
-    %because it turns off the vibrational spectrum of NO
+    
     if i_exch==3
     NO.num_vibr_levels=1;
     NO.ev_0(1) = 0;

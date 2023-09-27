@@ -57,11 +57,13 @@ init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
     0.004 4.63 1470 296 633   % 0.4% NO; 49.8% N2; 49.8% Ar
     0.004 1.18 1959 296 817   % 0.4% NO; 49.8% N2; 49.8% Ar
     ];
-for i_exch=2 % [1 2 3]
+for i_exch=3 % [1 2 3]
 % 1 - full NO vibr. spectrum and exchange reactions off;
 % 2 - full NO vibr. spectrum and exchange reactions on with Kunova model
 % 3 - exchange reaction with average Kunova model and disabled NO vibr.
 % spectrum
+load("..\data\particles.mat", "NO");
+NO.num_elex_levels=1; 
 
 for i_ini=9 % [1 2 3 4 5 6 7 8 9 10 11 12]
 %choosing testcase
@@ -80,9 +82,6 @@ for i_rel=2 %[1 2]
     %turn off the vibrational spectrum of NO and replace the reaction 
     %model with "Kunova, NO avg". 
 
-    %IMPORTANT: if you run calculations with different exchange models, 
-    %then the 3rd type model should be the last one, 
-    %because it turns off the vibrational spectrum of NO
     if i_exch==3
     NO.num_vibr_levels=1;
     NO.ev_0(1) = 0;
@@ -137,8 +136,9 @@ for i_rel=2 %[1 2]
     case 2
          model_VT='FHO';
     end
-
-    Reacs_keys={'VT','VV'}; %dissociation between 
+    
+    %without exchange and diss-rec reactions, since this can be neglected
+    Reacs_keys={'VT','VV'}; 
     reacs_val={model_VT, model_VT};
     kinetics.Ps=Ps(2:end);
     kinetics.num_Ps=length(kinetics.Ps);
@@ -163,21 +163,26 @@ for i_rel=2 %[1 2]
     timewave=(v0 + v0_r)/(v0*v1)*deltas/v0_r; %time between passing the SWs
     x_w=v0*timewave;
     xspan=[0 x_w]./Delta;
+
+    %vector of initial values
     y0=zeros(kinetics.num_eq+2, 1);
     y0(end-1)=v1;
     y0(end)=T1;
-
-    n_bolz_NO=density_f_exc(T0, n1*f, NO);
-    y0(kinetics.index{IndexOfMolecules("NO")})=n_bolz_NO;
-
+    %initial distribution of vibrational level populations - Boltzmann
+    %distribution for NO molecules
+    n_boltz_NO=density_f_exc(T0, n1*f, NO);
+    y0(kinetics.index{IndexOfMolecules("NO")})=n_boltz_NO;
+    
+    %and for N2 molecules in accordance with their mole fractions
     if (i_ini<=6)
-        n_bolz_N2=density_f_exc(T0, n1*(1-f), N2);
+        n_boltz_N2=density_f_exc(T0, n1*(1-f), N2);
         y0(kinetics.index{IndexOfMolecules("Ar")})=0;
     else
-        n_bolz_N2=density_f_exc(T0, n1*(1-f)/2, N2);
+        n_boltz_N2=density_f_exc(T0, n1*(1-f)/2, N2);
         y0(kinetics.index{IndexOfMolecules("Ar")})=n1*(1-f)/2;
     end
-    y0(kinetics.index{IndexOfMolecules("N2")})=n_bolz_N2;
+    y0(kinetics.index{IndexOfMolecules("N2")})=n_boltz_N2;
+
     options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
     'NonNegative', 1:kinetics.num_eq+2);
     if i_rel==2 %if relaxation between SWs on
@@ -228,12 +233,12 @@ for i_rel=2 %[1 2]
         end
 
     if (i_ini<=6)
-        En0=n0*e_i_NO*n_bolz_NO/n1 + n0*e_i_N2*n_bolz_N2/n1 + n0*k*T0 + 1.5*n0*k*T0 +...
+        En0=n0*e_i_NO*n_boltz_NO/n1 + n0*e_i_N2*n_boltz_N2/n1 + n0*k*T0 + 1.5*n0*k*T0 +...
         n0*NO.form_e*f + n0*N2.form_e*(1-f);
         Ep0=(En0+n0*k*T0)/rho0+0.5*v0^2;  
         % (E0+p0)/rho0+v0^2/2
     else
-        En0=n0*e_i_NO*n_bolz_NO/n1 + n0*e_i_N2*n_bolz_N2/n1 + (f + (1-f)/2)*n0*k*T0 + ...
+        En0=n0*e_i_NO*n_boltz_NO/n1 + n0*e_i_N2*n_boltz_N2/n1 + (f + (1-f)/2)*n0*k*T0 + ...
         1.5*n0*k*T0 + n0*NO.form_e*f + n0*N2.form_e*(1-f);
         Ep0=(En0+n0*k*T0)/rho0+0.5*v0^2;  
     end
@@ -255,7 +260,7 @@ for i_rel=2 %[1 2]
     Reacs_keys={'Diss', 'VT', 'VV'};
     reacs_val={Diss,  model_VT, model_VT};
     else
-        disp("Error, invalid value of i_exch");
+        error("Error, invalid value of i_exch");
     end
 
     kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
@@ -288,19 +293,27 @@ for i_rel=2 %[1 2]
     x_w=v0_r*timewave;
     xspan=[0 x_w]./Delta;
     y0_1=zeros(kinetics.num_eq+2, 1);
+
+    %the vector of initial values ​​for modeling a reflected SW, 
+    %in the case of taking into account relaxation, is taken from the
+    %vector obtained when solving the problem of an incident SW,
+    %but taking into account new dimensionaless with respect
+    %to the new number density
     if i_rel==2
     y0_1(1:end)=Y(end, :).*((1/n0)*n1);
+    % in case without intermediate relaxation it's filled in the
+    % same way as y0 before an incident SW
     elseif i_rel==1
-    n_bolz_NO=density_f_exc(T0buf, n1*f, NO);
-    y0_1(kinetics.index{IndexOfMolecules("NO")})=n_bolz_NO;
+    n_boltz_NO=density_f_exc(T0buf, n1*f, NO);
+    y0_1(kinetics.index{IndexOfMolecules("NO")})=n_boltz_NO;
     if (i_ini<=6)
-        n_bolz_N2=density_f_exc(T0, n1*(1-f), N2);
+        n_boltz_N2=density_f_exc(T0, n1*(1-f), N2);
         y0_1(kinetics.index{IndexOfMolecules("Ar")})=0;
     else
-        n_bolz_N2=density_f_exc(T0, n1*(1-f)/2, N2);
+        n_boltz_N2=density_f_exc(T0, n1*(1-f)/2, N2);
         y0_1(kinetics.index{IndexOfMolecules("Ar")})=n1*(1-f)/2;
     end
-    y0_1(kinetics.index{IndexOfMolecules("N2")})=n_bolz_N2;
+    y0_1(kinetics.index{IndexOfMolecules("N2")})=n_boltz_N2;
     end
     y0_1(end-1)=v1;
     y0_1(end)=T1;
@@ -353,6 +366,12 @@ for i_rel=2 %[1 2]
     %This is where the output data is stored. 
     % They contain the evolution of temperatures, number densities,
     % and pressure between the SWs and behind the reflected SW
+
+    %if we have NO(0) model then remove fields TvNO from data struct
+    if i_exch==3  
+        dat=rmfield(dat, "Tv"); dat1=rmfield(dat1, "TvNO");
+    end
+
     if i_rel==2
     resSt.time=time_ms;
     resSt.T=T;
