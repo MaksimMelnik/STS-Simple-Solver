@@ -1,6 +1,5 @@
 % The main function for the macroparameters calculation behind reflected SW
 % for Streicher's experiment conditions in O2-Ar mixture.
-
 % [1] J. Streicher, A. Krish, R. Hanson, Coupled vibration-dissociation 
 % time-histories and rate measurements in shock-heated, nondilute O2 and 
 % O2-Ar mixtures from 6000 to 14000 K, Physics of Fluids 33 (5) (2021)
@@ -38,7 +37,7 @@ for i_U=2 % [2 3 4]    % choosing desired U dissociation parameter model
 % 2 is for D/6k; 3 is for 3T; 4 is for inf
 for i_vibr=1 % [1 2]  % choosing vibrational energy exchange model
 % 1 is for SSH; 2 is for FHO
-for rel=1     % if relaxation between incident and reflected waves 
+for rel=2     % if relaxation between incident and reflected waves 
 % frozen? 1 -relaxation off; 2 - relaxation on
     f=init_c(i_ini, 1); %molar fraction of O2
     p0=init_c(i_ini, 2)*Torr; %initial pressure in shock tube

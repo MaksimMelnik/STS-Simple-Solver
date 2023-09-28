@@ -1,6 +1,5 @@
 % The main function for the macroparameters calculation behind reflected SW
 % for Streicher's experiment conditions in NO-Ar mixture.
-
 %[1] J. Streicher, A. Krish, R. Hanson, High-temperature vibrational
 %relaxation and decomposition of shock-heated nitric oxide. I. Argon 
 %dilution from 2200 to 8700 K, Physics of Fluids 34 (11) (2022) 116122.
