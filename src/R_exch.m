@@ -72,7 +72,7 @@ switch reaction.type
   kb = kf .* Kfb;
   R_exch_data = n_M3' * n_M4 .* kb  -  n_M1 * n_M2 .* kf;
   Q = sum(- R_exch_data .* dE, 'all');
- case "Heaviside, avg"V_H
+ case "Heaviside, avg"
   coll.ArrA = reaction.A(T);
   coll.ArrN = reaction.n(T);
   coll.ArrE = reaction.E / k;   % in K
@@ -107,6 +107,9 @@ function kf = ...
 % parameters in Arrhenius law for reactuib in structure coll: ArrA, ArrN,
 % ArrE
 %(kd_eq=A*T^N*exp(-E/T))
+c = 299792458;  % speed of light
+k = 1.380649e-23; % Boltzmann constant, J/K
+h = 6.626070041e-34; % Plank constant, J*sec
 
 %vibrational statistical sums
 exp_M1 = exp(-M1.ev_i{1}/(k*T));
