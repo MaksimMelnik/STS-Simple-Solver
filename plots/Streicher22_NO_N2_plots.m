@@ -3,7 +3,7 @@
 
 clearvars;
 %Here you need to load an array with calculated data
-load('..\data\NO_N2 Streicher experiment\output_ReflSW_NO_N2.mat');
+load('..\data\NO_N2 Streicher experiment\NO_N2_behindRSW_output.mat');
 load('..\data\NO_N2 Streicher experiment\NO_N2_Streicher22_experiment.mat');
 info=["2% NO/N2 No.1", "2% NO/N2 No.2", "2% NO/N2 No.3" ,...
     "0.4% NO/N2 No.4" ,"0.4% NO/N2 No.5", "0.4% NO/N2 No.6",...
@@ -20,8 +20,9 @@ Na=6.02214076e23;
 % according to the Kunova model. data_minor - is data for comparison 
 % with the data_main, in our case these were models without taking into 
 % account exchange reactions or with averaging of the Kunova model
-data_main=dat1(:,:,:,:,2);
-data_minor=dat1(:,:,:,:,1);
+
+data_main=dat1(:,:,:,:,2); %data with i_exch=2 model (full NO spectrum)
+data_minor=dat1(:,:,:,:,1); %data with i_exch=1 model(without exch. react.)
 
 %indicators for plots. True if you want to plot a graph,
 %False if you dont want to.
@@ -31,8 +32,8 @@ data_minor=dat1(:,:,:,:,1);
 %TVerror_plot - plot deviation for Tv_NO
 %Nerror_plot - plot deviation for n_NO
 
-MACRO_plot=false;
-VDF_NO_plot=true;
+MACRO_plot=true;
+VDF_NO_plot=false;
 VDF_O2N2_plot=false;
 TVerror_plot=false;
 Nerror_plot=false;

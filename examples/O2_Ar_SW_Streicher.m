@@ -20,12 +20,20 @@ O2.num_elex_levels=1;       % no electronic excitation
 O.num_elex_levels=1;
 Ar.num_elex_levels=1;
 
+%initialization of structures dat and dat1
+tmp.time=0; tmp.T=0; tmp.Tv=0; tmp.nO=0; tmp.nO2=0; tmp.nAr=0; tmp.p=0;
+dat(2,4,9)=tmp;
+
+tmp1.time=0; tmp1.T=0; tmp1.Tv=0; tmp1.nO=0; tmp1.nO2=0; tmp1.nAr=0;
+tmp1.p=0;
+dat1(2,4,9,2)=tmp1;
+
 % initial conditions
 init_c=[ %  f;  p0,     Torr;   v0, m/s;    T0, K;   v0_1
         0.5 0.18 2210 296 910
         0.5 0.1 2520 296 1030
         0.5 0.06 2630 296 1080
-        0.2 0.47 2000 96 940
+        0.2 0.47 2000 296 940
         0.2 0.25 2300 296 1070
         0.2 0.06 2670 296 1230
         1 0.13 2220 296 770     % pure O2
@@ -115,18 +123,17 @@ for rel=2     % if relaxation between incident and reflected waves
     Y(:, 1:end-2)=Y(:, 1:end-2)*n0;
     Y(:, end-1)=Y(:, end-1)*v0;
     Y(:, end)=Y(:, end)*T0;
-    n_a=Y(:, length(n)+1);
+    n_O=Y(:, length(n)+1);
     if f~=1
         n_Ar=Y(:, kinetics.index{end}); %Argon number density in case with
         % diluted oxygen
-    end
-    n_m=sum(Y(:, 1:length(n)), 2);
-    T=Y(:, end);
-    if f~=1
-        p=(n_a+n_m+n_Ar).*k.*T /Torr; %pressure with argon
     else
-        p=(n_a+n_m).*k.*T/Torr; %pressure in pure oxygen
+        n_Ar=zeros(length(n_O), 1); %Argon number density = 0 in case with
+        % pure oxygen
     end
+    n_O2=sum(Y(:, 1:length(n)), 2);
+    T=Y(:, end);
+    p=(n_O+n_O2+n_Ar).*k.*T /Torr; %pressure
     Tv = O2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
     time_ms=X./v0*1e6;
     elseif rel==1 %if relaxation between SWs is neglected,
@@ -139,11 +146,13 @@ for rel=2     % if relaxation between incident and reflected waves
     Y=Y';
     if f~=1
         n_Ar=Y(kinetics.index{end});
+    else
+        n_Ar=0;
     end
-    n_a=Y(length(n)+1);
-    n_m=sum(Y(1:length(n)));
+    n_O=Y(length(n)+1);
+    n_O2=sum(Y(1:length(n)));
     end
-    if f~=1 %case with argon
+
     rhov0=n0*(f*O2.mass+(1-f)*Ar.mass) * v0;      % rho0*v0
     rhov2p0=n0*(f*O2.mass+(1-f)*Ar.mass)* v0^2 + n0*k*T0; % rho0*v0^2+p0
     e_i=[];
@@ -158,20 +167,6 @@ for rel=2     % if relaxation between incident and reflected waves
         disp('Conservation laws check, incident SW')
         check_CL_SW([rhov0 rhov2p0 Ep0], Y, kinetics, 0);
     end
-    else %case with pure oxygen
-    rhov0=n0*O2.mass * v0;                    % rho0*v0
-    rhov2p0=n0*O2.mass * v0^2 + n0*k*T0;      % rho0*v0^2+p0
-    e_i=[];
-    for ind_e=1:O2.num_elex_levels
-    e_i=[e_i, O2.ev_i{ind_e}+O2.ev_0(ind_e)+O2.e_E(ind_e)];
-    end
-    En0=n0*e_i*n/n1 + n0*k*T0 + 1.5*n0*k*T0 + n0*O2.form_e;
-    Ep0=(En0+n0*k*T0)/(n0*O2.mass)+0.5*v0^2;       % (E0+p0)/rho0+v0^2/2  
-    if rel==2
-        disp('Conservation laws check, incident SW')
-        check_CL_SW([rhov0 rhov2p0 Ep0], Y, kinetics, 0);
-    end    
-    end
     
     
     %% REFL
@@ -182,15 +177,12 @@ for rel=2     % if relaxation between incident and reflected waves
     v0=v0+v0_r-Y(end, end-1);   % m/s
     %v0=v0_r+Y(end,end-1);
     T0=Y(end, end);   % K
+    rho0_1=n_O2(end)*O2.mass+ n_O(end)*O.mass+n_Ar(end)*Ar.mass;
     elseif rel==1 
     n0=sum(Y(1:end-2));
     v0=v0+v0_r-Y(end-1);
     T0=Y(end);
-    end
-    if f~=1
-        rho0_1=n_m(end)*O2.mass+ n_a(end)*O.mass+n_Ar(end)*Ar.mass;
-    else
-        rho0_1=n_m(end)*O2.mass +n_a(end)*O.mass;
+    rho0_1=n0*(f*O2.mass + (1-f)*Ar.mass);
     end
     [n1, v1, T1]=in_con_SW(n0, v0, T0, rho0_1, f);
     Delta = 1 / sqrt(2) / n0 / sigma0;
@@ -226,48 +218,31 @@ for rel=2     % if relaxation between incident and reflected waves
     Y_1(:, end-1)=Y_1(:, end-1)*v0;
     Y_1(:, end)=Y_1(:, end)*T0;
     T_1=Y_1(:, end);
-    n_a_1=Y_1(:, length(n)+1);
-    n_m_1=sum(Y_1(:, 1:length(n)), 2);
+    n_O_1=Y_1(:, length(n)+1);
+    n_O2_1=sum(Y_1(:, 1:length(n)), 2);
     if f~=1
         n_Ar_1=Y_1(:, kinetics.index{end});
-        p_1=(n_m_1+n_a_1+n_Ar_1)*k.*T_1 /Torr;
     else
-        p_1=(n_m_1 + n_a_1)*k.*T_1/Torr;
+        n_Ar_1=zeros(length(n_O_1),1);
     end
-
+    p_1=(n_O2_1+n_O_1+n_Ar_1)*k.*T_1 /Torr;
     Tv_1 = O2.ev_i{1}(2)./(k*log(Y_1(:,1)./Y_1(:,2)));
     time_ms_1=X_1./v0_r*1e6;
-    if f~=1
-        rho0_1=n_m(end)*O2.mass+ n_a(end)*O.mass+n_Ar(end)*Ar.mass;
-        rhov0_1=rho0_1 * v0;                    % rho0*v0
-        rhov2p0_1=rho0_1* v0^2 + n0*k*T0;      % rho0*v0^2+p0
-        e_i=[];
-        for ind_e=1:O2.num_elex_levels
-            e_i=[e_i, O2.ev_i{ind_e}+O2.ev_0(ind_e)+O2.e_E(ind_e)];
-        end
-        En0_1=n0*e_i*y0_1(1:length(n))/n1 + k*T0*n_m(end) + 1.5*n0*k*T0 +...
-        n_m(end)*O2.form_e + n_a(end)*O.form_e; 
-        %we use the initial distribution here
-        Ep0_1=(En0_1+n0*k*T0)/(rho0_1)+0.5*v0^2;    % (E0+p0)/rho0+v0^2/2
-        disp('Conservation laws check, reflected SW')
-        check_CL_SW([rhov0_1 rhov2p0_1 Ep0_1], Y_1, kinetics, 0);
-    else
-        rho0_1=n_m(end)*O2.mass +n_a(end)*O.mass;
-        rhov0_1=rho0_1 * v0;                    % rho0*v0
-        rhov2p0_1=rhov0_1*v0 + n0*k*T0;      % rho0*v0^2+p0
-        e_i=[];
-        for ind_e=1:O2.num_elex_levels
-            e_i=[e_i, O2.ev_i{ind_e}+O2.ev_0(ind_e)+O2.e_E(ind_e)];
-        end
-        En0_1=n0*e_i*y0_1(1:length(n))/n1 + n_m(end)*k*T0 + 1.5*n0*k*T0 ...
-        + n_m(end)*O2.form_e + n_a(end)*O.form_e;
-        %we use the initial distribution here
-        
-        Ep0_1=(En0_1+n0*k*T0)/rho0_1+0.5*v0^2;       % (E0+p0)/rho0+v0^2/2
-        disp('Conservation laws check, reflected SW')
-        check_CL_SW([rhov0_1 rhov2p0_1 Ep0_1], Y_1, kinetics, 0);
-    end
 
+    rho0_1=n_O2(end)*O2.mass+ n_O(end)*O.mass+n_Ar(end)*Ar.mass;
+    rhov0_1=rho0_1 * v0;                    % rho0*v0
+    rhov2p0_1=rho0_1* v0^2 + n0*k*T0;      % rho0*v0^2+p0
+    e_i=[];
+    for ind_e=1:O2.num_elex_levels
+        e_i=[e_i, O2.ev_i{ind_e}+O2.ev_0(ind_e)+O2.e_E(ind_e)];
+    end
+    En0_1=n0*e_i*y0_1(1:length(n))/n1 + k*T0*n_O2(end) + 1.5*n0*k*T0 +...
+    n_O2(end)*O2.form_e + n_O(end)*O.form_e; 
+    %we use the initial distribution here
+    Ep0_1=(En0_1+n0*k*T0)/(rho0_1)+0.5*v0^2;    % (E0+p0)/rho0+v0^2/2
+    disp('Conservation laws check, reflected SW')
+    check_CL_SW([rhov0_1 rhov2p0_1 Ep0_1], Y_1, kinetics, 0);
+  
     %This is where the output data is stored. 
     % They contain the evolution of temperatures, number densities,
     % and pressure between the SWs and behind the reflected SW
@@ -275,22 +250,27 @@ for rel=2     % if relaxation between incident and reflected waves
         resSt.time=time_ms;
         resSt.T=T;
         resSt.Tv=Tv;
-        resSt.na=n_a;
-        resSt.nm=n_m;
+        resSt.nO=n_O;
+        resSt.nO2=n_O2;
         if f~=1
             resSt.nAr=n_Ar;
+        else
+            resSt.nAr=zeros(length(time_ms),1);
         end
         resSt.p=p;
         dat(i_vibr,i_U,i_ini)=resSt;
     end
+
     resSt_1.time=time_ms_1;
     resSt_1.T=T_1;
     resSt_1.Tv=Tv_1;
     resSt_1.p=p_1;
-    resSt_1.nm_n=n_m_1/Na;
-    resSt_1.na=n_a_1/Na; 
+    resSt_1.nO2=n_O2_1/Na;
+    resSt_1.nO=n_O_1/Na; 
     if f~=1
         resSt_1.nAr=n_Ar_1/Na;
+    else
+        resSt_1.nAr=zeros(length(time_ms_1),1);
     end
     dat1(i_vibr,i_U,i_ini,rel)=resSt_1;
 end
@@ -299,8 +279,8 @@ end
 end
 %%
 %if you want to save your data in .mat file, uncomment following raws
-%save(['O2Ar_Streicher_between_SWs'], 'dat');
-%save(['O2Ar_Streicher_behind_ReflSW.mat'], 'dat1');
+%save(['..\data\O2_Ar Streicher experiment\O2Ar_betweenSWs_output'], 'dat');
+%save(['..\data\O2_Ar Streicher experiment\O2Ar_behindRSW_output'], 'dat1');
 
 rmpath('../src/')
 rmpath('../data/')

@@ -63,6 +63,7 @@ for i_exch=2 % [1 2 3]
 % spectrum
 load("..\data\particles.mat", "NO");
 NO.num_elex_levels=1; 
+Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
 
 for i_ini=9 % [1 2 3 4 5 6 7 8 9 10 11 12]
 %choosing testcase
@@ -366,16 +367,13 @@ for i_rel=2 %[1 2]
     % They contain the evolution of temperatures, number densities,
     % and pressure between the SWs and behind the reflected SW
 
-    %if we have NO(0) model then remove fields TvNO from data struct
-    if i_exch==3  
-        dat=rmfield(dat, "Tv"); dat1=rmfield(dat1, "TvNO");
-    end
-
     if i_rel==2
     resSt.time=time_ms;
     resSt.T=T;
     if i_exch~=3
     resSt.Tv=Tv;
+    else
+    resSt.Tv=ones(length(time_ms),1)*NaN;
     end
     resSt.nO=n_O;
     resSt.nN=n_N;
@@ -390,6 +388,8 @@ for i_rel=2 %[1 2]
     resSt_1.T=T_1;
     if i_exch~=3
     resSt_1.TvNO=Tv_NO_1;
+    else
+    resSt_1.TvNO=ones(length(time_ms_1),1)*NaN;
     end
     resSt_1.TvO2=Tv_O2;
     resSt_1.TvN2=Tv_N2;

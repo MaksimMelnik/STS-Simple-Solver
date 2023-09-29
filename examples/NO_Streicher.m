@@ -62,7 +62,7 @@ for i_exch=2 % [1 2 3]
 load("..\data\particles.mat", "NO");
 NO.num_elex_levels=1; 
 
-for i_ini=9 % [1 2 3 4 5 6 7 8 9 10 11]
+for i_ini=7 % [1 2 3 4 5 6 7 8 9 10 11]
 %choosing testcase
 
 for i_U=2 % [2 3 4]
@@ -302,6 +302,8 @@ for i_rel=2 %[1 2]
     resSt.T=T;
     if i_exch~=3  %if i_exch==3 then TvNO has no meaning
     resSt.Tv=Tv;
+    else
+    resSt.Tv=ones(length(time_ms),1)*NaN;
     end
     resSt.nO=n_O;
     resSt.nN=n_N;
@@ -316,6 +318,8 @@ for i_rel=2 %[1 2]
     resSt_1.T=T_1;
     if i_exch~=3  %if i_exch==3 then TvNO has no meaning
     resSt_1.TvNO=Tv_NO_1;
+    else
+    resSt_1.TvNO=ones(length(time_ms_1),1)*NaN;
     end
     resSt_1.TvO2=Tv_O2;
     resSt_1.TvN2=Tv_N2;
