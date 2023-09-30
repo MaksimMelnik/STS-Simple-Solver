@@ -59,19 +59,21 @@ for rel=2     % if relaxation between incident and reflected waves
     [n1, v1, T1]=in_con_SW(n0, v0, T0, rho0 ,f);
     sigma0 = pi*O2.diameter^2;
     Delta = 1 / sqrt(2) / n0 / sigma0;  %free path length
-    num=0;
-    index{1}=0;
+    % num=0;
+    % index{1}=0;
     if f==1
-    Ps={num, O2, O};
+    % Ps={num, O2, O};
+        Ps = {O2, O};
     else
-    Ps={num, O2, O, Ar};
+    % Ps={num, O2, O, Ar};
+        Ps = {O2, O, Ar};
     end
-    for ind=2:length(Ps)
-        num_states=sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
-        num=num+num_states;
-        first=index{ind-1}(end)+1;
-        index{ind}=first:first+num_states-1;
-    end
+    % for ind=2:length(Ps)
+    %     num_states=sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
+    %     num=num+num_states;
+    %     first=index{ind-1}(end)+1;
+    %     index{ind}=first:first+num_states-1;
+    % end
     Diss.Arrhenius='Park';
     Diss.rec=true;
     Diss.NEmodel='MT';
@@ -91,11 +93,14 @@ for rel=2     % if relaxation between incident and reflected waves
     end
     Reacs_keys={'Diss', 'VT', 'VV'};
     reacs_val={Diss, model_VT, model_VT};
-    kinetics.Ps=Ps(2:end);
+    % kinetics.Ps=Ps(2:end);
+    kinetics.Ps = Ps;
     kinetics.num_Ps=length(kinetics.Ps);
-    kinetics.num_eq=num;
+    kinetics.index = indexes_for_Ps(Ps);
+    kinetics.num_eq = kinetics.index{end}(end);
+    % kinetics.num_eq=num;
     kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
-    kinetics.index=index(2:end);
+    % kinetics.index=index(2:end);
     kinetics.n0=n0;
     kinetics.v0=v0;
     kinetics.T0=T0;
