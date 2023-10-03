@@ -9,10 +9,11 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
+% change "reaction" in Starik on "reaction.E"
 % add Starik model
 % implement Starik model to the code
 % add VT switcher for different molecules
-% rewrite density_f_exc taking into account el excitation, even for atoms
+% remove density_f_exc
 % e-
 %   e + without LoKI
 % e-
