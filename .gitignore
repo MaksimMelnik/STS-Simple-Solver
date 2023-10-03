@@ -4,3 +4,6 @@ examples/graphics.m
 data/Streicher experiment/
 examples/NO_behind_ReflSW_withexch_VDOP0.mat
 examples/NO_between_SWs_withexch_VDOP0.mat
+data/NO Streicher experiment/NO_behindRSW_output.mat
+data/NO_N2 Streicher experiment/NO_N2_behindRSW_output.mat
+data/O2_Ar Streicher experiment/O2Ar_behindRSW_output.mat
