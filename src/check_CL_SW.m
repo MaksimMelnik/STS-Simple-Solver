@@ -47,4 +47,13 @@ if ind_ref==1
     Ep0=Ep2(1);
 end
 disp(['E cons max error ' num2str(max(abs((Ep2-Ep0)/Ep0)))])
+if max(abs((rhov-rhov0)/rhov0)) > 1e-5
+    warning("rho*v max error")
+end
+if max(abs((rhov2p-rhov2p0)/rhov2p0)) > 1e-5
+    warning("rho*v^2+p max error")
+end
+if max(abs((Ep2-Ep0)/Ep0)) > 1e-5
+    warning("E cons max error")
+end
 end
