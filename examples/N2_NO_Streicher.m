@@ -293,6 +293,7 @@ for i_rel=2 %[1 2]
     kinetics.v0=v0;
     kinetics.T0=T0;
     kinetics.Delta=Delta;
+    %time interval of calculation behind RSW
     timewave=1000*1e-6;
     x_w=v0_r*timewave;
     xspan=[0 x_w]./Delta;

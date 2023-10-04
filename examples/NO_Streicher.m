@@ -241,6 +241,7 @@ for i_rel=2 %[1 2]
     kinetics.v0=v0;
     kinetics.T0=T0;
     kinetics.Delta=Delta;
+    %time interval of calculation behind RSW
     timewave=1000*1e-6;
     x_w=v0_r*timewave;
     xspan=[0 x_w]./Delta;
@@ -258,7 +259,6 @@ for i_rel=2 %[1 2]
     'NonNegative', 1:kinetics.num_eq+2);
     [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
         xspan, y0_1, options_s);
-    
     
     X_1=X_1*Delta;
     Y_1(:, 1:end-2)=Y_1(:, 1:end-2)*n0;
