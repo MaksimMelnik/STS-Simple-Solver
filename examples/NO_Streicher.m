@@ -161,7 +161,7 @@ for i_rel=2 %[1 2]
     y0(end-1)=v1;
     y0(end)=T1;
     y0(kinetics.index{end})=n1*(1-f);
-    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
+    options_s = odeset('RelTol', 1e-11, 'AbsTol', 1e-13, ...
     'NonNegative', 1:kinetics.num_eq+2);
     if i_rel==2 %if relaxation between SWs on
     [X, Y]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics), xspan, ...
@@ -242,7 +242,7 @@ for i_rel=2 %[1 2]
     kinetics.T0=T0;
     kinetics.Delta=Delta;
     %time interval of calculation behind RSW
-    timewave=1000*1e-6;
+    timewave=600*1e-6;
     x_w=v0_r*timewave;
     xspan=[0 x_w]./Delta;
     y0_1=zeros(kinetics.num_eq+2, 1);
