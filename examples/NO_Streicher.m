@@ -4,8 +4,8 @@
 %relaxation and decomposition of shock-heated nitric oxide. I. Argon 
 %dilution from 2200 to 8700 K, Physics of Fluids 34 (11) (2022) 116122.
 %doi:10.1063/5.0109109.
-
 % 06.04.2023 Denis Kravchenko
+
 tic
 clearvars;
 % constants

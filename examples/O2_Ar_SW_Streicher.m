@@ -4,7 +4,6 @@
 % time-histories and rate measurements in shock-heated, nondilute O2 and 
 % O2-Ar mixtures from 6000 to 14000 K, Physics of Fluids 33 (5) (2021)
 %056107. doi:10.1063/5.0048059
-
 % 06.04.2023 Denis Kravchenko
 
 tic
