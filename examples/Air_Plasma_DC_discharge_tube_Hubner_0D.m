@@ -245,7 +245,7 @@ end
 rmpath('../src/')
 
 addpath('../plots/')
-Hubner12_Pintassilgo14_Air_DC_plots(out(i_ini, i_U, i_vibr))
+Hubner12_Pintassilgo14_Air_DC_plots(out(i_ini, i_vibr, i_U))
 rmpath('../plots/')
 
 toc

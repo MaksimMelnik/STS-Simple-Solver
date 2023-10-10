@@ -100,16 +100,7 @@ for i_rel=2 %[1 2]
     n1buf=n1;
     sigma0 = pi*NO.diameter^2;
     Delta = 1 / sqrt(2) / n0 / sigma0; %free path length
-    % num=0;
-    % index{1}=0;
-    % Ps={num, NO, O, N, O2, N2, Ar};
     Ps = {NO, O, N, O2, N2, Ar};
-    % for ind=2:length(Ps)
-    %     num_states=sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
-    %     num=num+num_states;
-    %     first=index{ind-1}(end)+1;
-    %     index{ind}=first:first+num_states-1;
-    % end
     Diss.Arrhenius='Park';
     Diss.rec=true;
     Diss.NEmodel='MT';
@@ -129,14 +120,11 @@ for i_rel=2 %[1 2]
     end
     Reacs_keys={'VT', 'VV'};
     reacs_val={model_VT, model_VT};
-    % kinetics.Ps=Ps(2:end);
     kinetics.Ps = Ps;
     kinetics.num_Ps=length(kinetics.Ps);
     kinetics.index = indexes_for_Ps(Ps);
     kinetics.num_eq = kinetics.index{end}(end);
-    % kinetics.num_eq=num;
     kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
-    % kinetics.index=index(2:end);
     kinetics.n0=n0;
     kinetics.v0=v0;
     kinetics.T0=T0;
@@ -161,7 +149,7 @@ for i_rel=2 %[1 2]
     y0(end-1)=v1;
     y0(end)=T1;
     y0(kinetics.index{end})=n1*(1-f);
-    options_s = odeset('RelTol', 1e-11, 'AbsTol', 1e-13, ...
+    options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-18, ...
     'NonNegative', 1:kinetics.num_eq+2);
     if i_rel==2 %if relaxation between SWs on
     [X, Y]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics), xspan, ...

@@ -109,16 +109,7 @@ for i_rel=2 %[1 2]
     end
     sigma0 = pi*NO.diameter^2;
     Delta = 1 / sqrt(2) / n0 / sigma0; %free path length
-    % num=0;
-    % index{1}=0;
-    % Ps={num, NO, O, N, O2, N2, Ar};
     Ps = {NO, O, N, O2, N2, Ar};
-    % for ind=2:length(Ps)
-    %     num_states=sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
-    %     num=num+num_states;
-    %     first=index{ind-1}(end)+1;
-    %     index{ind}=first:first+num_states-1;
-    % end
     Diss.Arrhenius='Park';
     Diss.rec=true;
     Diss.NEmodel='MT';
@@ -140,14 +131,11 @@ for i_rel=2 %[1 2]
     %without exchange and diss-rec reactions, since this can be neglected
     Reacs_keys={'VT','VV'}; 
     reacs_val={model_VT, model_VT};
-    % kinetics.Ps=Ps(2:end);
     kinetics.Ps = Ps;
     kinetics.num_Ps=length(kinetics.Ps);
     kinetics.index = indexes_for_Ps(Ps);
     kinetics.num_eq = kinetics.index{end}(end);
-    % kinetics.num_eq=num;
     kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
-    % kinetics.index=index(2:end);
     kinetics.n0=n0;
     kinetics.v0=v0;
     kinetics.T0=T0;
@@ -186,7 +174,7 @@ for i_rel=2 %[1 2]
     end
     y0(kinetics.index{IndexOfMolecules("N2")})=n_boltz_N2;
 
-    options_s = odeset('RelTol', 1e-11, 'AbsTol', 1e-13, ...
+    options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-18, ...
     'NonNegative', 1:kinetics.num_eq+2);
     if i_rel==2 %if relaxation between SWs on
     [X, Y]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics), xspan, ...
@@ -236,13 +224,14 @@ for i_rel=2 %[1 2]
         end
 
     if (i_ini<=6)
-        En0=n0*e_i_NO*n_boltz_NO/n1 + n0*e_i_N2*n_boltz_N2/n1 + n0*k*T0 + 1.5*n0*k*T0 +...
-        n0*NO.form_e*f + n0*N2.form_e*(1-f);
+        En0=n0*e_i_NO*n_boltz_NO/n1 + n0*e_i_N2*n_boltz_N2/n1 + ...
+            n0*k*T0 + 1.5*n0*k*T0 + n0*NO.form_e*f + n0*N2.form_e*(1-f);
         Ep0=(En0+n0*k*T0)/rho0+0.5*v0^2;  
         % (E0+p0)/rho0+v0^2/2
     else
-        En0=n0*e_i_NO*n_boltz_NO/n1 + n0*e_i_N2*n_boltz_N2/n1 + (f + (1-f)/2)*n0*k*T0 + ...
-        1.5*n0*k*T0 + n0*NO.form_e*f + n0*N2.form_e*(1-f);
+        En0=n0*e_i_NO*n_boltz_NO/n1 + n0*e_i_N2*n_boltz_N2/n1 + ...
+            (f + (1-f)/2)*n0*k*T0 + ...
+                1.5*n0*k*T0 + n0*NO.form_e*f + n0*N2.form_e*(1-f);
         Ep0=(En0+n0*k*T0)/rho0+0.5*v0^2;  
     end
     if i_rel==2
