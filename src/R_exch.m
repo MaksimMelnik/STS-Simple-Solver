@@ -8,44 +8,26 @@ function [R_exch_data, Q] = ...
 % Electronic excitaion is not taken into account.
 % 22.07.2023 Maksim Melnik
 
-c = 299792458;  % speed of light
-k = 1.380649e-23; % Boltzmann constant, J/K
-h = 6.626070041e-34; % Plank constant, J*sec
+    % constants
+k = 1.380649e-23;         % Boltzmann constant, J/K
+c = 299792458;            % speed of light
+h = 6.626070041e-34;      % Plank constant, J*sec
 
 if (M2.fr_deg_c + M4.fr_deg_c ~= 6) 
     error("M2 and M4 must be atoms.");
 end
+
 switch reaction.type
  case "const"
   kf = zeros(M1.num_vibr_levels(1), M3.num_vibr_levels(1));
-  kb = kf;
-  kf_eq = reaction.A(T) * T^reaction.n(T)*exp(-reaction.E / k/T ); % m^3/sec
-%   kf(reaction.index{1}, reaction.index{3}) = ...
-%       kf(reaction.index{1}, reaction.index{3}) + reaction.A;
-    kf = ...
-      kf + kf_eq;
-  dE = (repmat(M3.ev_i{1} + M3.ev_0(1), M1.num_vibr_levels(1), 1) ...
-- repmat((M1.ev_i{1} + M1.ev_0(1))', 1, M3.num_vibr_levels(1))) + ...
-                                        (M1.diss_e(1) - M3.diss_e(1));
-  if reaction.reverse
-   Theta_r_M1 = M1.Be(1) * h * c / k;
-   Z_rot_M1 = T ./ (M1.sigma .* Theta_r_M1);
-   Theta_r_M3 = M3.Be(1) * h * c / k;
-   Z_rot_M3 = T ./ (M3.sigma .* Theta_r_M3);
-   Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) ...
-        * (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 ...
-                                                       * exp( dE / (k*T));
-    % rate coefficient of backward (b) reaction
-   kb = kf .* Kfb;
-  end
-
-  R_exch_data = n_M3' * n_M4 .* kb  -  n_M1 * n_M2 .* kf;
-  dE_Q = dE + M3.ev_0(1) + M3.ev_i{1} - M1.ev_0(1) + M1.ev_i{1}';
-  Q = sum(- R_exch_data .* dE_Q, 'all');
-  %warning('recheck the energy in Q')
+  kf(reaction.index{1}, reaction.index{3}) = ...
+                    kf(reaction.index{1}, reaction.index{3}) + reaction.A;
+  dE_fb = M1.diss_e(1) - M3.diss_e(1);
  case "ATn"
-        error("Exchange reactions of this type are still not " + ...
-            "implemented " + reaction.type)
+  kf = zeros(M1.num_vibr_levels(1), M3.num_vibr_levels(1));
+  kf(reaction.index{1}, reaction.index{3}) = ...
+   kf(reaction.index{1}, reaction.index{3}) + reaction.A * T ^ reaction.n;
+  dE_fb = M1.diss_e(1) - M3.diss_e(1);
  case "Arrhenius"
     coll.ArrA = reaction.A(T);
     coll.ArrN = reaction.n(T);
@@ -58,20 +40,9 @@ switch reaction.type
   coll.ArrE = reaction.E / k;   % in K
   kf = R_exch_Heaviside(M1, M2, M3, M4, ...
                                 n_M1, n_M2, n_M3, n_M4, T, coll);
-  dE = (repmat(M3.ev_i{1} + M3.ev_0(1), M1.num_vibr_levels(1), 1) ...
+  dE_fb = (repmat(M3.ev_i{1} + M3.ev_0(1), M1.num_vibr_levels(1), 1) ...
     - repmat((M1.ev_i{1} + M1.ev_0(1))', 1, M3.num_vibr_levels(1))) + ...
                                         (M1.diss_e(1) - M3.diss_e(1));
-
-  Theta_r_M1 = M1.Be(1)*h*c/k;  Z_rot_M1 = T./(M1.sigma.*Theta_r_M1);
-  Theta_r_M3 = M3.Be(1)*h*c/k;  Z_rot_M3 = T./(M3.sigma.*Theta_r_M3);
-
-  Kfb = (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 * ...
-      exp( dE / (k*T));
-  Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) * Kfb;
-  %rate of backward (b) reaction
-  kb = kf .* Kfb;
-  R_exch_data = n_M3' * n_M4 .* kb  -  n_M1 * n_M2 .* kf;
-  Q = sum(- R_exch_data .* dE, 'all');
  case "Heaviside, avg"
   coll.ArrA = reaction.A(T);
   coll.ArrN = reaction.n(T);
@@ -81,26 +52,42 @@ switch reaction.type
   kf = R_exch_Heaviside(M1, M2, M3, M4, ...
                                 n_M1, n_M2, n_M3, n_M4, T, coll);
   kf=sum(kf,2);
-  dE = (repmat(M3.ev_0(1), M1.num_vibr_levels(1), 1) ...
+  dE_fb = (repmat(M3.ev_0(1), M1.num_vibr_levels(1), 1) ...
     - repmat((M1.ev_i{1} + M1.ev_0(1))', 1, 1)) + ...
                                             (M1.diss_e(1) - M3.diss_e(1));
-
-  Theta_r_M1 = M1.Be(1)*h*c/k;  Z_rot_M1 = T./(M1.sigma.*Theta_r_M1);
-  Theta_r_M3 = M3.Be(1)*h*c/k;  Z_rot_M3 = T./(M3.sigma.*Theta_r_M3);
-  
-  Kfb = (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 * ...
-      exp( dE / (k*T));
-  Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) * Kfb;
-  %rate of backward (b) reaction
-  kb = kf .* Kfb;
-  R_exch_data = n_M3' * n_M4 .* kb  -  n_M1 * n_M2 .* kf;
-  Q = sum(- R_exch_data .* dE, 'all');
  otherwise
         error("Exchange reactions of this type are still not " + ...
             "implemented " + reaction.type)    
 end
-
+   
+	% rate coefficient of backward (b) reaction
+kb = zeros(M1.num_vibr_levels(1), M3.num_vibr_levels(1)); 
+    % if the reaction prceeds in the opposite direction
+if ~reaction.direction_forward
+ kb = kf;
+ kf = zeros(M1.num_vibr_levels(1), M3.num_vibr_levels(1));
 end
+if reaction.reverse     % if backward reaction included
+ Theta_r_M1 = M1.Be(1) * h * c / k;
+ Z_rot_M1 = T ./ (M1.sigma .* Theta_r_M1);  % statistical rotational sum
+ Theta_r_M3 = M3.Be(1) * h * c / k;
+ Z_rot_M3 = T ./ (M3.sigma .* Theta_r_M3);
+ Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) ...
+        * (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 ...
+                                                   * exp( dE_fb / (k*T));
+ if reaction.direction_forward
+  kb = kf .* Kfb;
+ else
+  kf = kb ./ Kfb;
+ end
+end
+R_exch_data = n_M3' * n_M4 .* kb  -  n_M1 * n_M2 .* kf;
+    % energy change in the reaction (after - before)
+dE_Q = M1.diss_e(1) - M3.diss_e(1) ...
+                    + M3.ev_0(1) + M3.ev_i{1} - M1.ev_0(1) - M1.ev_i{1}';
+Q = sum(R_exch_data .* dE_Q, 'all');
+end
+
 
 function kf = ...
    R_exch_Heaviside(M1, M2, M3, M4, n_M1, n_M2, n_M3, n_M4, T, coll)

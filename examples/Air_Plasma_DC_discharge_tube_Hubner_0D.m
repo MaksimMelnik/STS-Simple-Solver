@@ -9,8 +9,7 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% create a separate function for the plotting of the results
-% fix the flux in the Zeldovich reactions
+% rename the function
 % add VT rates from V. Guerra works and fix the VT fluxes
 % - N2-N    % first five transitions, same as i->i-1
 % - add all particles:
@@ -45,26 +44,23 @@ function out = Air_Plasma_DC_discharge_tube_Hubner_0D
 %   (9) Diffusion of molecular and atomic metastable states to the wall
 %   (10) Chemical reactions, Qchem
 %   (11) Electron–ion recombination involving nitrogen or oxygen ions,Qe−i
+% Consider the second Zeldovich reaction. It's not included in 
+%   prof. Guerra's works, but it affects
 
 
 warning("The present test case is unfinished")
-warning(['lambda and cp are calculated only for N2-20%O2 mixture ' ...
-                                                    'with T=[300 600] K'])
 warning(['Energy fluxes Q are not finnished, now only VT, VV, Diss, ' ...
     'Zeldovich, wall VT, wall rec are included'])
-warning('Dimentions of Q should be agreed')
 warning('Thermal average velocity in R_VT_wall shoul be recheckerd')
 warning('gamma_v in R_VT_wall is the same for each particle')
 warning('Check energies in the wall recombination function')
 warning('Zeldovich reactions are without electronic excitation')
-warning('Zeldovich reactions were weird. It may affect')
 warning("VV exchanges are with a crutch.")
 disp('Started.')
 
 tic                             % measuring computing time
     % constants
 k = 1.380649e-23;               % Boltzmann constant, J/K
-N_a=6.02214076e23;              % Avogadro constant
 addpath('../src/')
 load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO')
     % electronic excitation
@@ -83,26 +79,27 @@ O2.num_vibr_levels(1) = 1;  O2.ev_i{1} = 0;
     % initial conditions
     % f_M_i are fractions of particle M at the moment i (i=0 is initial,
     %   i=3 is when the discharge is off. Fractions_3 are approximate.
-init_c=[% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
-          133     0.2     0.008   300    440    1.2e-1 3.8e-3  2e-3 ...
-      ... f_N2A_3
-          5.8e-5
+init_c = [% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
+            133     0.2     0.008   300    440    1.2e-1 3.8e-3  2e-3 ...
+        ... f_N2A_3
+            5.8e-5
         ];
-for i_ini=1             % choosing desired initial coonditions
+for i_ini = 1           % choosing desired initial coonditions
  for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
   for i_vibr = 3 % [1 2 3] % choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO;
                         %   3 is for kinetics from V. Guerra works
-   T0     = init_c(i_ini, 4);         % K
-   n0     = init_c(i_ini, 1)/k/T0;    % m-3
-   f_O2_0 = init_c(i_ini, 2);
-   f_NO_0 = init_c(i_ini, 3);
-   T3     = init_c(i_ini, 5) /T0;
-   f_O_3  = init_c(i_ini, 6);
-   f_N_3  = init_c(i_ini, 8);
-   f_NO_3 = init_c(i_ini, 7);
-   f_N2A_3= init_c(i_ini, 9);
+   T0      = init_c(i_ini, 4);         % K
+   n0      = init_c(i_ini, 1)/k/T0;    % m-3
+   f_O2_0  = init_c(i_ini, 2);
+   f_NO_0  = init_c(i_ini, 3);
+   T3      = init_c(i_ini, 5) /T0;
+   f_O_3   = init_c(i_ini, 6);
+   f_N_3   = init_c(i_ini, 8);
+   f_NO_3  = init_c(i_ini, 7);
+   f_N2A_3 = init_c(i_ini, 9);
+   n3      = init_c(i_ini, 1)/k/T3/T0; % m-3
    
    sigma0 = pi*N2.diameter^2;
    Delta = 1 / sqrt(2) / n0 / sigma0; % characteristic length, m
@@ -140,14 +137,13 @@ for i_ini=1             % choosing desired initial coonditions
    end
    load('../data/reactions.mat', 'Reactions');
    ReactZel_1 = Reactions("N2 + O -> NO + N");
-   ReactZel_2 = Reactions("O2 + N -> NO + O");
-   Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
+%    ReactZel_2 = Reactions("O2 + N -> NO + O");
+%    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
+%    Exch = [ReactZel_1("Kunova, NO(1)"), ReactZel_2("Kunova, NO(1)")];
         % V Guerra Zeldovich model
-%     Exch = [ReactZel_1("Guerra95"), ReactZel_2("Kunova")];
-   Reacs_keys = {'None'};
-   reacs_val = {1};
-   Reacs_keys = {'VT'};
-   reacs_val = {model_VT};
+%    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
+%                                                     ReactZel_2("Kunova")];
+   Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse")];
    Reacs_keys={'Diss', 'VT'};
    reacs_val={Diss, model_VT};
    Reacs_keys = {'Diss', 'VT', 'Wall'};
@@ -158,16 +154,13 @@ for i_ini=1             % choosing desired initial coonditions
    reacs_val={Diss, model_VT, model_VT, 1};
    Reacs_keys={'Diss', 'VT', 'VV', 'Exch'};
    reacs_val={Diss, model_VT, model_VT, Exch};
-%    Reacs_keys={'Diss', 'VT', 'VV', 'Exch', 'Wall'};
-%    reacs_val={Diss, model_VT, model_VT, 1, 1};
-   % kinetics.Ps = Ps(2:end);
+   Reacs_keys={'Diss', 'VT', 'VV', 'Exch', 'Wall'};
+   reacs_val={Diss, model_VT, model_VT, Exch, 1};
    kinetics.Ps = Ps;
    kinetics.num_Ps = length(kinetics.Ps);
    kinetics.index = indexes_for_Ps(Ps);
    kinetics.num_eq = kinetics.index{end}(end);
-   % kinetics.num_eq = num;
    kinetics.reactions = containers.Map(Reacs_keys, reacs_val);
-   % kinetics.index = index(2:end);
    kinetics.n0 = n0;
    kinetics.T0 = T0;
    kinetics.Delta = Delta;
@@ -202,11 +195,13 @@ for i_ini=1             % choosing desired initial coonditions
    n_N2 = n_N2 * f_N2_3;
    n_O2 = density_f_exc(Tv1, f_O2_3, O2);
    n_NO = density_f_exc(Tv1, f_NO_3, NO);
-     % N2(X,v), N2(A3Σu+), O2(X), NO(X), N(X),  O(X),  T
-   y0=[n_N2;               n_O2;  n_NO;  f_N_3; f_O_3; T3];
+       % N2(X,v), N2(A3Σu+), O2(X), NO(X), N(X),  O(X)
+   y0 = [n_N2;               n_O2;  n_NO;  f_N_3; f_O_3];
 if N2.num_elex_levels == 2
-   y0=[n_N2;    f_N2A_3;   n_O2;  n_NO;  f_N_3; f_O_3; T3];
+   y0 = [n_N2;    f_N2A_3;   n_O2;  n_NO;  f_N_3; f_O_3];
 end
+       % t3 correction, T
+   y0 = [y0 * n3/n0;    T3];
    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-20, ...
                                     'NonNegative', 1:kinetics.num_eq+1); 
    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-13, ...
