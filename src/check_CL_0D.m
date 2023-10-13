@@ -36,4 +36,12 @@ if ind_ref == 1
 end
 disp(['rho max error ' num2str(max(abs( (rho-rho0)/rho0 )))])
 disp(['E cons max error ' num2str(max(abs( (E-E0)/E0 )))])
+
+maxerror = 9e-5;
+if max(abs( (rho-rho0)/rho0 )) > maxerror 
+    warning("rho max error")
+end
+if max(abs( (E-E0)/E0 )) > maxerror 
+    warning("E cons max error")
+end
 end
