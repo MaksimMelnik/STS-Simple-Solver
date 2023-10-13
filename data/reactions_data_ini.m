@@ -61,7 +61,8 @@ react1.n = @(T) 0^(T < 4000)*1.745^(T >= 4000);
 react1.E = 37484 * k;   % J
    % from works by O. Kunova, but only the ground vibrational state of NO
 react2 = react1;
-react2.source = 'Kunova, NO(1)';
+react2.source = 'Kunova, NO avg';
+react2.type = "Heaviside, avg";
  % only ground NO state included
 react2.index = {1:N2.num_vibr_levels(1), 1, 1, 1};
    % from works by V. Guerra [1]
@@ -105,7 +106,8 @@ react1.n = @(T) (-0.39)^(T < 4000)*1.58^(T >= 4000);
 react1.E = 1449 * k;   % J
    % from works by O. Kunova, but only the ground vibrational state of NO
 react2 = react1;
-react2.source = 'Kunova, NO(1)';
+react2.source = 'Kunova, NO avg';
+react2.type = "Heaviside, avg";
  % only ground NO state included
 react2.index = {1:O2.num_vibr_levels(1), 1, 1, 1};
 keySet = {react1.source, react2.source};%, react3.source};

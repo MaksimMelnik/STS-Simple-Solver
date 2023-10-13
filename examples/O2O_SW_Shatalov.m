@@ -20,13 +20,6 @@ init_c_Shatalov = [ % p0, Torr;     T1, K;      v0, m/s;
                     2               5300        3070];
 	% initialization of the gas mixture
 Ps    = {O2, O};                    % chemical composition of the mixture
-index = cell(1, length(Ps));
-first = 1;
-for ind = 1:length(Ps)
-    num_states = sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
-    index{ind} = first : (first+num_states-1);
-    first = index{ind}(end) + 1;
-end
 
 for i_ini = 1 % [1 2 3 4 5]         % choosing desired initial coonditions
  cond2 = par_shatalov_f(init_c_Shatalov(i_ini, :));
@@ -67,7 +60,7 @@ for i_ini = 1 % [1 2 3 4 5]         % choosing desired initial coonditions
    reacs_val = {Diss, model_VT, model_VT};
    kinetics.Ps = Ps;                 % inicialization of kinetics variable
    kinetics.num_Ps = length(kinetics.Ps);
-   kinetics.index = index;
+   kinetics.index = indexes_for_Ps(kinetics.Ps);
    kinetics.num_eq = kinetics.index{end}(end);
    kinetics.reactions = containers.Map(Reacs_keys, reacs_val);
    kinetics.n0 = n0;
