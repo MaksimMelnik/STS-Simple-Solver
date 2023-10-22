@@ -19,11 +19,12 @@
 % 4) Choose models in the block 5 for plots and run this block. You can
 %       turn off the benchmark.
 %% 2) loading
+res_Shatalov = O2O_SW_Shatalov;
 load("../data/for comparison/shatalov.mat")
 out = res_Shatalov;
-str_vibr = ["SSH", "FHO", "FHO-FR"];
+str_vibr = ["SSH", "FHO", "FHO-FR with VV"];
 str_U    = ["Savelev", "D/6k", "3T", "\infty"];
-pl_vibr  = [":",   "-",  "-."];
+pl_vibr  = [":",   "-",  "-"];
 pl_U     = [0.5 0.5 0
             0   0.6 0
             0.9 0   0
@@ -31,9 +32,9 @@ pl_U     = [0.5 0.5 0
             0   0.5 0.5];
 %% 3 считаем максимальное относительное отклонение для Tv в %
 dTv=zeros(5,5,5);
-model_vibr = 1; % 1 - SSH, 2 - FHO
-for model_U = 4%2:4
-  for ind_ini=1%:5
+model_vibr = 2; % 1 - SSH, 2 - FHO
+for model_U = 2:4
+  for ind_ini=1:5
       interP=shatalov(ind_ini).Tv(:,1);
       temp_dT=spline(out(ind_ini, model_vibr, model_U).time_mus, ...
                             out(ind_ini, model_vibr, model_U).Tv, interP);
@@ -90,12 +91,12 @@ for ind_ini = 1:5 % [2 4]   % chossing experimental test cases
      'DisplayName', "Ibraguimova et al. 2013");
   % plotting the benchmark
  model_vibr_bm = 2; % benchmark vibrational model
- model_U_bm = 4;    % benchmark U parameter
- p_bm = plot(out(ind_ini, model_vibr_bm, model_U_bm).time_mus, ...
-                        out(ind_ini, model_vibr_bm, model_U_bm).Tv,...
-         pl_vibr(model_vibr_bm), 'Color', pl_U(model_U_bm, :),'LineWidth',1.5, 'DisplayName', ...
-         "Benchmark: " + str_vibr(model_vibr_bm) + ", U = " + str_U(model_U_bm));
-    
+ model_U_bm = 3;    % benchmark U parameter
+ % p_bm = plot(out(ind_ini, model_vibr_bm, model_U_bm).time_mus, ...
+ %                        out(ind_ini, model_vibr_bm, model_U_bm).Tv,...
+ %         pl_vibr(model_vibr_bm), 'Color', pl_U(model_U_bm, :),'LineWidth',1.5, 'DisplayName', ...
+ %         "Benchmark: " + str_vibr(model_vibr_bm) + ", U = " + str_U(model_U_bm));
+ % 
  for model_vibr=3 %1:3  % choosing vibrational models to plot
   for model_U = 2:4     % choosing U parameter for plotting
       % the plot

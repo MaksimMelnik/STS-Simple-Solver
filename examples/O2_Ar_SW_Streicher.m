@@ -30,8 +30,8 @@ init_c=[ %  f;  p0,     Torr;   v0, m/s;    T0, K;   v0_1
 for i_ini=9 % [1 2 3 4 5 6 7 8 9] % choosing desired initial coonditions
 for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
 % 2 is for D/6k; 3 is for 3T; 4 is for inf
-for i_vibr=2 % [1 2]  % choosing vibrational energy exchange model
-% 1 is for SSH; 2 is for FHO
+for i_vibr=3 % [1 2 3]  % choosing vibrational energy exchange model
+% 1 is for SSH; 2 is for FHO; 3 is for FHO-FR
 for rel=2     % if relaxation between incident and reflected waves 
 % frozen? 1 -relaxation off; 2 - relaxation on
     f=init_c(i_ini, 1); %molar fraction of O2
@@ -82,6 +82,9 @@ for rel=2     % if relaxation between incident and reflected waves
             model_VT='SSH';
         case 2
             model_VT='FHO';
+        case 3
+            model_VT='FHO-FR';
+
     end
     Reacs_keys={'Diss', 'VT', 'VV'};
     reacs_val={Diss, model_VT, model_VT};

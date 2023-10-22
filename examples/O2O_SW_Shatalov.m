@@ -28,7 +28,7 @@ for ind = 1:length(Ps)
     first = index{ind}(end) + 1;
 end
 
-for i_ini = 1 % [1 2 3 4 5]         % choosing desired initial coonditions
+for i_ini = 1:5 % [1 2 3 4 5]         % choosing desired initial coonditions
  cond2 = par_shatalov_f(init_c_Shatalov(i_ini, :));
   % 0 --- before SW, 1 --- behind SW
  v0 = init_c_Shatalov(i_ini, 3);      % m/s; characteristic velocity
@@ -41,9 +41,9 @@ for i_ini = 1 % [1 2 3 4 5]         % choosing desired initial coonditions
   % conservation laws to evaluate macroparameters behind SW
  [n1, v1, T1] = in_con_SW(n0, v0, T0, rho0, 1); % dimentionless numbers
  
- for i_U = 4 % [2 3 4]   % choosing desired U dissociation parameter model
+ for i_U = 2:4 % [2 3 4]   % choosing desired U dissociation parameter model
                           %  2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr = 2 % [1 2 3]  % choosing vibrational energy exchange model
+  for i_vibr = 1:3 % [1 2 3]  % choosing vibrational energy exchange model
                           %  1 is for SSH; 2 is for FHO
                           
    Diss.Arrhenius = 'Park';% parameters in dissociation Arrhenius law
