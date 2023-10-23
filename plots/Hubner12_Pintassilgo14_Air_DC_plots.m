@@ -76,9 +76,10 @@ grid on
 %% VDF ag plot
     figure('Position', fsize)
 time_ind0=1;
-[~, time_ind1] = min( abs(t_ag*1e3 - 1) );
-[~, time_ind10] = min( abs(t_ag*1e3 - 10) );
-time_ind100=length(Y(:, 1));
+[~, time_ind1]   = min( abs(t_ag*1e3 - 1) );
+[~, time_ind10]  = min( abs(t_ag*1e3 - 10) );
+% time_ind100=length(Y(:, 1));
+[~, time_ind100] = min( abs(t_ag*1e3 - 100) );
 lvls4plot=0:length(Y(1, kinetics.index{1}))-1;
 semilogy(Pintassilgo2014_N2_VDF_post_DC(:,1), ...
             Pintassilgo2014_N2_VDF_post_DC(:,2), ...

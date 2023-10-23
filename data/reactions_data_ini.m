@@ -101,8 +101,21 @@ react4.index = {{1, 1+3}, {1, 1}, {1, "all"}, {1, 1}};
 react4.A = 1.05e-12 / 1e6;
 react4.n = 0.5;
 react4.E = 0;
-keySet = {react1.source, react2.source, react3.source, react4.source};
-valueSet = {react1, react2, react3, react4};
+   % from works by V. Guerra [1], data from [4]
+react5 = react1;
+react5.source = 'Kossyi1992';
+% react5.type = "ATn";
+react5.type = "Starik_test";
+react5.direction_forward = false;
+react5.reverse = true;
+% react5.reverse = false;
+react5.index = {{1, "all"}, {1, 1}, {1, "all"}, {1, 1}};
+react5.A = 1.05e-12 / 1e6;
+react5.n = 0.5;
+react5.E = 0;
+keySet = {react1.source, react2.source, react3.source, react4.source, ...
+    react5.source};
+valueSet = {react1, react2, react3, react4, react5};
 Zeldovich1.data = containers.Map(keySet, valueSet);
 
 
@@ -136,8 +149,19 @@ react3.A      = 1.1e-14 / 1e6;
 react3.n      = 1;
 react3.E      = 3150 * k; % = E/k => E = 3150*k
 react3.index = {{1, "all"}, {1, 1}, {1, "all"}, {1, 1}};
-keySet = {react1.source, react2.source, react3.source};
-valueSet = {react1, react2, react3};
+   % from [4], depending on T
+react4          = react1;
+react4.source   = 'Kossyi1992';
+react4.type     = "Starik_test_on_T";
+react4.reverse  = true;
+react4.A        = @(T) (4.5e-12 / 1e6) ^ (T >= 200 && T <= 300) * ...
+                                            (1.1e-14 / 1e6) ^ (T > 300);
+react4.n        = @(T) T > 300;
+react4.E        = @(T) (3220 ^ (T >= 200 && T <= 300) * ...
+                                                    3150 ^ (T > 300)) * k;
+react4.index = {{1, "all"}, {1, 1}, {1, "all"}, {1, 1}};
+keySet = {react1.source, react2.source, react3.source, react4.source};
+valueSet = {react1, react2, react3, react4};
 Zeldovich2.data = containers.Map(keySet, valueSet);
 
 

@@ -55,7 +55,8 @@ for ind_p = 1:length(Ps_p)
 end
 Ea = reaction.E;
 ET = form_e_p - form_e_r;
-dE = (ET + Ep) - Er;
+% dE = (ET + Ep) - Er;
+dE = max(Ea, ET + Ep) - Er;
 exp_dE_Heav = exp(- dE .* heaviside(dE) / k / T);
 expdE_Pneq = exp_dE_Heav .* n_eq;
 sum_expdE_Pneq = sum(expdE_Pneq, 'all');

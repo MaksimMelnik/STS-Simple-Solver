@@ -54,19 +54,46 @@ switch reaction.type
      error("rewrite not only for atoms")
   end
   [kf, dE_fb] = R_exch_Heaviside(M1, M3, T, reaction);
+ case "Starik_test"
+  kd_eq = reaction.A * T ^ reaction.n * exp(- reaction.E / k / T);
+  Ps_r = {M1, M2};
+  Ps_p = {M3, M4};
+  if ~reaction.direction_forward
+   [Ps_p, Ps_r] = deal(Ps_r, Ps_p);     % swap
+   reaction2 = reaction;
+   reaction2.index{1} = reaction.index{3};
+   reaction2.index{2} = reaction.index{4};
+   reaction2.index{3} = reaction.index{1};
+   reaction2.index{4} = reaction.index{2};
+  end
+  [kf, dE_fb] = k_exch_Starik(T, kd_eq, reaction2, Ps_r, Ps_p);
+ case "Starik_test_on_T"
+  kd_eq = reaction.A(T) * T ^ reaction.n(T) * exp(- reaction.E(T) / k /T);
+  Ps_r = {M1, M2};
+  Ps_p = {M3, M4};
+  if ~reaction.direction_forward
+   [Ps_p, Ps_r] = deal(Ps_r, Ps_p);     % swap
+   reaction2 = reaction;
+   reaction2.index{1} = reaction.index{3};
+   reaction2.index{2} = reaction.index{4};
+   reaction2.index{3} = reaction.index{1};
+   reaction2.index{4} = reaction.index{2};
+  end
+  [kf, dE_fb] = k_exch_Starik(T, kd_eq, reaction2, Ps_r, Ps_p);
  otherwise
         error("Exchange reactions of this type are still not " + ...
             "implemented " + reaction.type)    
 end
     % if the reaction proceeds in the opposite direction
 if ~reaction.direction_forward
- kb = kf;
- kf = kf * 0;
+ kb = permute(kf, [3 4 1 2]);     % transposition
+ kf = kb * 0;
+ dE_fb = - permute(dE_fb, [3 4 1 2]);
 end
 if reaction.reverse     % if backward reaction included
- Z_rot = zeros(1, 4) + 1;
- for ind = 1:4
-  if Ms{ind}.fr_deg_c>3
+ Z_rot = zeros(1, length(Ms)) + 1;
+ for ind = 1:length(Ms)
+  if Ms{ind}.fr_deg_c > 3
    Z_rot(ind) = T / ... % statistical rotational sum
                 (Ms{ind}.Be(index{ind}{1}) * h * c / k * Ms{ind}.sigma);
   end
@@ -81,10 +108,6 @@ if reaction.reverse     % if backward reaction included
   kf = kb ./ Kfb;
  end
     % error('rewrite')
- % Theta_r_M1 = M1.Be(1) * h * c / k;
- % Z_rot_M1 = T ./ (M1.sigma .* Theta_r_M1);  % statistical rotational sum
- % Theta_r_M3 = M3.Be(1) * h * c / k;
- % Z_rot_M3 = T ./ (M3.sigma .* Theta_r_M3);
  % Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) ...
  %        * (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 ...
  %                                                   * exp( dE_fb / (k*T));

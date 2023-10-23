@@ -1,4 +1,4 @@
-function out=Rpart_ODE_tube_DC_discharge_0D(t, y, kinetics)%#ok<INUSL>
+function out=Rpart_ODE_tube_DC_discharge_0D(~, y, kinetics)
 % Right part function for ODE systems for the gas relaxation problem in DC
 % discharge in a tube. The system is reduced to 0D [1].
 % t is the time; y is the vector of macroparameters;
@@ -35,4 +35,5 @@ dT = (8*lambda*(kinetics.Tw - T)/kinetics.tube_R^2 + Q_total) ...
                         /(n_m*c_p_total) /kinetics.T0*kinetics.t0; % K/s
 R_total = [R; 0] + Re;
 out = [R_total; dT];
+out = [R; dT];
 end
