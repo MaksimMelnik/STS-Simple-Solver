@@ -1,5 +1,5 @@
 function n_ai = distribution_Boltzmann(T, n1, P, alpha)
-% Bltzmann distribution function.
+% Boltzmann distribution function.
 % n_ai is the vector of number densities for electronic states a and
 % vibrational states i.
 % T is the gas temperature; 
@@ -15,6 +15,7 @@ s_e = P.s_e(alpha);
 if length(alpha) == 1
  Zel = 1;
  s_e = 1;
+ P.e_E(alpha) = 0;
 end
 s_vibr = 1;
 if P.fr_deg_c > 3

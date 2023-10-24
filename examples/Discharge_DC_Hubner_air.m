@@ -10,6 +10,7 @@ function out = Discharge_DC_Hubner_air
 
 %  todo:
 % implement Starik model to the code
+% rename Kunova, NO avg -> Savelev2018
 % pull request
 % change reaction initialization to tables
 % add VT switcher for different molecules
@@ -102,7 +103,7 @@ load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO', 'N2p', 'O2p')
     % electronic excitation
 N2.num_elex_levels = 1;         % N2(X1Σg+)
 N2.num_elex_levels = 2;         % N2(X1Σg+, A3Σu+)
-N2.num_vibr_levels(2) = 1;  N2.ev_0(2) = 0;  N2.ev_i{2} = 0;
+% N2.num_vibr_levels(2) = 1;  N2.ev_0(2) = 0;  N2.ev_i{2} = 0;
 % N2.num_elex_levels = 3;         % N2(X1Σg+, A3Σu+, B3Пg)
 % N2.num_vibr_levels(3) = 1;  N2.ev_0(3) = 0;  N2.ev_i{3} = 0;
     % no electronic excitation
@@ -150,18 +151,10 @@ for i_ini = 1           % choosing desired initial coonditions
    Delta = 1 / sqrt(2) / n0 / sigma0; % characteristic length, m
    t0    = 1 / (4 * n0 * N2.diameter^2 * sqrt(pi * k * T0 / N2.mass));
 
-   num=0;
    % Ps = {num, N2, O2, NO, N, O, N2p, O2p};
-   Ps = {num, N2, O2, NO, N, O};
-   index = cell(1, length(Ps));
-   index{1}=0;
-   for ind=2:length(Ps)
-    num_v_states=sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
-    num=num+num_v_states;
-    first=index{ind-1}(end)+1;
-    index{ind}=first:first+num_v_states-1;
-   end
-   kinetics.Ps = Ps(2:end);
+   Ps = {N2, O2, NO, N, O, N2p, O2p};
+   Ps = {N2, O2, NO, N, O};
+   kinetics.Ps = Ps;
    kinetics.num_Ps = length(kinetics.Ps);
    
    Diss.Arrhenius='Park';
@@ -208,8 +201,8 @@ for i_ini = 1           % choosing desired initial coonditions
    %     React_N2pX_O2X__O2pX_N2("Kossyi1992")];
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
 %        React_N2A_O2("Pintassilgo2009"), React_N2B_O2("Kossyi1992")];
-   Exch = [ReactZel_1("Kossyi1992"), ReactZel_2("Kossyi1992")];%, ...
-        % React_N2A_O2("Pintassilgo2009")];
+   Exch = [ReactZel_1("Kossyi1992"), ReactZel_2("Kossyi1992"), ...
+        React_N2A_O2("Pintassilgo2009")];
    N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");
    ET_diff_c    = cell(1, kinetics.num_Ps);
                     % N2(X),          N2(A)
@@ -233,9 +226,9 @@ for i_ini = 1           % choosing desired initial coonditions
    %     1,          Free_e};
    % Reacs_keys = {'VT',     'VV',     'Exch'};
    % reacs_val  = {model_VT, model_VT, Exch};
-   kinetics.num_eq = num;
    kinetics.reactions = containers.Map(Reacs_keys, reacs_val);
-   kinetics.index = index(2:end);
+   kinetics.index = indexes_for_Ps(kinetics.Ps);
+   kinetics.num_eq = kinetics.index{end}(end);
    kinetics.n0 = n0;
    kinetics.T0 = T0;
    kinetics.Delta = Delta;
@@ -272,7 +265,7 @@ for i_ini = 1           % choosing desired initial coonditions
    n_N2 = n_N2 * f_N2_3 * (1 - ion_degree);
    n_O2 = density_f_exc(Tv1, f_O2_3 * (1 - ion_degree), O2);
    n_NO = density_f_exc(Tv1, f_NO_3, NO);
-   % n_N2A = density_f_exc(Tv1, f_N2A_3, N2);
+   n_N2A = distribution_Boltzmann(Tv1, f_N2A_3, N2, 2)';
    ne   = (f_N2_3 + f_O2_3) * ion_degree;
        % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
    y0 = [n_N2;    f_N2A_3;             n_O2;  n_NO;  f_N_3; f_O_3; ...
@@ -284,7 +277,7 @@ if N2.num_elex_levels == 3
          f_N2_3*ion_degree];
 end
        % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
-   y0 = [n_N2;    f_N2A_3;             n_O2;  n_NO;  f_N_3; f_O_3];
+   y0 = [n_N2;    n_N2A;               n_O2;  n_NO;  f_N_3; f_O_3];
        % t3 correction, T
    y0 = [y0 * n3/n0;    T3];
 %    y0 = [y0;            T3];
