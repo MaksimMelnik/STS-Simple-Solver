@@ -26,7 +26,8 @@ for ind_r = 1:length(Ps_r)
   for ind_e = 1:length(alpha_c)
    e_ev(1 + sum(P1.num_vibr_levels(alpha_c(1:ind_e-1))): ...
                     sum(P1.num_vibr_levels(alpha_c(1:ind_e)))) = ...
-                        P1.e_E(ind_e) + P1.ev_0(ind_e) + P1.ev_i{ind_e};
+                    P1.e_E(alpha_c(ind_e)) + ...
+                        P1.ev_0(alpha_c(ind_e)) + P1.ev_i{alpha_c(ind_e)};
   end
  else
   e_ev = P1.e_E(alpha_c);
@@ -45,7 +46,8 @@ for ind_p = 1:length(Ps_p)
   for ind_e = 1:length(alpha_c)
    e_ev(1 + sum(P1.num_vibr_levels(alpha_c(1:ind_e-1))): ...
                     sum(P1.num_vibr_levels(alpha_c(1:ind_e)))) = ...
-                        P1.e_E(ind_e) + P1.ev_0(ind_e) + P1.ev_i{ind_e};
+                        P1.e_E(alpha_c(ind_e)) + ...
+                        P1.ev_0(alpha_c(ind_e)) + P1.ev_i{alpha_c(ind_e)};
   end
  else
   e_ev = P1.e_E(alpha_c);

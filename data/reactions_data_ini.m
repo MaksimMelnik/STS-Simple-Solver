@@ -46,7 +46,7 @@ template.reverse = false;
 template.index = NaN;
 template.A   = 0;
 template.n   = 0;
-template.E   = NaN;
+template.E   = 0;
 template.d_T = 1;
 
      % zero reaction
@@ -142,7 +142,7 @@ react2.source = 'Savelev2018, NO(1)';
 react2.index = {{1, "all"}, {1, 1}, {1, 1}, {1, 1}};
    % from works by C D Pintassilgo [2] and V Guerra, data from [4]
 react3 = react1;
-react3.source = 'Kossyi1992';
+react3.source = 'Kossyi1992_from_Guerra';
 react3.type   = "Arrhenius";
 react3.reverse = false;
 react3.A      = 1.1e-14 / 1e6;
@@ -189,6 +189,7 @@ react1.name = N2A_O2__N2X_O_O.name;
 react1.particles = N2A_O2__N2X_O_O.particles;
 react1.source = 'Pintassilgo2009';
 react1.type = "A(T/d_T)^n";
+% react1.reverse      = true;
 react1.A   = 1.63e-12 / 1e6;
 react1.d_T = 300;
 react1.n   = 0.55;

@@ -10,6 +10,7 @@ function out = Discharge_DC_Hubner_air
 
 %  todo:
 % implement Starik model to the code
+% pull request
 % change reaction initialization to tables
 % add VT switcher for different molecules
 % remove density_f_exc
@@ -44,6 +45,9 @@ function out = Discharge_DC_Hubner_air
 % - add all particles:
 %   N2(B3Пg, B'3Σ−u, C3Пu, a'1Σ−u, a1Пg, w1Δu)
 %   O2(a1Δg, b1Σ+g)
+% - include electronic states of O2 in the reaction 
+%       N2(A) + O2 -> N2(X) + O + O 
+% - add all particles:
 %   N(2D, 2P)
 %   NO(A2Σ+, B2П)
 %   NO2(X, A)
@@ -192,7 +196,6 @@ for i_ini = 1           % choosing desired initial coonditions
 %    Exch = [ReactZel_1("Savelev2018, NO(1)"), ReactZel_2("Savelev2018, NO(1)")];
         % V Guerra Zeldovich model
    % Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse")];
-   % Exch = [];
    % Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
    %     React_N2A_O2("Pintassilgo2009"), ReactZel_2("Kossyi1992")];
    % Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
@@ -205,7 +208,8 @@ for i_ini = 1           % choosing desired initial coonditions
    %     React_N2pX_O2X__O2pX_N2("Kossyi1992")];
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
 %        React_N2A_O2("Pintassilgo2009"), React_N2B_O2("Kossyi1992")];
-   Exch = [ReactZel_1("Kossyi1992"), ReactZel_2("Kossyi1992")];
+   Exch = [ReactZel_1("Kossyi1992"), ReactZel_2("Kossyi1992")];%, ...
+        % React_N2A_O2("Pintassilgo2009")];
    N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");
    ET_diff_c    = cell(1, kinetics.num_Ps);
                     % N2(X),          N2(A)
@@ -219,6 +223,10 @@ for i_ini = 1           % choosing desired initial coonditions
        'Rec_wall'};
    reacs_val  = {model_VT, model_VT, Exch,   1,      ET_diff_c, ...
        1};
+   % Reacs_keys = {'VT',     'VV',     'Exch', 'Wall', 'ET',      ...
+   %     'Rec_wall', 'Diss'};
+   % reacs_val  = {model_VT, model_VT, Exch,   1,      ET_diff_c, ...
+   %     1,           Diss};
    % Reacs_keys = {'VT',     'VV',     'Exch', 'Wall', 'ET',    ...
    %     'Rec_wall', 'free_e'};
    % reacs_val  = {model_VT, model_VT, Exch,   1,      ET_diff_c, ...
@@ -264,6 +272,7 @@ for i_ini = 1           % choosing desired initial coonditions
    n_N2 = n_N2 * f_N2_3 * (1 - ion_degree);
    n_O2 = density_f_exc(Tv1, f_O2_3 * (1 - ion_degree), O2);
    n_NO = density_f_exc(Tv1, f_NO_3, NO);
+   % n_N2A = density_f_exc(Tv1, f_N2A_3, N2);
    ne   = (f_N2_3 + f_O2_3) * ion_degree;
        % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
    y0 = [n_N2;    f_N2A_3;             n_O2;  n_NO;  f_N_3; f_O_3; ...

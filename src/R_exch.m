@@ -1,8 +1,8 @@
 function [R_exch_data, Q] = ...
-            R_exch(M1, M2, M3, M4, n_M1, n_M2, n_M3, n_M4, T, reaction)
+                        R_exch(Ms, n_M1, n_M2, n_M3, n_M4, T, reaction)
 % The third iteration of the universal function for exchange reactions
 % M1 + M2 -> M3 + M4. 
-% M1 and M3 are molecules; M2 and M4 are currently atoms; 
+% Ms are involved particles; M2 and M4 are currently atoms; 
 % n_Mi are number densities of Mi; T is the gas temperature; 
 % reaction is the reaction structure (see data/reactions_data_ini).
 % Electronic excitaion is not taken into account.
@@ -13,11 +13,12 @@ k = 1.380649e-23;         % Boltzmann constant, J/K
 c = 299792458;            % speed of light
 h = 6.626070041e-34;      % Plank constant, J*sec
 
-index = cell(1, 4);       % indexes from the reaction structure
-Ms = {M1, M2, M3, M4};
-i_sum = cell(1, 4);     % indexes from the 0th lvl of the ground el. state
-E_t   = cell(1, 4);       % total energy
-for ind = 1:4
+num_particles = length(Ms);
+index = cell(1, num_particles);     % indexes from the reaction structure
+    % indexes from the 0th lvl of the ground el. state
+i_sum = cell(1, num_particles); 
+E_t   = cell(1, num_particles);     % total energy
+for ind = 1:num_particles
  index{ind} = reaction.index{ind};
  if class(index{ind}{2}) == "string"
   index{ind}{2} = 1:Ms{ind}.num_vibr_levels(index{ind}{1});
@@ -39,28 +40,29 @@ kb = kf;
 switch reaction.type
  case "const"
   kf = kf + reaction.A;
-  dE_fb = M3.form_e + M4.form_e - M1.form_e - M2.form_e;
+  dE_fb = Ms{3}.form_e + Ms{4}.form_e - Ms{1}.form_e - Ms{2}.form_e;
  case "ATn"
   kf = kf + reaction.A * T ^ reaction.n;
-  dE_fb = M3.form_e + M4.form_e - M1.form_e - M2.form_e;
- case "A(T/d_T)^n"
-  kf = kf + reaction.A * (T / reaction.d_T) ^ reaction.n;
-  dE_fb = M3.form_e + M4.form_e - M1.form_e - M2.form_e;
+  dE_fb = Ms{3}.form_e + Ms{4}.form_e - Ms{1}.form_e - Ms{2}.form_e;
+ % case "A(T/d_T)^n"
+ %  kf = kf + reaction.A * (T / reaction.d_T) ^ reaction.n;
+ %  dE_fb = Ms{3}.form_e + Ms{4}.form_e - Ms{1}.form_e - Ms{2}.form_e;
  case "Arrhenius"
   kf = kf + reaction.A * T ^ reaction.n * exp(- reaction.E / k / T);
-  dE_fb = M3.form_e + M4.form_e - M1.form_e - M2.form_e;
+  dE_fb = Ms{3}.form_e + Ms{4}.form_e - Ms{1}.form_e - Ms{2}.form_e;
  case "Heaviside"
   if (M2.fr_deg_c ~= 3 && M4.fr_deg_c ~= 3)
      error("rewrite not only for atoms")
   end
-  [kf, dE_fb] = R_exch_Heaviside(M1, M3, T, reaction);
- case "Starik_test"
-  kd_eq = reaction.A * T ^ reaction.n * exp(- reaction.E / k / T);
-  Ps_r = {M1, M2};
-  Ps_p = {M3, M4};
+  [kf, dE_fb] = R_exch_Heaviside(Ms{1}, Ms{3}, T, reaction);
+ case {"Starik_test", "A(T/d_T)^n"}
+  kd_eq = reaction.A * (T / reaction.d_T) ^ reaction.n * ...
+                                                exp(- reaction.E / k / T);
+  Ps_r = {Ms{1}, Ms{2}};
+  Ps_p = {Ms{3}, Ms{4}};
+  reaction2 = reaction;
   if ~reaction.direction_forward
    [Ps_p, Ps_r] = deal(Ps_r, Ps_p);     % swap
-   reaction2 = reaction;
    reaction2.index{1} = reaction.index{3};
    reaction2.index{2} = reaction.index{4};
    reaction2.index{3} = reaction.index{1};
@@ -69,11 +71,12 @@ switch reaction.type
   [kf, dE_fb] = k_exch_Starik(T, kd_eq, reaction2, Ps_r, Ps_p);
  case "Starik_test_on_T"
   kd_eq = reaction.A(T) * T ^ reaction.n(T) * exp(- reaction.E(T) / k /T);
-  Ps_r = {M1, M2};
-  Ps_p = {M3, M4};
+  Ps_r = {Ms{1}, Ms{2}};
+  Ps_p = {Ms{3}, Ms{4}};
+  reaction2 = reaction;
+  reaction2.E = reaction.E(T);
   if ~reaction.direction_forward
    [Ps_p, Ps_r] = deal(Ps_r, Ps_p);     % swap
-   reaction2 = reaction;
    reaction2.index{1} = reaction.index{3};
    reaction2.index{2} = reaction.index{4};
    reaction2.index{3} = reaction.index{1};
@@ -101,16 +104,12 @@ if reaction.reverse     % if backward reaction included
  Kfb = Ms{1}.s_e(index{1}{1}) * Ms{2}.s_e(index{2}{1}) / ...
      (Ms{3}.s_e(index{3}{1}) * Ms{4}.s_e(index{4}{1})) * ...
         (Ms{1}.mass * Ms{2}.mass / (Ms{3}.mass * Ms{4}.mass))^1.5 * ...
-        Z_rot(1) * Z_rot(2) / Z_rot(3) / Z_rot(4) * exp( dE_fb / (k*T));
+        prod(Z_rot(1:2)) / prod(Z_rot(3:end)) * exp( dE_fb / (k*T));
  if reaction.direction_forward
   kb = kf .* Kfb;
  else
   kf = kb ./ Kfb;
  end
-    % error('rewrite')
- % Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) ...
- %        * (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 ...
- %                                                   * exp( dE_fb / (k*T));
 end
 R_exch_data = ...
             zeros(length(n_M1), length(n_M2), length(n_M3), length(n_M4));
