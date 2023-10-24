@@ -9,10 +9,10 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% implement Starik model to the code
 % rename Kunova, NO avg -> Savelev2018
 % pull request
 % change reaction initialization to tables
+% reinclude e interactions
 % add VT switcher for different molecules
 % remove density_f_exc
 % merge R_exch and R_exch_23
@@ -92,7 +92,6 @@ warning('Check energies in the wall recombination function')
 warning('Zeldovich reactions are without electronic excitation')
 warning("VV exchanges are with a crutch.")
 warning('Find correct N2+ EM value.')
-warning("Starik is under implementation.")
 disp('Started.')
 
 tic                             % measuring computing time
@@ -151,9 +150,7 @@ for i_ini = 1           % choosing desired initial coonditions
    Delta = 1 / sqrt(2) / n0 / sigma0; % characteristic length, m
    t0    = 1 / (4 * n0 * N2.diameter^2 * sqrt(pi * k * T0 / N2.mass));
 
-   % Ps = {num, N2, O2, NO, N, O, N2p, O2p};
    Ps = {N2, O2, NO, N, O, N2p, O2p};
-   Ps = {N2, O2, NO, N, O};
    kinetics.Ps = Ps;
    kinetics.num_Ps = length(kinetics.Ps);
    
@@ -202,7 +199,8 @@ for i_ini = 1           % choosing desired initial coonditions
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
 %        React_N2A_O2("Pintassilgo2009"), React_N2B_O2("Kossyi1992")];
    Exch = [ReactZel_1("Kossyi1992"), ReactZel_2("Kossyi1992"), ...
-        React_N2A_O2("Pintassilgo2009")];
+        React_N2A_O2("Pintassilgo2009"), ...
+        React_N2pX_O2X__O2pX_N2("Kossyi1992")];
    N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");
    ET_diff_c    = cell(1, kinetics.num_Ps);
                     % N2(X),          N2(A)
@@ -277,7 +275,9 @@ if N2.num_elex_levels == 3
          f_N2_3*ion_degree];
 end
        % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
-   y0 = [n_N2;    n_N2A;               n_O2;  n_NO;  f_N_3; f_O_3];
+   y0 = [n_N2;    n_N2A;               n_O2;  n_NO;  f_N_3; f_O_3; ...
+     ...    N2+,                O2+,
+            f_N2_3*ion_degree;  f_O2_3*ion_degree];
        % t3 correction, T
    y0 = [y0 * n3/n0;    T3];
 %    y0 = [y0;            T3];
