@@ -77,7 +77,7 @@ react1.n = @(T) 0^(T < 4000)*1.745^(T >= 4000);
 react1.E = 37484 * k;   % J
    % Savelev's model [6], but only the ground vib. state of NO
 react2 = react1;
-react2.source = 'Kunova, NO avg';
+react2.source = 'Savelev2018, NO avg';
 react2.type = "Heaviside, avg";
  % only ground NO state included
 react2.index = {{1, "all"}, {1, 1}, {1, 1}, {1, 1}};
@@ -138,7 +138,7 @@ react1.n = @(T) (-0.39)^(T < 4000)*1.58^(T >= 4000);
 react1.E = 1449 * k;   % J
    % Savelev's model [6], but only the ground vib. state of NO
 react2 = react1;
-react2.source = 'Kunova, NO avg';
+react2.source = 'Savelev2018, NO avg';
 react2.type = "Heaviside, avg";
  % only ground NO state included
 react2.index = {{1, "all"}, {1, 1}, {1, 1}, {1, 1}};

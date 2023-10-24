@@ -32,7 +32,7 @@ load('../data/reactions.mat'); %load reaction data
 ReactZel_1 = Reactions("N2 + O -> NO + N");
 ReactZel_2 = Reactions("O2 + N -> NO + O");
 %initially the default reaction model according to Kunova's model
-Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
+Exch = [ReactZel_1("Savelev2018"), ReactZel_2("Savelev2018")];
 
 NO.num_elex_levels=1;       % no electronic excitation
 O.num_elex_levels=1;
@@ -62,7 +62,7 @@ for i_exch=2 % [1 2 3]
 % spectrum
 load("..\data\particles.mat", "NO");
 NO.num_elex_levels=1; 
-Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
+Exch = [ReactZel_1("Savelev2018"), ReactZel_2("Savelev2018")];
 
 for i_ini=9 % [1 2 3 4 5 6 7 8 9 10 11 12]
 %choosing testcase
@@ -85,7 +85,8 @@ for i_rel=2 %[1 2]
     NO.num_vibr_levels=1;
     NO.ev_0(1) = 0;
     NO.ev_i{1}=0;
-    Exch = [ReactZel_1("Kunova, NO avg"), ReactZel_2("Kunova, NO avg")];
+    Exch = [ReactZel_1("Savelev2018, NO avg"), ...
+                                    ReactZel_2("Savelev2018, NO avg")];
     end
 
     f=init_c(i_ini, 1); %molar fraction of NO

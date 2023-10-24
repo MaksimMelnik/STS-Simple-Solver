@@ -11,6 +11,7 @@ function out = Discharge_DC_Hubner_air
 %  todo:
 % rename Kunova, NO avg -> Savelev2018
 % pull request
+% remove Arrhenius subfunction in R_exch
 % change reaction initialization to tables
 % reinclude e interactions
 % add VT switcher for different molecules
