@@ -200,7 +200,7 @@ if isKey(kinetics.reactions, 'Exch') % exchange reactions universal attempt
                                                     "implemented yet"])
   end
   Qin = Qin + Q_exch;
- end   
+ end
 end
 
 R = R_VT_data + R_VV_data + R_diss_data + R_VE_data + ... 

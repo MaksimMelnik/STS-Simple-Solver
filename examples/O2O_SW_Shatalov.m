@@ -72,7 +72,7 @@ for i_ini = 1 % [1 2 3 4 5]         % choosing desired initial coonditions
    kinetics.reactions = containers.Map(Reacs_keys, reacs_val); % reactions
    kinetics.Ps     = Ps;             % chemical composition of the mixture
    kinetics.num_Ps = length(kinetics.Ps);   % number of particles
-   kinetics.index  = index;                 % indexes of particles
+   kinetics.index  = indexes_for_Ps(kinetics.Ps); % indexes of particles
         % total amount of states in the mixture and number of equations 
    kinetics.num_eq = kinetics.index{end}(end); %    for number densities
    kinetics.n0     = n0;
@@ -81,7 +81,7 @@ for i_ini = 1 % [1 2 3 4 5]         % choosing desired initial coonditions
    kinetics.Delta  = Delta;
    xspan = [0 1e0] / Delta;        % interval of integration
         % initial vibrational Boltzmann distribution, VDF
-   n = density_f_exc(T0, n1, O2);  
+   n = density_f_exc(T0, n1, O2);   % initial vibrational distribution,VDF
    y0 = zeros(kinetics.num_eq + 2, 1);  % initial values behind SW
    y0(1:length(n))  = n;
    y0(end-1)        = v1;
