@@ -147,10 +147,9 @@ switch ind_Arr
     case 4
         Diss.Arrhenius='Fairbairn';
 end
-mix.num=0;
 CO.diss_Arrhenius_A=diss_Arrhenius_A_CO;
 CO.diss_Arrhenius_n=diss_Arrhenius_n_CO;
-Ps={mix, CO, C, O};
+Ps={CO, C, O};
 if ind_C2
     C2.diss_Arrhenius_A=diss_Arrhenius_A_C2;
     C2.diss_Arrhenius_n=diss_Arrhenius_n_C2;
@@ -158,14 +157,6 @@ if ind_C2
 end
 if f<1
     Ps{length(Ps)+1}=Ar;
-end
-num=0;
-index{1}=0;
-for ind=2:length(Ps)
-    num_states=sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
-    num=num+num_states;
-    first=index{ind-1}(end)+1;
-    index{ind}=first:first+num_states-1;
 end
 Diss.rec=true;              % Is recombination included?
 switch i_dis
@@ -192,11 +183,11 @@ if ind_exc
     Reacs_keys=[Reacs_keys, 'VE'];
     reacs_val=[reacs_val, 'VE'];
 end
-kinetics.Ps=Ps(2:end);
+kinetics.Ps = Ps;
 kinetics.num_Ps=length(kinetics.Ps);
-kinetics.num_eq=num;
+kinetics.index = indexes_for_Ps(Ps);
+kinetics.num_eq = kinetics.index{end}(end);
 kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
-kinetics.index=index(2:end);
 kinetics.n0=n0;
 kinetics.v0=v0;
 kinetics.T0=T0;

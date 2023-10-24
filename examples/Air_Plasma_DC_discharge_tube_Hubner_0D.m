@@ -105,16 +105,7 @@ for i_ini = 1           % choosing desired initial coonditions
    Delta = 1 / sqrt(2) / n0 / sigma0; % characteristic length, m
    t0    = 1 / (4 * n0 * N2.diameter^2 * sqrt(pi * k * T0 / N2.mass));
 
-   num=0;
-   Ps={num, N2, O2, NO, N, O};
-   index = cell(1, length(Ps));
-   index{1}=0;
-   for ind=2:length(Ps)
-    num_v_states=sum(Ps{ind}.num_vibr_levels(1:Ps{ind}.num_elex_levels));
-    num=num+num_v_states;
-    first=index{ind-1}(end)+1;
-    index{ind}=first:first+num_v_states-1;
-   end
+   Ps={N2, O2, NO, N, O};
    Diss.Arrhenius='Park';
    Diss.rec=true;
    Diss.NEmodel='MT';
@@ -155,11 +146,11 @@ for i_ini = 1           % choosing desired initial coonditions
    reacs_val={Diss, model_VT, model_VT, Exch};
    Reacs_keys={'Diss', 'VT', 'VV', 'Exch', 'Wall'};
    reacs_val={Diss, model_VT, model_VT, Exch, 1};
-   kinetics.Ps = Ps(2:end);
+   kinetics.Ps = Ps;
    kinetics.num_Ps = length(kinetics.Ps);
-   kinetics.num_eq = num;
+   kinetics.index = indexes_for_Ps(kinetics.Ps);
+   kinetics.num_eq = kinetics.index{end}(end);
    kinetics.reactions = containers.Map(Reacs_keys, reacs_val);
-   kinetics.index = index(2:end);
    kinetics.n0 = n0;
    kinetics.T0 = T0;
    kinetics.Delta = Delta;
@@ -239,7 +230,7 @@ end
 rmpath('../src/')
 
 addpath('../plots/')
-Hubner12_Pintassilgo14_Air_DC_plots(out(i_ini, i_U, i_vibr))
+Hubner12_Pintassilgo14_Air_DC_plots(out(i_ini, i_vibr, i_U))
 rmpath('../plots/')
 
 toc

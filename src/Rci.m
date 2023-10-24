@@ -178,7 +178,7 @@ if isKey(kinetics.reactions, 'Exch') % exchange reactions universal attempt
   R_exch_data(indM2) = R_exch_data(indM2) + sum(R_exch_temp, 'all');
   R_exch_data(indM4) = R_exch_data(indM4) - sum(R_exch_temp, 'all');
   Qin = Qin + Q_exch;
- end   
+ end
 end
 
 R = R_VT_data + R_VV_data + R_diss_data + R_VE_data + ... 

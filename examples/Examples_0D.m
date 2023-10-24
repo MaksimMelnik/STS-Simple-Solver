@@ -55,15 +55,7 @@ for i_ini = 2 % [1 2]   % choosing desired initial coonditions
    sigma0  = pi*M1.diameter^2;
    Delta   = 1 / sqrt(2) / n0 / sigma0; % characteristic length, m
 
-   num=0;
-   index{1}=0;
-   Ps={{num, N2, O2, NO, N, O}, {num, O2, O}};
-   for ind=2:length(Ps{i_ini})
-    num_v_states=sum(Ps{i_ini}{ind}.num_vibr_levels(1:Ps{i_ini}{ind}.num_elex_levels));
-    num=num+num_v_states;
-    first=index{ind-1}(end)+1;
-    index{ind}=first:first+num_v_states-1;
-   end
+   Ps={{N2, O2, NO, N, O}, {O2, O}};
    Diss.Arrhenius='Park';
    Diss.rec=true;
    Diss.NEmodel='MT';
@@ -86,12 +78,13 @@ for i_ini = 2 % [1 2]   % choosing desired initial coonditions
    ReactZel_2 = Reactions("O2 + N -> NO + O");
    Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
    Reacs_keys={{'Diss', 'VT', 'VV', 'Exch'}, {'Diss', 'VT', 'VV'}};
-   reacs_val={{Diss, model_VT, model_VT, Exch}, {Diss, model_VT, model_VT}};
-   kinetics.Ps=Ps{i_ini}(2:end);
+   reacs_val = {{Diss, model_VT, model_VT, Exch}, ...
+                                            {Diss, model_VT, model_VT}};
+   kinetics.Ps=Ps{i_ini};
    kinetics.num_Ps=length(kinetics.Ps);
-   kinetics.num_eq=num;
+   kinetics.index = indexes_for_Ps(kinetics.Ps);
+   kinetics.num_eq = kinetics.index{end}(end);
    kinetics.reactions=containers.Map(Reacs_keys{i_ini}, reacs_val{i_ini});
-   kinetics.index=index(2:end);
    kinetics.n0=n0;
    kinetics.T0=T0;
    kinetics.Delta=Delta;
@@ -132,7 +125,7 @@ for i_ini = 2 % [1 2]   % choosing desired initial coonditions
     y0(end)=T1;
    end
    xspan=[0 0.015]/t0;
-   options_s = odeset('RelTol', 1e-4, 'AbsTol', 1e-6, ...
+   options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, ...
                                     'NonNegative', 1:kinetics.num_eq+1);
    [X, Y]=ode15s(@(t, y) Rpart_ODE_0D(t, y, kinetics), xspan, y0, ...
                                                               options_s);
