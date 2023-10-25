@@ -44,7 +44,7 @@ for i_U=4 % [2 3 4]    % choosing desired U dissociation parameter model
 % 2 is for D/6k; 3 is for 3T; 4 is for inf
 for i_vibr=2 % [1 2]  % choosing vibrational energy exchange model
 % 1 is for SSH; 2 is for FHO
-for rel=2     % if relaxation between incident and reflected waves 
+for rel=2 % 1:2     % if relaxation between incident and reflected waves 
 % frozen? 1 -relaxation off; 2 - relaxation on
     f=init_c(i_ini, 1); %molar fraction of O2
     p0=init_c(i_ini, 2)*Torr; %initial pressure in shock tube
