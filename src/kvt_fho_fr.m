@@ -1,19 +1,19 @@
-function k_VT=kvt_fho_fr(t, M1, M2, coefs_O2)
+function k_VT=kvt_fho_fr(t, M1, M2, coefs_for_poly)
    if M2.name == 'O2'
       display('O2');
-      poly_coefs = coefs_O2(1:35, 2:end);
-      val_for_normalization = coefs_O2(1:35, 1);
+      poly_coefs = coefs_for_poly(1:35, 2:end);
+      val_for_normalization = coefs_for_poly(1:35, 1);
 
    else
        if M2.name == 'O'
           display('O');
-          poly_coefs = coefs_O2(35:70, 2:end);
-          val_for_normalization = coefs_O2(35:70, 1);      
+          poly_coefs = coefs_for_poly(35:70, 2:end);
+          val_for_normalization = coefs_for_poly(35:70, 1);      
        end
        if M2.name == "Ar"
           display('Ar');
-          poly_coefs = coefs_O2(70:105, 2:end);
-          val_for_normalization = coefs_O2(70:105, 1);
+          poly_coefs = coefs_for_poly(70:105, 2:end);
+          val_for_normalization = coefs_for_poly(70:105, 1);
        end
    end
 
