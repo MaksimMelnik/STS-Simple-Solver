@@ -20,7 +20,7 @@ l=M1.num_vibr_levels(ind_e1);           % number of vibr. lvls
 
 r0=(M1.diameter+M2.diameter)/2;
 
-if prod(M1.name==M2.name)
+if prod(M1.name==M2.name) && ind_e1 == ind_e2
  if anharm == 1 % number of vibr. levels
     om10 = om_e-2*om_x_e; % lenear oscillation frequency, anh.os.
  elseif anharm == 2

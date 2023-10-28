@@ -130,6 +130,8 @@ if reaction.reverse     % if backward reaction included
   kf = kb ./ Kfb;
  end
 end
+kb(2:end, :, :) = 0;
+kb(:, :, 2:end) = 0;
 R_exch_data = ...
             zeros(length(n_M1), length(n_M2), length(n_M3), length(n_M4));
 R_exch_data(i_sum{1}, i_sum{2}, i_sum{3}, i_sum{4}) = ... 

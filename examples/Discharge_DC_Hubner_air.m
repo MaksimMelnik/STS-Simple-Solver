@@ -9,8 +9,9 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% rename Kunova, NO avg -> Savelev2018
 % pull request
+% fix strange behaviour of 1st bachward Zeldovich reaction 
+%   (unrealistic gap in T)
 % remove Arrhenius subfunction in R_exch
 % change reaction initialization to tables
 % reinclude e interactions
@@ -93,6 +94,7 @@ warning('Check energies in the wall recombination function')
 warning('Zeldovich reactions are without electronic excitation')
 warning("VV exchanges are with a crutch.")
 warning('Find correct N2+ EM value.')
+warning('R_exch with zero kb.')
 disp('Started.')
 
 tic                             % measuring computing time
@@ -102,7 +104,7 @@ addpath('../src/')
 load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO', 'N2p', 'O2p')
     % electronic excitation
 N2.num_elex_levels = 1;         % N2(X1Σg+)
-N2.num_elex_levels = 2;         % N2(X1Σg+, A3Σu+)
+% N2.num_elex_levels = 2;         % N2(X1Σg+, A3Σu+)
 % N2.num_vibr_levels(2) = 1;  N2.ev_0(2) = 0;  N2.ev_i{2} = 0;
 % N2.num_elex_levels = 3;         % N2(X1Σg+, A3Σu+, B3Пg)
 % N2.num_vibr_levels(3) = 1;  N2.ev_0(3) = 0;  N2.ev_i{3} = 0;
@@ -124,11 +126,16 @@ init_c = [% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
             133     0.2     0.008   300    440    1.2e-1 3.8e-3  2e-3 ...
         ... f_N2A_3 f_N2B_3 ion degree
             5.8e-5  7e-6    1e-6
+          % modified T3, f_NO_3, f_N_3
+          % p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
+            133     0.2     0.008   300    470    1.2e-1 3.8e-3  2e-3 ...
+        ... f_N2A_3 f_N2B_3 ion degree
+            5.8e-5  7e-6    1e-6
         ];
-for i_ini = 1           % choosing desired initial coonditions
+for i_ini = 2           % choosing desired initial coonditions
  for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr = 2 % [1 2 3] % choosing vibrational energy exchange model
+  for i_vibr =2%  [1 2 3] % choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO;
                         %   3 is for kinetics from V. Guerra works
    T0         = init_c(i_ini, 4);         % K
@@ -136,7 +143,7 @@ for i_ini = 1           % choosing desired initial coonditions
    f_O2_0     = init_c(i_ini, 2);
    f_NO_0     = init_c(i_ini, 3);
    T3         = init_c(i_ini, 5) /T0;
-   T3         = 470 / T0;                 % experimental, not calculated T
+   % T3         = 470 / T0;                 % experimental, not calculated T
    f_O_3      = init_c(i_ini, 6);
    f_N_3      = init_c(i_ini, 8);
    f_NO_3     = init_c(i_ini, 7);
@@ -151,7 +158,8 @@ for i_ini = 1           % choosing desired initial coonditions
    Delta = 1 / sqrt(2) / n0 / sigma0; % characteristic length, m
    t0    = 1 / (4 * n0 * N2.diameter^2 * sqrt(pi * k * T0 / N2.mass));
 
-   Ps = {N2, O2, NO, N, O, N2p, O2p};
+   % Ps = {N2, O2, NO, N, O, N2p, O2p};
+   Ps = {N2, O2, NO, N, O};
    kinetics.Ps = Ps;
    kinetics.num_Ps = length(kinetics.Ps);
    
@@ -199,9 +207,11 @@ for i_ini = 1           % choosing desired initial coonditions
    %     React_N2pX_O2X__O2pX_N2("Kossyi1992")];
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
 %        React_N2A_O2("Pintassilgo2009"), React_N2B_O2("Kossyi1992")];
-   Exch = [ReactZel_1("Kossyi1992"), ReactZel_2("Kossyi1992"), ...
-        React_N2A_O2("Pintassilgo2009"), ...
-        React_N2pX_O2X__O2pX_N2("Kossyi1992")];
+   Exch = [ReactZel_1("Kossyi1992") ...
+        ..., ReactZel_2("Kossyi1992")..., ...
+        ... React_N2A_O2("Pintassilgo2009")];%, ...
+        ... React_N2pX_O2X__O2pX_N2("Kossyi1992")];
+        ];
    N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");
    ET_diff_c    = cell(1, kinetics.num_Ps);
                     % N2(X),          N2(A)
@@ -211,10 +221,16 @@ for i_ini = 1           % choosing desired initial coonditions
    Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009"), ...
                 React_e_O2pX__O_O("Kossyi1992"), ...
                 React_e_N2X__e_N4S_N4S("LoKI-B steady")];
-   Reacs_keys = {'VT',     'VV',     'Exch', 'Wall', 'ET',      ...
-       'Rec_wall'};
-   reacs_val  = {model_VT, model_VT, Exch,   1,      ET_diff_c, ...
-       1};
+   Reacs_keys = {'VT',     'VV' ...
+       , 'Exch' ...
+       , 'Wall', 'ET' ...
+       , 'Rec_wall' ...
+       };
+   reacs_val  = {model_VT, model_VT ...
+       , Exch   ...
+       , 1,      ET_diff_c ...
+       , 1 ...
+       };
    % Reacs_keys = {'VT',     'VV',     'Exch', 'Wall', 'ET',      ...
    %     'Rec_wall', 'Diss'};
    % reacs_val  = {model_VT, model_VT, Exch,   1,      ET_diff_c, ...
@@ -245,9 +261,9 @@ for i_ini = 1           % choosing desired initial coonditions
         IndexOfMolecules=containers.Map(names,serial_index);
    end
    kinetics.IndexOfMolecules=IndexOfMolecules;
-%    xspan = [0.005 0.015]/t0;    % the Hubner experiment measurments time
    xspan = [0.005 0.2]/t0;      % from Pintassilgo 2014
-   % xspan = [0.005 0.0052]/t0; % tests
+   % xspan = [0.005 0.015]/t0;    % the Hubner experiment measurments time
+   xspan = [0.005 0.0052]/t0; % tests
    load('../data/for comparison/Hubner2012_and_Pintassilgo2014.mat' ...
                                                             ) %#ok<LOAD>
    i_vec = 0:30;
@@ -263,8 +279,14 @@ for i_ini = 1           % choosing desired initial coonditions
    f_N2_3 = 1 - f_O2_3 - f_NO_3 - f_O_3 - f_N_3 - f_N2A_3 - f_N2B_3;
    n_N2 = n_N2 * f_N2_3 * (1 - ion_degree);
    n_O2 = density_f_exc(Tv1, f_O2_3 * (1 - ion_degree), O2);
-   n_NO = density_f_exc(Tv1, f_NO_3, NO);
-   n_N2A = distribution_Boltzmann(Tv1, f_N2A_3, N2, 2)';
+   n_NO = density_f_exc(Tv1/2, f_NO_3, NO);
+   % n_N2A = distribution_Boltzmann(Tv1, f_N2A_3, N2, 2)';
+   n_N2A = distribution_Boltzmann(Tv1, f_N2A_3, N2, 1:2)';
+   % n_N2A = n_N2A(N2.num_vibr_levels(1)+1:)
+   M1 = N2; ind_e = 2;
+   n_N2A = n_N2A(1+sum(M1.num_vibr_levels(1:ind_e-1)) : ...
+                                        sum(M1.num_vibr_levels(1:ind_e)));
+   n_N2A = n_N2A / sum(n_N2A) * f_N2A_3;
    ne   = (f_N2_3 + f_O2_3) * ion_degree;
        % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
    y0 = [n_N2;    f_N2A_3;             n_O2;  n_NO;  f_N_3; f_O_3; ...
@@ -275,10 +297,11 @@ if N2.num_elex_levels == 3
      ... N2+
          f_N2_3*ion_degree];
 end
+n_N2A = [];
        % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
    y0 = [n_N2;    n_N2A;               n_O2;  n_NO;  f_N_3; f_O_3; ...
      ...    N2+,                O2+,
-            f_N2_3*ion_degree;  f_O2_3*ion_degree];
+        ];%    f_N2_3*ion_degree;  f_O2_3*ion_degree];
        % t3 correction, T
    y0 = [y0 * n3/n0;    T3];
 %    y0 = [y0;            T3];
@@ -288,8 +311,8 @@ end
 %                                     'NonNegative', 1:kinetics.num_eq+1); 
    options_s = odeset('RelTol', 1e-12, 'AbsTol', 1e-12, ...
                                     'NonNegative', 1:kinetics.num_eq+1); 
-   options_s = odeset('RelTol', 1e-6, 'AbsTol', 1e-8, ...
-                                    'NonNegative', 1:kinetics.num_eq+1); 
+   % options_s = odeset('RelTol', 1e-6, 'AbsTol', 1e-8, ...
+   %                                  'NonNegative', 1:kinetics.num_eq+1); 
    [X, Y] = ode15s(@(t, y) ...
     Rpart_ODE_tube_DC_discharge_0D(t, y, kinetics), xspan, y0, options_s);
 

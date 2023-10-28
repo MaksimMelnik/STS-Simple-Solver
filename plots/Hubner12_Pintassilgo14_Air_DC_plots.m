@@ -23,8 +23,10 @@ O2 = kinetics.Ps{2};
 NO = kinetics.Ps{3};
 N  = kinetics.Ps{4};
 O  = kinetics.Ps{5};
-Exch_reactions = kinetics.reactions("Exch");
-IndexOfMolecules = kinetics.IndexOfMolecules;
+if isKey(kinetics.reactions, 'Exch')
+    Exch_reactions = kinetics.reactions("Exch");
+    IndexOfMolecules = kinetics.IndexOfMolecules;
+end
 
 n_g=sum(Y(:, 1:end-1), 2);
 n_N2=sum(Y(:, kinetics.index{1}), 2);
@@ -39,7 +41,7 @@ xlabel('t, ms')
 % xlim([6e-2 1.5e-1])
 
 %% T vs exp plot
-    figure  
+    figure('Position', fsize)
 plot(Hubner_2012_T(:, 1), Hubner_2012_T(:, 2), 'sq', t*1e3, T, ...
                         t*1e3, Tv, '-.', 'linewidth', 1.5) %#ok<USENS>
 % errorbar T Hubner +- 40 K
@@ -49,7 +51,7 @@ xlim([-2 14])
 ylim([250 620])
 
 %% N, O and NO ag plot
-    figure('Position', fsize)  
+    figure('Position', fsize)
 loglog(Pintassilgo2014_ag_N(:, 1), Pintassilgo2014_ag_N(:, 2), ...
                         'color', [0.9 0 0], 'linewidth', 1.5) %#ok<USENS>
 hold on

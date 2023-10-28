@@ -76,7 +76,7 @@ for i_ini = 1 % [1 2]   % choosing desired initial coonditions
    load('../data/reactions.mat', 'Reactions');
    ReactZel_1 = Reactions("N2 + O -> NO + N");
    ReactZel_2 = Reactions("O2 + N -> NO + O");
-   Exch = [ReactZel_1("Kunova"), ReactZel_2("Kunova")];
+   Exch = [ReactZel_1("Savelev2018"), ReactZel_2("Savelev2018")];
    Reacs_keys={{'Diss', 'VT', 'VV', 'Exch'}, {'Diss', 'VT', 'VV'}};
    reacs_val = {{Diss, model_VT, model_VT, Exch}, ...
                                             {Diss, model_VT, model_VT}};
