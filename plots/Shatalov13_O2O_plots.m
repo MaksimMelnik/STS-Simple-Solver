@@ -22,9 +22,9 @@
 res_Shatalov = O2O_SW_Shatalov;
 load("../data/for comparison/shatalov.mat")
 out = res_Shatalov;
-str_vibr = ["SSH", "FHO", "FHO-FR with VV"];
+str_vibr = ["SSH", "FHO", "FHO-FR"];
 str_U    = ["Savelev", "D/6k", "3T", "\infty"];
-pl_vibr  = [":",   "-",  "-"];
+pl_vibr  = [":",   "--",  "-"];
 pl_U     = [0.5 0.5 0
             0   0.6 0
             0.9 0   0
@@ -32,7 +32,7 @@ pl_U     = [0.5 0.5 0
             0   0.5 0.5];
 %% 3 считаем максимальное относительное отклонение для Tv в %
 dTv=zeros(5,5,5);
-model_vibr = 2; % 1 - SSH, 2 - FHO
+model_vibr = 3; % 1 - SSH, 2 - FHO, 3 - FHO-FR
 for model_U = 2:4
   for ind_ini=1:5
       interP=shatalov(ind_ini).Tv(:,1);
@@ -50,7 +50,7 @@ end
 dTv=dTv*100;
 %% 4 выводим данные по максимальным максимальным отклонениям
 disp('--------------------')
-for model_vibr = 1:2
+for model_vibr = 1:3
 	for model_U = 2:4
 		disp(['model_vibr=' num2str(model_vibr) ', model_U=' num2str(model_U)...
             ', max dT=' num2str(max(dTv(:, model_vibr, model_U)))])
@@ -59,7 +59,7 @@ end
 %% 5 рисуем сравнение Tv для разных моделей
 FontSize=20;
 FigureSize=[0 0 700 600];
-for ind_ini = 1:5 % [2 4]   % chossing experimental test cases
+for ind_ini = 2 % [2 4]   % chossing experimental test cases
  figure('Units', 'pixels', 'OuterPosition', FigureSize);
  hold on;grid on;box on;
   % plotting an experimental data
@@ -88,7 +88,7 @@ for ind_ini = 1:5 % [2 4]   % chossing experimental test cases
  p_e1=errorbar(shatalov(ind_ini).Tv(:,1),shatalov(ind_ini).Tv(:,2),...
     kkk2.*shatalov(ind_ini).Tv(:,2), 'ksq', 'MarkerFaceColor', 'k',...
      'CapSize',4.5, 'LineWidth',0.6, ...
-     'DisplayName', "Ibraguimova et al. 2013");
+     'DisplayName', "Ибрагимова и др. 2013");
   % plotting the benchmark
  model_vibr_bm = 2; % benchmark vibrational model
  model_U_bm = 3;    % benchmark U parameter
@@ -96,8 +96,8 @@ for ind_ini = 1:5 % [2 4]   % chossing experimental test cases
  %                        out(ind_ini, model_vibr_bm, model_U_bm).Tv,...
  %         pl_vibr(model_vibr_bm), 'Color', pl_U(model_U_bm, :),'LineWidth',1.5, 'DisplayName', ...
  %         "Benchmark: " + str_vibr(model_vibr_bm) + ", U = " + str_U(model_U_bm));
- % 
- for model_vibr=3 %1:3  % choosing vibrational models to plot
+
+ for model_vibr=2:3 %1:3  % choosing vibrational models to plot
   for model_U = 2:4     % choosing U parameter for plotting
       % the plot
     p3=plot(out(ind_ini, model_vibr, model_U).time_mus, out(ind_ini, model_vibr, model_U).Tv,...
@@ -105,15 +105,15 @@ for ind_ini = 1:5 % [2 4]   % chossing experimental test cases
          str_vibr(model_vibr) + ", U = " + str_U(model_U));
       % some plot's parameters
     set(gca, 'FontSize', FontSize);
-    ylabel('Tv (K)')%,'FontSize',FontSize);
-    xlabel('time (\musec)')%,'FontSize',FontSize);
+    ylabel('T_v^{O_2}, K')%,'FontSize',FontSize);
+    xlabel('t, мкс')%,'FontSize',FontSize);
     xlim([min(shatalov(ind_ini).Tv(:,1)) max(shatalov(ind_ini).Tv(:,1))+0.2]);
     set(gca, 'TickDir', 'In',... чёрточки внутри, out -- снаружи
         'LineWidth', 1,... толщина окантовки
         'GridAlpha', 0.2) % прозрачность сетки
   end
  end
- title("T = " + fix(out(ind_ini, model_vibr, model_U).T(1)) + " K")
+ %title("T = " + fix(out(ind_ini, model_vibr, model_U).T(1)) + " K")
  legend('Location', 'best');
 end
 %% рисуем график отклонения от эксперимента

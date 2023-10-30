@@ -1,4 +1,4 @@
-function out=Rpart_ODE_SW(x, y2, kinetics)%#ok<INUSL>
+function out=Rpart_ODE_SW(x, y2, kinetics, coefs_for_polys)%#ok<INUSL>
 % Right part function for ODE systems for shock waves (SW).
 % x is the x coordinate; y is the vector of macroparameters;
 % kinetics is the big structure with all kinetics.
@@ -9,18 +9,8 @@ k=1.380648528e-23;
 v_DN=y2(end-1);     % dimentionless gas velocity
 T_DN=y2(end);
 
-coefs_MM = csvread("coefs_for_poly_FHO_FR_O2-O2.dat");
-val_for_normalization_MM = coefs_MM(:,1);
-poly_coefs_MM = coefs_MM(:,2:end);
-
-coefs_MA = csvread("coefs_for_poly_FHO_FR_O2-O.dat");
-val_for_normalization_MA = coefs_MA(:,1);
-poly_coefs_MA = coefs_MA(:,2:end);
-
     % relaxation terms
-[R, ~] = Rci(y2, kinetics, ...
-                poly_coefs_MM, val_for_normalization_MM, ...
-                poly_coefs_MA, val_for_normalization_MA);
+[R, ~] = Rci(y2, kinetics, coefs_for_polys);
     % number densities equations
 M2 = diag([ones(1, kinetics.num_eq)*v_DN 0 0]);
 M2(1:end-2, end-1) = y2(1:end-2);

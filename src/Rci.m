@@ -1,6 +1,4 @@
-function [R, Qin] = Rci(y, kinetics, ...
-    poly_coefs_MM, val_for_normalization_MM, ...
-    poly_coefs_MA, val_for_normalization_MA)
+function [R, Qin] = Rci(y, kinetics, coefs_for_polys)
 % Universal function for relaxation terms R_{c\alpha i}.
 % R is the relaxation term Rci, Qin is the energy flux.
 % y is the vector of gas macroparameters on the current solving step;
@@ -32,8 +30,7 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
                                         sum(M1.num_vibr_levels(1:ind_e)));
       [R_VT_data_temp , Q_VT] = R_VT(M1, y(i1_e), M2, ...
                         sum(y(i2)), T, ind_e, kinetics.reactions('VT'), ...
-                        poly_coefs_MM, val_for_normalization_MM, ...
-                        poly_coefs_MA, val_for_normalization_MA);
+                        coefs_for_polys);
       R_VT_data(i1_e) = R_VT_data(i1_e) + R_VT_data_temp;
       Qin = Qin + Q_VT;
      end

@@ -36,8 +36,18 @@ for i_ini = 1:5 % [1 2 3 4 5]         % choosing desired initial coonditions
  
  for i_U = 2:4 % [2 3 4]   % choosing desired U dissociation parameter model
                           %  2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr = 1:3 % [1 2 3]  % choosing vibrational energy exchange model
-                          %  1 is for SSH; 2 is for FHO
+  for i_vibr = 2:3 % [1 2 3]  % choosing vibrational energy exchange model
+                          %  1 is for SSH; 2 is for FHO; 3 is for FHO-FR;
+
+
+   path_to_coefs = ["../fho_fr_coefs/coefs_for_poly_FHO_FR_O2-O2.dat"
+                    "../fho_fr_coefs/coefs_for_poly_FHO_FR_O2-O.dat"
+                    "../fho_fr_coefs/coefs_for_poly_FHO_FR_O2-Ar.dat"
+                 ];   
+   coefs_for_polys = [{readmatrix(path_to_coefs(1))}
+                      {readmatrix(path_to_coefs(2))}
+                      {readmatrix(path_to_coefs(3))}
+                     ];
                           
    Diss.Arrhenius = 'Park';% parameters in dissociation Arrhenius law
    Diss.rec = true;       % is recombination included?
@@ -81,7 +91,7 @@ for i_ini = 1:5 % [1 2 3 4 5]         % choosing desired initial coonditions
    y0(end) = T1;
    options_s = odeset('RelTol', 1e-5, ... solving accuracy parameters
                     'AbsTol', 1e-8, 'NonNegative', 1:kinetics.num_eq+2); 
-   [X, Y] = ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics), ... solving
+   [X, Y] = ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics, coefs_for_polys), ... solving
                                                     xspan, y0, options_s);
                                                 
    X = X * Delta;                   % dimensioning

@@ -2,8 +2,9 @@
 %Streicher's 2021 experiment with O2\O\Ar mixtures
 clearvars;
 %Here you need to load an array with calculated data
-load('..\data\O2_Ar Streicher experiment\O2Ar_behindRSW_output.mat');
-load('..\data\O2_Ar Streicher experiment\O2_Ar_Streicher21_experiment.mat');
+load('../data/O2_Ar Streicher experiment/O2Ar_behindRSW_output.mat');
+load('../data/O2_Ar Streicher experiment/O2Ar_behindRSW_output_FHO.mat');
+load('../data/O2_Ar Streicher experiment/O2_Ar_Streicher21_experiment.mat');
 info=["50% No.1 (03)", "No.2: O_2 - 50%; Ar - 50%", "50% No.3 (14)" ,...
     "20% No.1 (02)" ,"20% No.2 (08)", "20% No.3 (14)",...
     "100% No.1 (01)","100% No.2 (06)","100% No.3 (08)"];
@@ -13,7 +14,7 @@ info=["50% No.1 (03)", "No.2: O_2 - 50%; Ar - 50%", "50% No.3 (14)" ,...
 data_main=dat1;
 % here you need to load a minor data, if you want to compare new model with 
 % main data
-data_minor=dat1;
+data_minor=dat2;
 
 %indicators for plots. True if you want to plot a graph,
 %False if you dont want to.
@@ -27,7 +28,7 @@ P_plot=true;
 TVerror_plot=false;
 Nerror_plot=false;
 
-for var = 1 %1:9
+for var = 1:9 %1:9
 %testcases
 %var: %1 - 50-03 T=8110 K, P=75 Torr;  2 - 50-11 T=10470 K, P=53 Torr; 
 %3 - 50-13 T=11410 K, P=30 Torr; 4 - 20-02 T=7840 K, P=130 Torr;
@@ -35,7 +36,7 @@ for var = 1 %1:9
 %7 - 100-01 T=6230 K, P=57 Torr; 8 - 100-06 T=7940 K, P=41 Torr;
 %9 - 100-08 T=9560 K, P=34 Torr;
 
-i_vibr=1; %model of vibrational enegry exchange 1 - SSH, 2 - FHO
+i_vibr=3; %model of vibrational enegry exchange 1 - SSH, 2 - FHO, 3 - FHO-FR 
 i_vibr_minor = 2;   % vibr model for minor data
 rel=2; %switcher of relaxation between SWs: 1 - off, 2 - on
 
