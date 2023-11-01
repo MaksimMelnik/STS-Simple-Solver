@@ -19,11 +19,11 @@
 % 4) Choose models in the block 5 for plots and run this block. You can
 %       turn off the benchmark.
 %% 2) loading
-% res_Shatalov = O2O_SW_Shatalov;
+res_Shatalov = O2O_SW_Shatalov;
 load("../data/for comparison/shatalov.mat")
 out = res_Shatalov;
-str_vibr = ["SSH", "FHO", "FHO-FR"];
-str_U    = ["Savelev", "D/6k", "3T", "\infty"];
+str_vibr = ["SSH", "FHO", "FHO-FR-reg"];
+str_U    = ["Savelev", "\itD/\rm6\itk", "3\itT", "\infty"];
 pl_vibr  = [":",   "--",  "-"];
 pl_U     = [0.5 0.5 0
             0   0.6 0
@@ -59,12 +59,14 @@ for model_vibr = 1:3
 	end
 end
 %% 5 рисуем сравнение Tv для разных моделей
-FontSize=14;
+FontSize=16;
 FigureSize=[0 0 700 600];
-FigureSize=[0 0 600 560];
+FigureSize=[20 50 600 560];
 for ind_ini = 2 % [2 4]   % chossing experimental test cases
  figure('Units', 'pixels', 'OuterPosition', FigureSize);
- hold on;grid on;box on;
+ set(gca, 'FontName', 'Times New Roman');
+ hold on;%grid on;box on;
+ grid minor
   % plotting an experimental data
  kkk=zeros(length(shatalov(ind_ini).Tv(:,2)),1)+0.1;
  if ind_ini<4
@@ -91,7 +93,7 @@ for ind_ini = 2 % [2 4]   % chossing experimental test cases
  p_e1=errorbar(shatalov(ind_ini).Tv(:,1),shatalov(ind_ini).Tv(:,2),...
     kkk2.*shatalov(ind_ini).Tv(:,2), 'ksq', 'MarkerFaceColor', 'k',...
      'CapSize',4.5, 'LineWidth',0.6, ...
-     'DisplayName', "Ибрагимова и др. 2013");
+     'DisplayName', "ISW, exp");
   % plotting the benchmark
  model_vibr_bm = 2; % benchmark vibrational model
  model_U_bm = 3;    % benchmark U parameter
@@ -105,12 +107,12 @@ for ind_ini = 2 % [2 4]   % chossing experimental test cases
       % the plot
     p3=plot(out(ind_ini, model_vibr, model_U).time_mus, out(ind_ini, model_vibr, model_U).Tv,...
          pl_vibr(model_vibr), 'Color', pl_U(model_U, :),'LineWidth',2, 'DisplayName', ...
-         str_vibr(model_vibr) + ", U = " + str_U(model_U));
+         str_vibr(model_vibr) + ", " + str_U(model_U));
       % some plot's parameters
     set(gca, 'FontSize', FontSize);
-    ylabel('T_v^{O_2}, K')%,'FontSize',FontSize);
-    xlabel('t, мкс')%,'FontSize',FontSize);
-    xlim([min(shatalov(ind_ini).Tv(:,1)) max(shatalov(ind_ini).Tv(:,1))+0.2]);
+    ylabel('\it T_{\rmv}^{\rm O_2}, \rmK')%,'FontSize',FontSize);
+    xlabel('\itt, \rmмкс')%,'FontSize',FontSize);
+    xlim([min(shatalov(ind_ini).Tv(:,1))-0.1 max(shatalov(ind_ini).Tv(:,1))+0.2]);
     set(gca, 'TickDir', 'In',... чёрточки внутри, out -- снаружи
         'LineWidth', 1,... толщина окантовки
         'GridAlpha', 0.2) % прозрачность сетки
@@ -127,9 +129,12 @@ clr=[   0 0 0
         0 0 1
         0 0.5 0
         1 0 1];
+clr = pl_U;
 mark=["sq" "o" "^"];
 figure('Units', 'pixels', 'OuterPosition', FigureSize);
-hold on;grid on;box on;
+ set(gca, 'FontName', 'Times New Roman');
+hold on;grid on;%box on;
+ % grid minor
 markersize=9;
 markerwidth=1.5;
 modV_benchmark = 2;
@@ -152,19 +157,20 @@ for modV = 3
 %         'Color',clr(1,:), 'MarkerSize', markersize, ...
 %         'LineWidth', markerwidth);
 end
-legend('FHO, U = 3T','FHO-FR-reg, U = D/6k','FHO-FR-reg, U = 3T', ...
-    'FHO-FR-reg, U = \infty',...
+legend('FHO, \itU\rm = \infty','FHO-FR-reg, \itU = D/\rm6\itk', ...
+    'FHO-FR-reg, \itU = \rm3\itT', ...
+    'FHO-FR-reg, \itU\rm = \infty',...
     ...'SSH-Savelev', 'FHO-Pogosbekyan','FHO-\infty','FHO-3T','FHO-D/6k',...
     ...'FHO-Savelev', 'FHO2-Pogosbekyan','FHO2-\infty','FHO2-3T',...
     ...'FHO2-D/6k','FHO2-Savelev',...
-                             'Location','best','FontSize',14);
+                             'Location','best','FontSize',FontSize);
 set(gca, 'LineWidth', 1,... толщина окантовки
          'GridAlpha', 0.2) % прозрачность сетки
 xlim([min(numM(1:end))-0.2 max(numM)+0.2]);
 ylim([0 45])
 set(gca, 'FontSize', FontSize);
-ylabel('max \delta_{O_2} (%)')
-xlabel('M_0')
+ylabel('макс. отклонение    \itT\rm_v, %')
+xlabel('\itM\rm_0')
 yticks([0 10 15 25 40])
 xticks([numM(5) numM(4) 11 numM(3) numM(2) numM(1)])
 % 

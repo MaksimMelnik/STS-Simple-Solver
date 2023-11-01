@@ -24,11 +24,11 @@ data_minor=dat1;
 %Nerror_plot - plot deviation for n_NO
 
 MACRO_plot = true;
-P_plot=true;
+P_plot = false;
 TVerror_plot = true;
 Nerror_plot=false;
 
-for var = 1:9 %1:9
+for var = 1 %1:9
 %testcases
 %var: %1 - 50-03 T=8110 K, P=75 Torr;  2 - 50-11 T=10470 K, P=53 Torr; 
 %3 - 50-13 T=11410 K, P=30 Torr; 4 - 20-02 T=7840 K, P=130 Torr;
@@ -99,12 +99,19 @@ end
 %End of experimental data handling
 
 
+FigureSize=[20 50 600 560];
+FontSize=16;
+pl_U     = [0.5 0.5 0
+            0   0.6 0
+            0.9 0   0
+            0   0   0.6
+            0   0.5 0.5];
 
 if MACRO_plot
 %%Temperature & Number density
 % figure("Position", [0, 0, 900, 400])
 % t=tiledlayout(1, 2, "TileSpacing", "compact");
-figure("Position", [0, 0, 600, 400])
+ figure('Units', 'pixels', 'OuterPosition', FigureSize);
 %title(t, "Case " + info(var)+"; vibr. model: SSH", 'FontName',...
 % 'Times New Roman');
 
@@ -132,31 +139,44 @@ figure("Position", [0, 0, 600, 400])
 % nexttile
 hold on
 set(gca, 'FontName', 'Times New Roman');
+set(gca, 'FontSize', FontSize);
+set(gca, 'LineWidth', 1,... толщина окантовки
+         'GridAlpha', 0.2) % прозрачность сетки
 p1=plot(time_Tv_exp, Tv_exp, 'k-', 'LineWidth', 1.5, 'DisplayName', ...
-    "\it T_{\rm v}^{\rm O_2}\rm - experiment ");
+    ..."\it T_{\rm v}^{\rm O_2}\rm - experiment ");
+    "RSW, exp");
+p_bench=plot(data_main(1,3,var,rel).time, ...
+    data_main(1,3,var,rel).Tv,':', 'LineWidth', ...
+    2, 'DisplayName', "SSH, 3\itT", 'color', [1 0.6 0] );
 p2=plot(data_main(i_vibr,2,var,rel).time, ...
-    data_main(i_vibr,2,var,rel).Tv,'r-', 'LineWidth', ...
-    1.5, 'DisplayName', "\it T_{\rm v}^{\rm O_2} - U=D/6k " );
+    data_main(i_vibr,2,var,rel).Tv,'-', 'LineWidth', ...
+    ...1.5, 'DisplayName', "\it T_{\rm v}^{\rm O_2} - U=D/6k " );
+    1.5, 'DisplayName', "FHO-FR-reg, \itD/\rm6\itk ", 'color', pl_U(2, :) );
 p3=plot(data_main(i_vibr,3,var,rel).time, ...
     data_main(i_vibr,3,var,rel).Tv,'b-', 'LineWidth', ...
-    1.5, 'DisplayName', "\it T_{\rm v}^{\rm O_2} - U=3T " );
+    ...1.5, 'DisplayName', "\it T_{\rm v}^{\rm O_2} - U=3T " );
+    1.5, 'DisplayName', "FHO-FR-reg, 3\itT" , 'color', pl_U(3, :));
 p4=plot(data_main(i_vibr,4,var,rel).time, ...
     data_main(i_vibr,4,var,rel).Tv, 'm-','LineWidth', ...
-    1.5, 'DisplayName', "\it T_{\rm v}^{\rm O_2} - U=\infty " );
+    ...1.5, 'DisplayName', "\it T_{\rm v}^{\rm O_2} - U=\infty " );
+    1.5, 'DisplayName', "FHO-FR-reg, \infty" , 'color', pl_U(4, :));
 p5=plot(data_minor(i_vibr_minor,2,var,rel).time, ...
     data_minor(i_vibr_minor,2,var,rel).Tv,'r--', 'LineWidth', ...
-    1.5, 'DisplayName', "\it T_{\rm v}^{\rm O_2} - U=D/6k minor" );
+    ...1.5, 'DisplayName', "\it T_{\rm v}^{\rm O_2} - U=D/6k minor" );
+    1.5, 'DisplayName', "FHO, \itD/\rm6\itk " , 'color', pl_U(2, :));
 p6=plot(data_minor(i_vibr_minor,3,var,rel).time, ...
     data_minor(i_vibr_minor,3,var,rel).Tv,'b--', 'LineWidth', ...
-    1.5, 'DisplayName', "\it T_{\rm v}^{\rm O_2} - U=3T minor" );
+    ...1.5, 'DisplayName', "\it T_{\rm v}^{\rm O_2} - U=3T minor" );
+    1.5, 'DisplayName', "FHO, 3\itT" , 'color', pl_U(3, :));
 p7=plot(data_minor(i_vibr_minor,4,var,rel).time, ...
     data_minor(i_vibr_minor,4,var,rel).Tv, 'm--','LineWidth', ...
-    1.5, 'DisplayName', "\it T_{\rm v}^{\rm O_2} - U=\infty minor" );
+    ...1.5, 'DisplayName', "\it T_{\rm v}^{\rm O_2} - U=\infty minor" );
+    1.5, 'DisplayName', "FHO, \infty" , 'color', pl_U(4, :));
 errorbar(time_Tv_err, Tv_err, err_Tv, 'sqk', ...
     'MarkerFaceColor', 'k','MarkerSize',1, 'LineWidth', 1);
 xlim([0 max(time_Tv_exp)]);
-legend([p1 p2 p3 p4 p5 p6 p7],'Location','best');
-xlabel("\it t\rm, \mus");
+legend([p1 p_bench p5 p6 p7 p2 p3 p4],'Location','best', 'FontSize',FontSize);
+xlabel("\it t\rm, мкс");
 ylabel("\it T_{\rm v}^{\rm O_2}\rm, K");
 hold off
 grid minor
@@ -366,9 +386,15 @@ end
 
 %%
 if TVerror_plot
+markersize=9;
+markerwidth=1.5;
 %same as Nerror_plot
-figure
+% figure
+ figure('Units', 'pixels', 'OuterPosition', FigureSize);
 set(gca,'FontSize', 12);
+set(gca, 'FontSize', FontSize);
+set(gca, 'LineWidth', 1,... толщина окантовки
+         'GridAlpha', 0.2) % прозрачность сетки
 hold on
 for var=1:9
 
@@ -411,16 +437,16 @@ s2=spline(data_main(i_vibr,3,var,rel).time, ...
 s3=spline(data_main(i_vibr,4,var,rel).time, ...
     data_main(i_vibr,4,var,rel).Tv, ...
     min(time_Tv_exp):0.1:max(time_Tv_exp)); %SSH inf
-i_vibr=2;
-s4=spline(data_main(i_vibr,2,var,rel).time, ...
-    data_main(i_vibr,2,var,rel).Tv, ...
-    min(time_Tv_exp):0.1:max(time_Tv_exp)); %FHO D/6k
-s5=spline(data_main(i_vibr,3,var,rel).time, ...
-    data_main(i_vibr,3,var,rel).Tv, ...
-    min(time_Tv_exp):0.1:max(time_Tv_exp)); %FHO 3T
-s6=spline(data_main(i_vibr,4,var,rel).time, ...
-    data_main(i_vibr,4,var,rel).Tv, ...
-    min(time_Tv_exp):0.1:max(time_Tv_exp)); %FHO inf
+% i_vibr=2;
+% s4=spline(data_main(i_vibr,2,var,rel).time, ...
+%     data_main(i_vibr,2,var,rel).Tv, ...
+%     min(time_Tv_exp):0.1:max(time_Tv_exp)); %FHO D/6k
+% s5=spline(data_main(i_vibr,3,var,rel).time, ...
+%     data_main(i_vibr,3,var,rel).Tv, ...
+%     min(time_Tv_exp):0.1:max(time_Tv_exp)); %FHO 3T
+% s6=spline(data_main(i_vibr,4,var,rel).time, ...
+%     data_main(i_vibr,4,var,rel).Tv, ...
+%     min(time_Tv_exp):0.1:max(time_Tv_exp)); %FHO inf
 
 % rel=1;
 % i_vibr=1;
@@ -453,54 +479,61 @@ s_bench = spline(data_main(i_vibr_bench, i_U_bench, var, 2).time, ...
 
 s_exp=makima(time_Tv_exp, Tv_exp, min(time_Tv_exp):0.1:max(time_Tv_exp));
 
-err1=mean(abs(s1-s_exp)./s_exp);
-err2=mean(abs(s2-s_exp)./s_exp);
-err3=mean(abs(s3-s_exp)./s_exp);
-err4=mean(abs(s4-s_exp)./s_exp);
-err5=mean(abs(s5-s_exp)./s_exp);
-err6=mean(abs(s6-s_exp)./s_exp);
+err1=mean(abs(s1-s_exp)./s_exp)*100;
+err2=mean(abs(s2-s_exp)./s_exp)*100;
+err3=mean(abs(s3-s_exp)./s_exp)*100;
+% err4=mean(abs(s4-s_exp)./s_exp);
+% err5=mean(abs(s5-s_exp)./s_exp);
+% err6=mean(abs(s6-s_exp)./s_exp);
 % err7=mean(abs(s7-s_exp)./s_exp);
 % err8=mean(abs(s8-s_exp)./s_exp);
 % err9=mean(abs(s9-s_exp)./s_exp);
 % err10=mean(abs(s10-s_exp)./s_exp);
 % err11=mean(abs(s11-s_exp)./s_exp);
 % err12=mean(abs(s12-s_exp)./s_exp);
-err_bench = mean(abs(s_bench - s_exp)./s_exp);
+err_bench = mean(abs(s_bench - s_exp)./s_exp)*100;
 
-p1=plot(TEMP(var), err1, 'ok');
-p2=plot(TEMP(var), err4, 'o','color', [0 0.6 0]);
+p1=plot(TEMP(var), err1, '^k', 'MarkerSize', markersize, ...
+        'LineWidth', markerwidth, 'color', pl_U(2, :));
+% p2=plot(TEMP(var), err4, 'o','color', [0 0.6 0]);
 % p3=plot(TEMP(var), err7, 'ob');
 % p4=plot(TEMP(var), err10,'o','color', [0.9 0 0]);
-p5=plot(TEMP(var), err2, 'sk');
-p6=plot(TEMP(var), err5, 's','color',[0 0.6 0]);
+p5=plot(TEMP(var), err2, '^k', 'MarkerSize', markersize, ...
+        'LineWidth', markerwidth, 'color', pl_U(3, :));
+% p6=plot(TEMP(var), err5, 's','color',[0 0.6 0]);
 % p7=plot(TEMP(var), err8, 'sb');
 % p8=plot(TEMP(var), err11, 's','color', [0.9 0 0]);
-p9=plot(TEMP(var), err3, 'dk');
-p10=plot(TEMP(var), err6,'d','color',[0 0.6 0]);
+p9=plot(TEMP(var), err3, '^k', 'MarkerSize', markersize, ...
+        'LineWidth', markerwidth, 'color', pl_U(4, :));
+% p10=plot(TEMP(var), err6,'d','color',[0 0.6 0]);
 % p11=plot(TEMP(var), err9, 'db');
 % p12=plot(TEMP(var), err12, 'd','color', [0.9 0 0]);
-p_bench = plot(TEMP(var), err_bench, 's','color', [0.9 0 0]);
+p_bench = plot(TEMP(var), err_bench, 's','color', [1 0.6 0], 'MarkerSize', markersize, ...
+        'LineWidth', markerwidth);
 end
 set(gca, 'FontName', 'Times New Roman');
 [TEMP, I]=sort(TEMP);
 exp_err=exp_err(I);
-p13=plot(TEMP, exp_err, 'k--');
+% p13=plot(TEMP, exp_err, 'k--');
 hold off
 % legend([p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 p11 p12 p13], "SSH, D/6k", ...
 %     "FHO, D/6k", "SSH, D/6k, rel off", "FHO, D/6k, rel off"...
 %  , "SSH, 3T", "FHO, 3T", "SSH, 3T, rel off", "FHO, 3T, rel off"...
 %  , "SSH, inf", "FHO, inf", "SSH, inf, rel off", "FHO, inf, rel off", ...
 %  "mean exp. error", 'Location','eastoutside');
-legend([p1 p2 p5 p6 p9 p10 p_bench p13], "FHO-FR-reg, D/6k", ...
-    "FHO, D/6k"...
- , "FHO-FR-reg, 3T", "FHO, 3T"...
- , "FHO-FR-reg, inf", "FHO, inf", "SSH, 3T", ...
- "mean exp. error", 'Location','best');
+legend([p_bench p1 p5 p9], "SSH, 3\itT", "FHO-FR-reg, \itD/\rm6\itk" ...
+    ..., "FHO, D/6k"...
+ , "FHO-FR-reg, 3\itT"..., "FHO, 3T"...
+ , "FHO-FR-reg, \infty"..., "FHO, inf"
+ , 'Location','best', 'FontSize',FontSize);
 xlabel("T^0 behind reflected SW, K");
+xlabel("\itT\rm^{ 0}_{tr}, K");
 xticks([6000 7000 8000 9000 10000 11000 12000 13000 14000]);
-ylabel("\DeltaT_v/T_v");
+xticks([6000 8000 10000 12000 14000]);
+ylabel("Среднее отклонение     \itT\rm_v, %");
 %title("O2/Ar mean \DeltaT_v/T_v");
 xlim([6000 14000]);
 ylim([0 0.6]);
+ylim([0 0.6*100]);
 grid minor
 end
