@@ -19,7 +19,7 @@
 % 4) Choose models in the block 5 for plots and run this block. You can
 %       turn off the benchmark.
 %% 2) loading
-res_Shatalov = O2O_SW_Shatalov;
+% res_Shatalov = O2O_SW_Shatalov;
 load("../data/for comparison/shatalov.mat")
 out = res_Shatalov;
 str_vibr = ["SSH", "FHO", "FHO-FR"];
@@ -32,7 +32,7 @@ pl_U     = [0.5 0.5 0
             0   0.5 0.5];
 %% 3 считаем максимальное относительное отклонение для Tv в %
 dTv=zeros(5,5,5);
-model_vibr = 3; % 1 - SSH, 2 - FHO, 3 - FHO-FR
+for model_vibr = 2:3 % 1 - SSH, 2 - FHO, 3 - FHO-FR
 for model_U = 2:4
   for ind_ini=1:5
       interP=shatalov(ind_ini).Tv(:,1);
@@ -46,6 +46,7 @@ for model_U = 2:4
       dTv(ind_ini, model_vibr, model_U)=temp_dT;
       clear temp_dT;
   end
+end
 end
 dTv=dTv*100;
 %% 4 выводим данные по максимальным максимальным отклонениям
@@ -117,21 +118,21 @@ for ind_ini = 2 % [2 4]   % chossing experimental test cases
  legend('Location', 'best');
 end
 %% рисуем график отклонения от эксперимента
-% FigureSize=[0 0 800 560];
-% clr=[   0 0 0
-%         1 0 0
-%         0 0 1
-%         1 0 1
-%         0 0.5 0];
-% mark=["sq" "o" "^"];
-% figure('Units', 'pixels', 'OuterPosition', FigureSize);
-% hold on;grid on;box on;
-% markersize=9;
-% markerwidth=1.5;
-% for modV=1:3
-%     plot(numM(1:end),reshape(dTv(modV,5,:),[],1),mark(modV),...
-%         'Color',clr(5,:),'MarkerSize', markersize, ...
-%         'LineWidth', markerwidth);
+FigureSize=[0 0 800 560];
+clr=[   0 0 0
+        1 0 0
+        0 0 1
+        1 0 1
+        0 0.5 0];
+mark=["sq" "o" "^"];
+figure('Units', 'pixels', 'OuterPosition', FigureSize);
+hold on;grid on;box on;
+markersize=9;
+markerwidth=1.5;
+for modV=1:3
+    plot(numM(1:end),reshape(dTv(modV,5,:),[],1),mark(modV),...
+        'Color',clr(5,:),'MarkerSize', markersize, ...
+        'LineWidth', markerwidth);
 %     plot(numM(1:end),reshape(dTv(modV,4,:),[],1),mark(modV),...
 %         'Color',clr(4,:), 'MarkerSize', markersize, ...
 %         'LineWidth', markerwidth);
@@ -144,7 +145,7 @@ end
 %     plot(numM(1:end),reshape(dTv(modV,1,:),[],1),mark(modV),...
 %         'Color',clr(1,:), 'MarkerSize', markersize, ...
 %         'LineWidth', markerwidth);
-% end
+end
 % legend('SSH-Pogosbekyan','SSH-\infty','SSH-3T','SSH-D/6k',...
 %     'SSH-Savelev', 'FHO-Pogosbekyan','FHO-\infty','FHO-3T','FHO-D/6k',...
 %     'FHO-Savelev', 'FHO2-Pogosbekyan','FHO2-\infty','FHO2-3T',...
