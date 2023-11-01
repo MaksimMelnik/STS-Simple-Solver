@@ -59,8 +59,9 @@ for model_vibr = 1:3
 	end
 end
 %% 5 рисуем сравнение Tv для разных моделей
-FontSize=20;
+FontSize=14;
 FigureSize=[0 0 700 600];
+FigureSize=[0 0 600 560];
 for ind_ini = 2 % [2 4]   % chossing experimental test cases
  figure('Units', 'pixels', 'OuterPosition', FigureSize);
  hold on;grid on;box on;
@@ -120,7 +121,7 @@ for ind_ini = 2 % [2 4]   % chossing experimental test cases
 end
 %% рисуем график отклонения от эксперимента
 numM = [13.5, 12.3, 12, 10.2, 9.7];
-FigureSize=[0 0 600 560];
+% FigureSize=[0 0 600 560];
 clr=[   0 0 0
         1 0 0
         0 0 1
@@ -161,7 +162,7 @@ set(gca, 'LineWidth', 1,... толщина окантовки
          'GridAlpha', 0.2) % прозрачность сетки
 xlim([min(numM(1:end))-0.2 max(numM)+0.2]);
 ylim([0 45])
-set(gca, 'FontSize', 14);
+set(gca, 'FontSize', FontSize);
 ylabel('max \delta_{O_2} (%)')
 xlabel('M_0')
 yticks([0 10 15 25 40])
