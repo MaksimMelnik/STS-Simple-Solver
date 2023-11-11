@@ -2,14 +2,11 @@
 Universal State-to-state modeling code. Allows to simulate 1D and 0D chemical-electronic-vabrational relaxation. It's importans fiture is accounting of electronic excitation. Only for atoms and diatomic molecules.
 ### todo
 - add a brief description how to use the code to the README
-- add a reference on the prof. Nagnibeda's and prof. Kustova's book
-- add a required MATLAB version
-- finish NO Streicher RefSW experiments test cases (NO/N2, NO/N2/Ar)
-- make exchange reactions function more universal (M2 and M4 not atoms)
-- finish the Hubner 2012 experiment DC test case for the afterglow
-- finish the Hubner 2012 experiment DC test case for the discharge zone
+- add NO exhange reactions
+- finish NO Streicher RefSW experiments test cases
+- add universal exchange reactions
+- finish the Hubner 2012 experiment DC test case
 - rewrite SW conditions recalculation before and after a SW (sw_cond_ar_f_eq, sw_cond_ar_f2, in_con_Ar, in_con_exp_p1v1T2, in_con_O2), add this recalculation to Shatalov's test case
-- add an example for plotting k_VT and others
 - rewrite or exclude par_shatalov_f
 - add a warning function to check for possible errors in the kinetic scheme
 - add the universal output format
