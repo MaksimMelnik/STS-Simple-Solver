@@ -2,3 +2,6 @@
 temp/
 examples/graphics.m
 data/Streicher experiment/
+data/for comparison/shatalov.mat
+data/O2_Ar Streicher experiment/O2Ar_behindRSW_output.mat
+data/O2_Ar Streicher experiment/O2Ar_betweenSWs_output.mat

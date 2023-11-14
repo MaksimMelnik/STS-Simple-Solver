@@ -33,7 +33,7 @@ for i_ini=2 % [1 2]     % choosing desired initial coonditions
                         % 1 is for Hubner; 2 is for Shatalov
  for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr=3 % [1 2 3]  % choosing vibrational energy exchange model
+  for i_vibr=[1 3] % [1 2 3]  % choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO; 3 is for Billing
     
    T0      = init_c(i_ini, 2);         % K
@@ -161,9 +161,9 @@ for i_ini=2 % [1 2]     % choosing desired initial coonditions
  end
 end
 
-figure
-semilogx(t, T, t, Tv, 'linewidth', 1.5)
-legend('T, K', 'Tv, K', 'location', 'best')
+% figure
+% semilogx(t, T, t, Tv, 'linewidth', 1.5)
+% legend('T, K', 'Tv, K', 'location', 'best')
 
 rmpath('../src/')
 toc

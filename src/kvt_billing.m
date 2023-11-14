@@ -1,5 +1,9 @@
 function k_down = kvt_billing(t, M1, M2, ind_e, anharm)
 
+h = 6.626070041e-34;      % Plank constant, J*sec
+N_a=6.02214076e23;        % Avogadro constant
+c = 299792458;            % speed of light
+
 l=M1.num_vibr_levels(ind_e);    % number of vibr. lvls
 Lmax = l-1; % number of maximum level
 i = (1:Lmax);   
@@ -37,7 +41,7 @@ elseif M1.name() == "O2"
  elseif M2.name() == "O" % слишком маленькие коэффициенты
   k_down = zeros(size(i));
   for j = 1:Lmax
-   k_down(j) = (3*j-2)*(M1.ev_i{ind_e}(2))*(7*10^(-14))/(0.124*exp(30/t^(1/3))); %M1.ev_i{ind_e}(2)?
+   k_down(j) = (3*j-2)*(M1.ev_i{ind_e}(2)/h/c*1e-2)*(7*10^(-14))/(0.124*exp(30/t^(1/3))); %M1.ev_i{ind_e}(2)?
   end
  elseif M2.name() == "N2"
      k_down = kvt_billing(t, M1, O2, ind_e, anharm);
