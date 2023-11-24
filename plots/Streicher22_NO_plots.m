@@ -30,7 +30,7 @@ data_minor=dat1(:,:,:,:,1); %data with i_exch=1 model(without exch. react.)
 
 MACRO_plot=false;
 NNO_plot=false;
-VDF_NO_plot=true;
+VDF_NO_plot=false;
 TVerror_plot=false;
 Nerror_plot=false;
 
@@ -124,6 +124,37 @@ for i=j+1:length(data_experiment(var).n0(:,3))-1
     end
 end
 %End of experimental data handling
+
+figure ("Position", [0, 0, 1000, 400])
+t=tiledlayout(1, 2, "TileSpacing", "compact");
+title(t, info(var));
+nexttile
+set(gca, 'FontName', 'Times New Roman');
+loglog(data_main(i_vibr,2,var,2).time, data_main(i_vibr,2,var,2).ni_NO(:,1)/Na*1e3, 'b-', 'LineWidth',1.5);
+hold on
+loglog(data_main(i_vibr,3,var,2).time, data_main(i_vibr,3,var,2).ni_NO(:,1)/Na*1e3, 'b--', 'LineWidth',1.5);
+loglog(data_main(i_vibr,4,var,2).time, data_main(i_vibr,4,var,2).ni_NO(:,1)/Na*1e3, 'b-.', 'LineWidth',1.5);
+hold off
+title("n^{\nu=0}_{NO}");
+xlim([0 tlim_n]);
+legend("n^{\nu=0}_{NO}, U=D/6k", "n^{\nu=0}_{NO}, U=3T", "n^{\nu=0}_{O_2}, U=\infty", 'Location','best');
+xlabel("t, \mus");
+ylabel("n_i, mmol/m^3");
+nexttile
+set(gca, 'FontName', 'Times New Roman');
+loglog(data_main(i_vibr,2,var,2).time, data_main(i_vibr,2,var,2).ni_NO(:,end)/Na*1e3, 'r-', 'LineWidth',1.5);
+hold on
+loglog(data_main(i_vibr,3,var,2).time, data_main(i_vibr,3,var,2).ni_NO(:,end)/Na*1e3, 'r--', 'LineWidth',1.5);
+loglog(data_main(i_vibr,4,var,2).time, data_main(i_vibr,4,var,2).ni_NO(:,end)/Na*1e3, 'r-.', 'LineWidth',1.5);
+hold off
+title("n^{\nu=38}_{NO}");
+xlim([0 tlim_n]);
+legend("n^{\nu=38}_{NO}, U=D/6k", "n^{\nu=38}_{NO}, U=3T", "n^{\nu=38}_{NO}, U=\infty", 'Location','best');
+xlabel("t, \mus");
+ylabel("n_i, mmol/m^3");
+
+exportgraphics(t,"NOAr_FHO_case"+num2str(var)+".jpg");
+
 
 if MACRO_plot
 %Macro parameters plot

@@ -21,13 +21,13 @@ data_minor=dat1;
 %P_plot - plot with pressure (only for testcase#1)
 %TVerror_plot - plot deviation for Tv_NO
 %Nerror_plot - plot deviation for n_NO
-
-MACRO_plot=true;
-P_plot=true;
+Na=6.02214076e23; 
+MACRO_plot=false;
+P_plot=false;
 TVerror_plot=false;
 Nerror_plot=false;
 
-for var=1
+for var=1:9
 %testcases
 %var: %1 - 50-03 T=8110 K, P=75 Torr;  2 - 50-11 T=10470 K, P=53 Torr; 
 %3 - 50-13 T=11410 K, P=30 Torr; 4 - 20-02 T=7840 K, P=130 Torr;
@@ -35,8 +35,22 @@ for var=1
 %7 - 100-01 T=6230 K, P=57 Torr; 8 - 100-06 T=7940 K, P=41 Torr;
 %9 - 100-08 T=9560 K, P=34 Torr;
 
-i_vibr=1; %model of vibrational enegry exchange 1 - SSH, 2 - FHO
+i_vibr=2; %model of vibrational enegry exchange 1 - SSH, 2 - FHO
 rel=2; %switcher of relaxation between SWs: 1 - off, 2 - on
+
+% figure 
+% semilogy(data_minor(i_vibr,2,var,1).time, data_minor(i_vibr,2,var,1).nO2./(data_minor(i_vibr,2,var,1).nO2 + data_minor(i_vibr,2,var,1).nO +data_minor(i_vibr,2,var,1).nAr), 'b-', 'LineWidth',1.5);
+% hold on
+% semilogy(data_minor(i_vibr,2,var,1).time, data_minor(i_vibr,2,var,1).nO./(data_minor(i_vibr,2,var,1).nO2 + data_minor(i_vibr,2,var,1).nO +data_minor(i_vibr,2,var,1).nAr), 'r-', 'LineWidth',1.5);
+% semilogy(data_minor(i_vibr,3,var,1).time, data_minor(i_vibr,3,var,1).nO2./(data_minor(i_vibr,3,var,1).nO2 + data_minor(i_vibr,3,var,1).nO +data_minor(i_vibr,3,var,1).nAr), 'b--', 'LineWidth',1.5);
+% semilogy(data_minor(i_vibr,3,var,1).time, data_minor(i_vibr,3,var,1).nO./(data_minor(i_vibr,3,var,1).nO2 + data_minor(i_vibr,3,var,1).nO +data_minor(i_vibr,3,var,1).nAr), 'r--', 'LineWidth',1.5);
+% semilogy(data_minor(i_vibr,4,var,1).time, data_minor(i_vibr,4,var,1).nO2./(data_minor(i_vibr,4,var,1).nO2 + data_minor(i_vibr,4,var,1).nO +data_minor(i_vibr,4,var,1).nAr), 'b-.', 'LineWidth',1.5);
+% semilogy(data_minor(i_vibr,4,var,1).time, data_minor(i_vibr,4,var,1).nO./(data_minor(i_vibr,4,var,1).nO2 + data_minor(i_vibr,4,var,1).nO +data_minor(i_vibr,4,var,1).nAr), 'r-.', 'LineWidth',1.5);
+% hold off
+% legend("\chi_{O2}, U=D/6k", "\chi_{O}, U=D/6k", "\chi_{O2}, U=3T", "\chi_{O}, U=3T", "\chi_{O2}, U=\infty", "\chi_{O}, U=\infty", 'Location','best');
+% ylim([1e-7 1e0]);
+% xlabel("t, \mus");
+% ylabel("\chi");
 
 
 %Experimental errors and data handling
@@ -96,7 +110,36 @@ for i=(j+1):(length(data_experiment(var).n(:,3))-1)
 end
 %End of experimental data handling
 
+figure ("Position", [0, 0, 1000, 400])
+t=tiledlayout(1, 2, "TileSpacing", "compact");
+title(t, info(var));
+nexttile
+set(gca, 'FontName', 'Times New Roman');
+loglog(data_minor(i_vibr,2,var,2).time, data_minor(i_vibr,2,var,2).niO2(:,1)/Na*1e3, 'b-', 'LineWidth',1.5);
+hold on
+loglog(data_minor(i_vibr,3,var,2).time, data_minor(i_vibr,3,var,2).niO2(:,1)/Na*1e3, 'b--', 'LineWidth',1.5);
+loglog(data_minor(i_vibr,4,var,2).time, data_minor(i_vibr,4,var,2).niO2(:,1)/Na*1e3, 'b-.', 'LineWidth',1.5);
+hold off
+title("n^{\nu=0}_{O_2}");
+xlim([0 tlim_n]);
+legend("n^{\nu=0}_{O_2}, U=D/6k",  "n^{\nu=0}_{O_2}, U=3T", "n^{\nu=0}_{O_2}, U=\infty",'Location','best');
+xlabel("t, \mus");
+ylabel("n_i, mmol/m^3");
 
+nexttile
+set(gca, 'FontName', 'Times New Roman');
+hold on
+loglog(data_minor(i_vibr,2,var,2).time, data_minor(i_vibr,2,var,2).niO2(:,end)/Na*1e3, 'r-', 'LineWidth',1.5);
+loglog(data_minor(i_vibr,3,var,2).time, data_minor(i_vibr,3,var,2).niO2(:,end)/Na*1e3, 'r--', 'LineWidth',1.5);
+loglog(data_minor(i_vibr,4,var,2).time, data_minor(i_vibr,4,var,2).niO2(:,end)/Na*1e3, 'r-.', 'LineWidth',1.5);
+hold off
+title("n^{\nu=35}_{O_2}");
+xlim([0 tlim_n]);
+legend( "n^{\nu=35}_{O_2}, U=D/6k", "n^{\nu=35}_{O_2}, U=3T", "n^{\nu=35}_{O_2}, U=\infty", 'Location','best');
+xlabel("t, \mus");
+ylabel("n_i, mmol/m^3");
+
+exportgraphics(t,"O2Ar_FHO_case"+num2str(var)+".jpg");
 
 if MACRO_plot
 %%Temperature & Number density

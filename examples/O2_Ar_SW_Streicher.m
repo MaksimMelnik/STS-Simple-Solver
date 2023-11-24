@@ -24,7 +24,7 @@ tmp.time=0; tmp.T=0; tmp.Tv=0; tmp.nO=0; tmp.nO2=0; tmp.nAr=0; tmp.p=0;
 dat(2,4,9)=tmp;
 
 tmp1.time=0; tmp1.T=0; tmp1.Tv=0; tmp1.nO=0; tmp1.nO2=0; tmp1.nAr=0;
-tmp1.p=0;
+tmp1.p=0; tmp1.niO2=0;
 dat1(2,4,9,2)=tmp1;
 
 % initial conditions
@@ -40,9 +40,10 @@ init_c=[ %  f;  p0,     Torr;   v0, m/s;    T0, K;   v0_1
         1 0.05 2760 296 950     % pure O2
         ];
 for i_ini=9 % [1 2 3 4 5 6 7 8 9] % choosing desired initial coonditions
-for i_U=4 % [2 3 4]    % choosing desired U dissociation parameter model
+for i_ini=1:9 % [1 2 3 4 5 6 7 8 9] % choosing desired initial coonditions
+for i_U=2:4 % [2 3 4]    % choosing desired U dissociation parameter model
 % 2 is for D/6k; 3 is for 3T; 4 is for inf
-for i_vibr=2 % [1 2]  % choosing vibrational energy exchange model
+for i_vibr=1:2 % [1 2]  % choosing vibrational energy exchange model
 % 1 is for SSH; 2 is for FHO
 for rel=2     % if relaxation between incident and reflected waves 
 % frozen? 1 -relaxation off; 2 - relaxation on
@@ -214,7 +215,7 @@ for rel=2     % if relaxation between incident and reflected waves
     end
     y0_1(end-1)=v1;
     y0_1(end)=T1;
-    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
+    options_s = odeset('RelTol', 1e-8, 'AbsTol', 1e-11, ...
             'NonNegative', 1:kinetics.num_eq+2); 
     [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
         xspan, y0_1, options_s);
@@ -231,6 +232,7 @@ for rel=2     % if relaxation between incident and reflected waves
         n_Ar_1=zeros(length(n_O_1),1);
     end
     p_1=(n_O2_1+n_O_1+n_Ar_1)*k.*T_1 /Torr;
+    PPP(i_vibr, i_ini)=p_1(1);
     Tv_1 = O2.ev_i{1}(2)./(k*log(Y_1(:,1)./Y_1(:,2)));
     time_ms_1=X_1./v0_r*1e6;
     rhov0_1=rho0_1 * v0;                    % rho0*v0
@@ -269,6 +271,7 @@ for rel=2     % if relaxation between incident and reflected waves
     resSt_1.Tv=Tv_1;
     resSt_1.p=p_1;
     resSt_1.nO2=n_O2_1/Na;
+    resSt_1.niO2=Y_1(:, 1:length(n));
     resSt_1.nO=n_O_1/Na; 
     if f~=1
         resSt_1.nAr=n_Ar_1/Na;
@@ -283,7 +286,7 @@ end
 %%
 %if you want to save your data in .mat file, uncomment following raws
 %save(['..\data\O2_Ar Streicher experiment\O2Ar_betweenSWs_output'], 'dat');
-%save(['..\data\O2_Ar Streicher experiment\O2Ar_behindRSW_output'], 'dat1');
+save(['..\data\O2_Ar Streicher experiment\O2Ar_behindRSW_output'], 'dat1');
 
 rmpath('../src/')
 rmpath('../data/')

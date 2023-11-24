@@ -164,6 +164,14 @@ val_n = num2cell(val_A*0 - 1.5);
 val_A = num2cell(val_A);
 O2.diss_Arrhenius_A=containers.Map(keys, val_A);
 O2.diss_Arrhenius_n=containers.Map(keys, val_n);
+
+keys={'Ar', 'N', 'O', 'N2', 'O2', 'NO'};
+val_A=[2e21/N_a*1e-6 1.1e-10 1.5e-10 1.3e-10 5.33e-11 1.1e-10];
+val_n=num2cell([-1.5 -1 -1.05 -1 -1 -1]);
+val_A=num2cell(val_A);
+O2.diss_Scanlon_A=containers.Map(keys, val_A);
+O2.diss_Scanlon_n=containers.Map(keys, val_n);
+
 O2.diss_parts=["O", "O"];
 O2.mltpl_atoms_mass=O.mass^2;
 O2.mltpl_atoms_s_e=O.s_e(1)^2;
@@ -218,6 +226,14 @@ val_n = num2cell(val_A*0 - 1.6);
 val_A = num2cell(val_A);
 N2.diss_Arrhenius_A=containers.Map(keys, val_A);
 N2.diss_Arrhenius_n=containers.Map(keys, val_n);
+
+keys={'Ar', 'N', 'O', 'N2', 'O2', 'NO'};
+val_A=[7e21/N_a*1e-6 1e-11 4e-12 4.1e-12 1.5e-11 1.5e-11];
+val_n=num2cell([-1.6 -0.68 -0.54 -0.68 -0.68 -0.68]);
+val_A=num2cell(val_A);
+N2.diss_Scanlon_A=containers.Map(keys, val_A);
+N2.diss_Scanlon_n=containers.Map(keys, val_n);
+
 N2.diss_parts=["N", "N"];
 N2.mltpl_atoms_mass=N.mass^2;
 N2.mltpl_atoms_s_e=N.s_e(1)^2;
@@ -269,6 +285,14 @@ val_n = num2cell(val_A*0 - 0);
 val_A = num2cell(val_A);
 NO.diss_Arrhenius_A=containers.Map(keys, val_A);
 NO.diss_Arrhenius_n=containers.Map(keys, val_n);
+
+keys={'Ar', 'N', 'O', 'N2', 'O2', 'NO'};
+val_A=[5e15/N_a*1e-6 4e-10 4e-10 2.1e-10 2e-10 1e-10];
+val_n=num2cell([0 -1.1 -1.1 -1 -1 -1]);
+val_A=num2cell(val_A);
+NO.diss_Scanlon_A=containers.Map(keys, val_A);
+NO.diss_Scanlon_n=containers.Map(keys, val_n);
+
 NO.diss_parts=["N", "O"];
 NO.mltpl_atoms_mass=O.mass*N.mass;
 NO.mltpl_atoms_s_e = O.s_e(1) * N.s_e(1);
