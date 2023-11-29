@@ -9,8 +9,9 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% pull request
+% fix VV
 % fix strange behaviour of 1st bachward Zeldovich reaction 
+% pull request
 %   (unrealistic gap in T)
 % remove Arrhenius subfunction in R_exch
 % change reaction initialization to tables
@@ -135,7 +136,7 @@ init_c = [% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
 for i_ini = 2           % choosing desired initial coonditions
  for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr =2%  [1 2 3] % choosing vibrational energy exchange model
+  for i_vibr =3%  [1 2 3] % choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO;
                         %   3 is for kinetics from V. Guerra works
    T0         = init_c(i_ini, 4);         % K
@@ -263,7 +264,7 @@ for i_ini = 2           % choosing desired initial coonditions
    kinetics.IndexOfMolecules=IndexOfMolecules;
    xspan = [0.005 0.2]/t0;      % from Pintassilgo 2014
    % xspan = [0.005 0.015]/t0;    % the Hubner experiment measurments time
-   xspan = [0.005 0.0052]/t0; % tests
+   % xspan = [0.005 0.0052]/t0; % tests
    load('../data/for comparison/Hubner2012_and_Pintassilgo2014.mat' ...
                                                             ) %#ok<LOAD>
    i_vec = 0:30;

@@ -130,8 +130,8 @@ if reaction.reverse     % if backward reaction included
   kf = kb ./ Kfb;
  end
 end
-kb(2:end, :, :) = 0;
-kb(:, :, 2:end) = 0;
+kf(20:end, :, :) = 0;
+kf(:, :, 3:end) = 0;
 R_exch_data = ...
             zeros(length(n_M1), length(n_M2), length(n_M3), length(n_M4));
 R_exch_data(i_sum{1}, i_sum{2}, i_sum{3}, i_sum{4}) = ... 
@@ -174,36 +174,4 @@ B_M1 = kf_eq / sum(EXP_M1 .* nM1i','all');
 
 %rate of forward (f) reaction
 kf = B_M1 * EXP_M1;
-end
-
-
-
-function [RExch1, Q] = ...
-   R_exch_Arrhenius(M1, M2, M3, M4, n_M1, n_M2, n_M3, n_M4, T, coll)
-    % constants
-c = 299792458; k = 1.380649e-23; h = 6.626070041e-34;
-
-% parameters in Arrhenius law for reactuib in structure coll: ArrA, ArrN,
-% ArrE
-%(kd_eq=A*T^N*exp(-E/T))
-
-Theta_r_M1 = M1.Be(1)*h*c/k;   Z_rot_M1 = T./(M1.sigma.*Theta_r_M1);
-Theta_r_M3 = M3.Be(1)*h*c/k;   Z_rot_M3 = T./(M3.sigma.*Theta_r_M3);
-
-kf_eq = coll.ArrA * T^coll.ArrN*exp(-coll.ArrE/T ); % m^3/sec
-
-%rate of forward (f) reaction
-kf = kf_eq;
-
-%ratio of rate of backward reaction to rate of forward reaction
-dE = (M1.diss_e(1) - M3.diss_e(1));
-Kfb = (M1.mass*M2.mass/(M3.mass*M4.mass))^1.5 * Z_rot_M1/Z_rot_M3 * ...
- exp( dE / (k*T));
-Kfb = M1.s_e(1) * M2.s_e(1) / (M3.s_e(1) * M4.s_e(1)) * Kfb;
-
-
-%rate of backward (b) reaction
-kb = kf .* Kfb;
-RExch1 = sum(n_M3)' * n_M4 .* kb  -  sum(n_M1) * n_M2 .* kf;
-Q = sum(- RExch1 .* dE, 'all');
 end

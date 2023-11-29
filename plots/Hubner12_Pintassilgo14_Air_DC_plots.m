@@ -5,6 +5,11 @@ function Hubner12_Pintassilgo14_Air_DC_plots(data)
 % [2] C D Pintassilgo et al Plasma Sources Sci. Technol. 23 (2014) 025006.
 % 26.07.2023 Maksim Melnik
 
+is_T_Tv_plot = true;
+is_Q_plot = true;
+is_n_NO_N_O = true;
+is_VDF = true;
+
     % constants
 N_a = 6.02214076e23;              % Avogadro constant
     % loading data from papers
@@ -34,12 +39,13 @@ t_ag=t-0.005;
 fsize = [200 50 900 550];
 
 %% T and Tv plot
+if is_T_Tv_plot 
     figure  
 plot(t*1e3, T, t*1e3, Tv, '-.', 'linewidth', 1.5)
 legend('T', 'Tv', 'location', 'best')
 xlabel('t, ms')
 % xlim([6e-2 1.5e-1])
-
+end
 %% T vs exp plot
     figure('Position', fsize)
 plot(Hubner_2012_T(:, 1), Hubner_2012_T(:, 2), 'sq', t*1e3, T, ...
@@ -76,6 +82,7 @@ ylim([1e-4 1])
 grid on
 
 %% VDF ag plot
+if is_VDF
     figure('Position', fsize)
 time_ind0=1;
 [~, time_ind1]   = min( abs(t_ag*1e3 - 1) );
@@ -111,8 +118,9 @@ semilogy(lvls4plot, ...
                                     '100 ms, Maksim', 'location', 'best')
 xlim([0 30])
 ylim([1e-6 1])
-
+end
 %% heating rates, K/s
+if is_Q_plot 
     figure('Position', fsize)
 iN2 = kinetics.index{1};
 i1_N2 = iN2(1:N2.num_vibr_levels(1));
@@ -232,7 +240,7 @@ legend([legend_str1 legend_str2], 'location', 'best')
 title('Q_{in}')
 xlim([6e-3 1e2])
 ylim([6e0 1e5])
-
+end
 %% N2(A), N2(a'), N2(B) and N2(w) ag plot
 if N2.num_elex_levels > 1
  i2_N2 = iN2(1 + N2.num_vibr_levels(1):...
