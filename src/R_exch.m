@@ -51,8 +51,20 @@ switch reaction.type
   coll.ArrA = reaction.A(T);
   coll.ArrN = reaction.n(T);
   coll.ArrE = reaction.E / k;   % in K
-  kf = R_exch_Heaviside(Ms{1}, Ms{2}, Ms{3}, Ms{4}, ...
-                                n_M1, n_M2, n_M3, n_M4, T, coll);
+  Ms2 = Ms;
+  n_M12 = n_M1;
+  n_M22 = n_M2;
+  n_M32 = n_M3;
+  n_M42 = n_M4;
+  if ~reaction.direction_forward
+   Ms2 = {Ms{3}, Ms{4}, Ms{1}, Ms{2}};
+   n_M12 = n_M3;
+   n_M22 = n_M4;
+   n_M32 = n_M1;
+   n_M42 = n_M2;
+  end
+  kf = R_exch_Heaviside(Ms2{1}, Ms2{2}, Ms2{3}, Ms2{4}, ...
+                                n_M12, n_M22, n_M32, n_M42, T, coll);
   size_kf = size(kf);
   kf = reshape(kf, size_kf(1), 1, size_kf(2));
   dE_fb = (repmat(Ms{3}.ev_i{1} + Ms{3}.ev_0(1), ...
@@ -130,8 +142,8 @@ if reaction.reverse     % if backward reaction included
   kf = kb ./ Kfb;
  end
 end
-kf(20:end, :, :) = 0;
-kf(:, :, 3:end) = 0;
+% kf(20:end, :, :) = 0;
+% kf(:, :, 2:end) = 0;
 R_exch_data = ...
             zeros(length(n_M1), length(n_M2), length(n_M3), length(n_M4));
 R_exch_data(i_sum{1}, i_sum{2}, i_sum{3}, i_sum{4}) = ... 

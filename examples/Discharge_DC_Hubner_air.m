@@ -95,7 +95,8 @@ warning('Check energies in the wall recombination function')
 warning('Zeldovich reactions are without electronic excitation')
 warning("VV exchanges are with a crutch.")
 warning('Find correct N2+ EM value.')
-warning('R_exch with zero kb.')
+% warning('R_exch with zero kb.')
+warning('Tv of O2 is much lower. Why?')
 disp('Started.')
 
 tic                             % measuring computing time
@@ -136,7 +137,7 @@ init_c = [% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
 for i_ini = 2           % choosing desired initial coonditions
  for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr =3%  [1 2 3] % choosing vibrational energy exchange model
+  for i_vibr =2%  [1 2 3] % choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO;
                         %   3 is for kinetics from V. Guerra works
    T0         = init_c(i_ini, 4);         % K
@@ -213,6 +214,8 @@ for i_ini = 2           % choosing desired initial coonditions
         ... React_N2A_O2("Pintassilgo2009")];%, ...
         ... React_N2pX_O2X__O2pX_N2("Kossyi1992")];
         ];
+   Exch = [ReactZel_1("Savelev2018"), ReactZel_2("Savelev2018") ...
+       ];
    N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");
    ET_diff_c    = cell(1, kinetics.num_Ps);
                     % N2(X),          N2(A)
@@ -226,11 +229,13 @@ for i_ini = 2           % choosing desired initial coonditions
        , 'Exch' ...
        , 'Wall', 'ET' ...
        , 'Rec_wall' ...
+       ..., 'Diss' ...
        };
    reacs_val  = {model_VT, model_VT ...
        , Exch   ...
        , 1,      ET_diff_c ...
        , 1 ...
+       ..., Diss ...
        };
    % Reacs_keys = {'VT',     'VV',     'Exch', 'Wall', 'ET',      ...
    %     'Rec_wall', 'Diss'};
@@ -279,8 +284,8 @@ for i_ini = 2           % choosing desired initial coonditions
    f_O2_3 = ((2-f_O_3-f_N_3)*(f_O2_0+f_NO_0/2) - f_O_3 - f_NO_3)/2;
    f_N2_3 = 1 - f_O2_3 - f_NO_3 - f_O_3 - f_N_3 - f_N2A_3 - f_N2B_3;
    n_N2 = n_N2 * f_N2_3 * (1 - ion_degree);
-   n_O2 = density_f_exc(Tv1, f_O2_3 * (1 - ion_degree), O2);
-   n_NO = density_f_exc(Tv1/2, f_NO_3, NO);
+   n_O2 = density_f_exc(Tv1/8, f_O2_3 * (1 - ion_degree), O2);
+   n_NO = density_f_exc(Tv1, f_NO_3, NO);
    % n_N2A = distribution_Boltzmann(Tv1, f_N2A_3, N2, 2)';
    n_N2A = distribution_Boltzmann(Tv1, f_N2A_3, N2, 1:2)';
    % n_N2A = n_N2A(N2.num_vibr_levels(1)+1:)

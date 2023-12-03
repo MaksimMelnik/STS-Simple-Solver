@@ -33,7 +33,37 @@ n_N2=sum(Y(:, kinetics.index{1}), 2);
 t_ag=t-0.005;
 fsize = [200 50 900 600];
 fsize2 = [200 50 750 600];
-FontSize=24;
+FontSize=26;
+
+Tv_Pintassilgo2014 = [ %    x	Tv
+0.0199	301.255
+0.1096	326.608
+0.2393	358.845
+0.3868	381.238
+0.5635	397.553
+0.7028	405.16
+0.8206	409.934
+0.9977	413.732
+1.2547	416.769
+1.6234	420.254
+2.5391	425.091
+3.829	431.452
+5.0266	435.824
+5.0552	422.714
+5.1485	413.472
+5.3201	395.201
+5.4731	384.133
+5.7116	374.154
+5.9256	367.776
+6.2297	364.03
+6.7483	359.79
+7.3758	355.641
+8.1876	352.575
+8.9591	350.09
+10.7467	344.752
+13.0431	337.716
+13.9684	335.029
+];
 
 %% T and Tv plot
 %     figure  
@@ -44,13 +74,17 @@ FontSize=24;
 
 %% T vs exp plot
     figure('Position', fsize)
-plot(Hubner_2012_T(:, 1), Hubner_2012_T(:, 2), 'sq', t*1e3, T, ...
-               t_just_HT*1e3, T_just_HT, ':', 'linewidth', 3) %#ok<USENS>
+plot(Hubner_2012_T(:, 1), Hubner_2012_T(:, 2), 'ksq', 'linewidth', 2)
+    hold on
+plot(Tv_Pintassilgo2014(:, 1), Tv_Pintassilgo2014(:, 2), 'k', 'linewidth', 1.5)
+color_my = [205, 32, 31]/256;
+plot(t*1e3, T, 'linewidth', 3, 'color', color_my)
+plot(t_just_HT*1e3, T_just_HT, ':', 'linewidth', 3, 'color', color_my ) %#ok<USENS>
 % errorbar T Hubner +- 40 K
-legend('{\itT}_{exp}, Hubner 2012', '{\itT}', '{\itT}, только VT, VV, обмен', 'location', 'best')
+legend('{\itT}_{exp}, Hubner 2012', '{\itT}, Pintassilgo 2014', '{\itT}', '{\itT}, только VT, VV, об.', 'location', 'best')
 xlabel('{\itt}, мс')
 ylabel('{\itT}, К')
-xlim([-2 14])
+xlim([0 14])
 ylim([270 550])
 set(gca, 'FontName', 'Times New Roman');
     set(gca, 'FontSize', FontSize);
@@ -59,7 +93,7 @@ set(gca, ...'TickDir', 'In',... чёрточки внутри, out -- снару
         ..., 'GridAlpha', 0.2 ... % прозрачность сетки
         )
 %% N, O and NO ag plot
-    figure('Position', fsize2)  
+    figure('Position', fsize)  
 loglog(Pintassilgo2014_ag_N(:, 1), Pintassilgo2014_ag_N(:, 2), ...
                         'color', [0.9 0 0], 'linewidth', 3) %#ok<USENS>
 hold on
@@ -75,9 +109,9 @@ loglog(t_ag*1e3, sum(Y(:, kinetics.index{3}), 2)./n_g, ...
     ':', 'color', [0 0 0.9], 'linewidth', 3)
 % loglog(t_ag*1e3, n_N2./n_g, ...
 %     ':', 'color', [0 0 0], 'linewidth', 2.5)
-legend('{\itn}_N, Pintassilgo 2014', '{\itn}_N, настоящая работа', ...
-    '{\itn}_O, Pintassilgo 2014', '{\itn}_O, настоящая работа', ...
-    '{\itn}_{NO}, Pintassilgo 2014', '{\itn}_{NO}, настоящая работа', ...'N_2, Maksim', ...
+legend('{\itn}_N, теор. 2014', '{\itn}_N, наст. раб.', ...
+    '{\itn}_O, теор. 2014', '{\itn}_O, наст. раб.', ...
+    '{\itn}_{NO}, теор. 2014', '{\itn}_{NO}, наст. раб.', ...'N_2, Maksim', ...
     'location', 'best')
 xlim([1e-2 2.5e2])
 ylim([1e-4 1])
@@ -85,7 +119,7 @@ ylim([1e-4 1])
 xlabel('{\itt}, мс')
 ylabel('{\itn_c/n_g}')
 set(gca, 'FontName', 'Times New Roman');
-    set(gca, 'FontSize', FontSize-4);
+    set(gca, 'FontSize', FontSize-2);
 set(gca, ...'TickDir', 'In',... чёрточки внутри, out -- снаружи
         'LineWidth', 2 ... толщина окантовки
         ..., 'GridAlpha', 0.2 ... % прозрачность сетки
@@ -96,7 +130,8 @@ set(gca, ...'TickDir', 'In',... чёрточки внутри, out -- снару
 time_ind0=1;
 [~, time_ind1] = min( abs(t_ag*1e3 - 1) );
 [~, time_ind10] = min( abs(t_ag*1e3 - 10) );
-time_ind100=length(Y(:, 1));
+[~, time_ind100] = min( abs(t_ag*1e3 - 100) );
+% time_ind100=length(Y(:, 1));
 lvls4plot=0:length(Y(1, kinetics.index{1}))-1;
 semilogy(Pintassilgo2014_N2_VDF_post_DC(:,1), ...
             Pintassilgo2014_N2_VDF_post_DC(:,2), ...
@@ -120,23 +155,23 @@ semilogy(lvls4plot, Y(time_ind10, kinetics.index{1})/n_N2(time_ind10), ...
 semilogy(lvls4plot, ...
             Y(time_ind100, kinetics.index{1})/n_N2(time_ind100), ...
                             '--', 'color', [0 0.6 1] ,'linewidth', 2.5)
- legend('0.1 мс, Pintassilgo 2014', '1 мс, Pintassilgo 2014', ...
-            '10 мс, Pintassilgo 2014', '100 мс, Pintassilgo 2014', ...
-            '0 мс, FHO', '1 мс, FHO', '10 мс, FHO', ...
-                                    '100 мс, FHO', 'location', 'best')
+ legend('0.1 мс, теор. 2014', '1 мс, теор. 2014', ...
+        '10 мс, теор. 2014', '100 мс, теор. 2014', ...
+        '0 мс, наст. раб.', '1 мс, наст. раб.', '10 мс, наст. раб.', ...
+                                '100 мс, наст. раб.', 'location', 'best')
 xlim([0 30])
 ylim([1e-6 1])
 xlabel('колебательный уровень {\itv}')
 ylabel('[N_2({\itX, v})]/[N_2]')
 set(gca, 'FontName', 'Times New Roman');
-    set(gca, 'FontSize', FontSize-4);
+    set(gca, 'FontSize', FontSize-2);
 set(gca, ...'TickDir', 'In',... чёрточки внутри, out -- снаружи
         'LineWidth', 2 ... толщина окантовки
         ..., 'GridAlpha', 0.2 ... % прозрачность сетки
         )
 
 %% heating rates, K/s
-    figure('Position', fsize2)
+    figure('Position', fsize)
 iN2 = kinetics.index{1};
 i1_N2 = iN2(1:N2.num_vibr_levels(1));
 iO = kinetics.index{5};
@@ -181,16 +216,16 @@ if isKey(kinetics.reactions, 'Exch')
 %                          N2 + O -> NO + N
 Exch_reaction_temp = Exch_reactions(1);
 Exch_reaction_temp.reverse = false;
-  [~, Q_exch_NO_N_data] = R_exch(N2, O, NO, N, Y(i_out, iN2)', ...
+  [~, Q_exch_NO_N_data] = R_exch({N2, O, NO, N}, Y(i_out, iN2)', ...
      Y(i_out, iO)', Y(i_out, kinetics.index{3})', ...
      Y(i_out, kinetics.index{4}(1))', T(i_out), Exch_reaction_temp);
   Q_exch_N2_O(i_out) = Q_exch_NO_N_data;
 %                          N2 + O <- NO + N
 Exch_reaction_temp.direction_forward = false;
-  [~, Q_exch_NO_N_data] = R_exch(N2, O, NO, N, Y(i_out, iN2)', ...
+  [~, Q_exch_NO_N_data] = R_exch({N2, O, NO, N}, Y(i_out, iN2)', ...
      Y(i_out, iO)', Y(i_out, kinetics.index{3})', ...
      Y(i_out, kinetics.index{4}(1))', T(i_out), Exch_reaction_temp);
-  Q_exch_N_NO(i_out) = - Q_exch_NO_N_data;
+  Q_exch_N_NO(i_out) =  Q_exch_NO_N_data;
 
  end
 end
@@ -200,7 +235,7 @@ c_p_O2 = c_p(O2, T);
 c_p_total = 0.2*c_p_O2 + 0.8*c_p_N2;
 Q_VT_Ks = Q_VT ./ (n_g/N_a) ./ c_p_total;
 % Q_VT_wall_Ks = Q_VT_wall ./ (n_g/N_a) ./ c_p_total;
-legend_str1(1) = "VT N_2-O, Pintassilgo 2014";
+legend_str1(1) = "VT N_2-O, теор. 2014";
 legend_str2(1) = "VT N_2-O, FHO";
 loglog(Pintassilgo2014_ag_Q_VT_N2_O(:, 1), ...
             Pintassilgo2014_ag_Q_VT_N2_O(:, 2), ...
@@ -217,7 +252,7 @@ if isKey(kinetics.reactions, 'VV')
  loglog(Pintassilgo2014_ag_Q_VV_N2_N2(:, 1), ...
             Pintassilgo2014_ag_Q_VV_N2_N2(:, 2), ...
                         'color', [0 0.7 0], 'linewidth', 3) %#ok<USENS>
- legend_str1 = [legend_str1, "VV N2-N2, Pintassilgo 2014"];
+ legend_str1 = [legend_str1, "VV N2-N2, теор. 2014"];
 end
 if isKey(kinetics.reactions, 'Exch')
  loglog(Pintassilgo2014_ag_Q_Zel_N2_O(:, 1), ...
@@ -226,8 +261,8 @@ if isKey(kinetics.reactions, 'Exch')
  loglog(Pintassilgo2014_ag_Q_Zel_N_NO(:, 1), ...
             Pintassilgo2014_ag_Q_Zel_N_NO(:, 2), ...
                        'color', [1 0.4 0], 'linewidth', 3) %#ok<USENS>
- legend_str1 = [legend_str1, "Zel. N2-O, Pintassilgo 2014", ...
-                                            "Zel. N-NO, Pintassilgo 2014"];
+ legend_str1 = [legend_str1, "Zel. N2-O, теор. 2014", ...
+                                            "Zel. N-NO, теор. 2014"];
 end
 loglog(t_ag*1e3, Q_VT_Ks, ':', 'color', [0 0 0.8], 'linewidth', 3)
 % if isKey(kinetics.reactions, 'Wall') && ...

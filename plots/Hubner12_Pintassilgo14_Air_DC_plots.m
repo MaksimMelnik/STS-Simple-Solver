@@ -175,7 +175,7 @@ Exch_reaction_temp.direction_forward = false;
   [~, Q_exch_NO_N_data] = R_exch({N2, O, NO, N}, Y(i_out, iN2)', ...
      Y(i_out, iO)', Y(i_out, kinetics.index{3})', ...
      Y(i_out, kinetics.index{4}(1))', T(i_out), Exch_reaction_temp);
-  Q_exch_N_NO(i_out) = - Q_exch_NO_N_data;
+  Q_exch_N_NO(i_out) =  Q_exch_NO_N_data;
 
  end
 end
