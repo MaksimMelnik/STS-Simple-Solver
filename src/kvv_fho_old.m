@@ -1,4 +1,5 @@
 function kvv = kvv_fho_old(T, M1, M2, ind_e1, ind_e2)
+% unfinished
 % Rate coefficients of VV exchanges, AB - CD
 % kdown - array of k_(i->i-1)^(j->j+1)
 % T - temperature, K
@@ -6,7 +7,7 @@ function kvv = kvv_fho_old(T, M1, M2, ind_e1, ind_e2)
 % T is the temperature; M1 is the first molecule; M2 is the partner 
 % particle; ind_e1 is the number of the electronic state of M1; 
 % ind_e2 is the number of the electronic state of M2.
-% 30.01.2023 Maksim Melnik
+% 30.01.2023 Maksim Melnik, Olga Kunova
 
 Lmax=M1.num_vibr_levels(ind_e1)-1;
 Lmax2=M2.num_vibr_levels(ind_e2)-1;
@@ -15,7 +16,7 @@ k = 1.380649e-23;         % Boltzmann constant, J/K
 c = 29979245800;            % speed of light, cm/s (or m/s should be?)
 alpha = 4e10;
 
-gaskin=3.458e-8^2;
+gaskin = ((M1.diameter + M2.diameter) / 2 * 1e2) ^ 2;
 mu = M1.mass*M2.mass/(M1.mass+M2.mass); % kg
 d8pi = sqrt(8*pi);
 velt = sqrt(k*T/mu);
