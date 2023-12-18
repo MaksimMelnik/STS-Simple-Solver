@@ -1,27 +1,29 @@
 # STSe-01D-Solver
-Universal State-to-state modeling code. Allows to simulate 1D and 0D chemical-electronic-vabrational relaxation. It's importans fiture is accounting of electronic excitation. Only for atoms and diatomic molecules.
-### todo
-- add a brief description how to use the code to the README
-- add a reference on the prof. Nagnibeda's and prof. Kustova's book
-- add a required MATLAB version
-- finish NO Streicher RefSW experiments test cases (NO/N2, NO/N2/Ar)
-- make exchange reactions function more universal (M2 and M4 not atoms)
-- finish the Hubner 2012 experiment DC test case for the afterglow
-- finish the Hubner 2012 experiment DC test case for the discharge zone
-- rewrite SW conditions recalculation before and after a SW (sw_cond_ar_f_eq, sw_cond_ar_f2, in_con_Ar, in_con_exp_p1v1T2, in_con_O2), add this recalculation to Shatalov's test case
-- add an example for plotting k_VT and others
-- rewrite or exclude par_shatalov_f
-- add a warning function to check for possible errors in the kinetic scheme
-- add the universal output format
-- add the universal plot builder
-- add a comfy Arrhenius law switcher
-- add Billing's VT, VV models
-- add P4E VT model
-- add Annusova's VT, VV model
-- make separate k_diss rate coefficients functions (and rewrite k_diss_Aliat, k_diss_old, K_diss_Savelev)
-- rewrite or exclude all R_diss functions (R_diss, R_diss_old, R_diss_Savelev(leave only k_diss_Savelev))
-- transfer previous work for O2 isothermal discharge
-- add an universal VE exchange function (k_VE and R_VE)
-- check Oblapenko's FHO parameters
-- add a separate functions for lambda
-- add a possibility to vary an oscillator for vibrations
+Universal State-to-State modeling code for strong non-equilibrium. Allows to simulate 1D and 0D chemical-electronic-vibrational relaxation. It's important feature is accounting of electronic excitation. Only for atoms and diatomic molecules.
+## Objectives
+The code aims to **simulate simple 0D and 1D problems using the detailed state-to-state approach** [1]. This approach considers each vibrational state of molecules as separate gas species. That provides an accurate instrument for the description of strong non-equilibrium in gas mixtures with detailed vibrational and chemical kinetics. The code is flexible in a choice of accounted processes, models for its description, problems formulations and mixture compositions. The described enhances and simplifies the **validation of models and model combinations comparing with experimental data and other models**. The last one is the second important feature of the code.
+## Restrictions
+The kinetic scheme includes following restrictions. Particles under consideration have to be diatomic molecules, atoms or electrons. Polyatomic molecules are not implemented. The problem has to be 0D, 1D or reducible to a system of ODEs, since only the ODE solver is available. STS for rotational degrees of freedom is not available in the present product. Molecules vibrations are described only by anharmonic oscillator on the current step.
+## Requirements
+The code was tested on MATLAB 2020a [2] and newest versions. 
+Symbolic Math Toolbox [3] is required for some test cases such as `O2O_SW_Shatalov.m`.
+To simulate test cases with free electrons LoKI-B tool [4, 5] is required.
+## Structure
+The code is divided into four sections: `/data`, `/examples`, `/plots` and `/src`. `/data` contains information about particles, chemical reactions and experimental studies. All resource files designated to evaluate kinetic values, coefficients and functions are stored in `/src`. `/examples` provides prepared test cases for validation based on experimental studies as well as theoretical test cases for wider investigations. The rest folder `/plots` includes scripts for plotting the results against experimental studies, their analysis and validation.
+## How to use?
+Install MATLAB and run one of the `/examples` (better to start with `O2O_SW_Shatalov.m`). You also may use `/src` functions, `/plots` and everything else for your purposes separately.
+## Where is used?
+- [M Melnik and E Kustova 2021 J. Phys.: Conf. Ser. 1959 012034](https://DOI.org/10.1088/1742-6596/1959/1/012034)
+
+- [M Yu Melnik and E V Kustova 2022 J. Phys.: Conf. Ser. 2308 012014](https://DOI.org/10.1088/1742-6596/2308/1/012014)
+
+## References
+[1] [E. Nagnibeda, E. Kustova, Nonequilibrium Reacting Gas Flows. Kinetic Theory of Transport and Relaxation Processes, Springer-Verlag, Berlin, Heidelberg, 2009.](https://doi.org/10.1007/978-3-642-01390-4)
+
+[2] [MATLAB website.](https://www.mathworks.com/products/matlab.html)
+
+[3] [Symbolic Math Toolbox.](https://www.mathworks.com/products/symbolic.html)
+
+[4] [Tejero A et al "The LisbOn KInetics Boltzmann solver" 2019 Plasma Sources Sci. Technol. 28 043001](https://doi.org/10.1088/1361-6595/ab0537)
+
+[5] [Tejero A et al "On the quasi-stationary approach to solve the electron Boltzmann equation in pulsed plasmas" 2021 Plasma Sources Sci. Technol. 30 065008](https://doi.org/10.1088/1361-6595/abf858)
