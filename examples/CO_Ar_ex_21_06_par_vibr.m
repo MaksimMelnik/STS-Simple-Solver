@@ -201,8 +201,6 @@ kinetics.Delta=Delta;
  end
  ys2(end-1)=v1;
  ys2(end)=T1;
-%     options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-30, ...
-%                         'NonNegative', 1:kinetics.num_eq+2); %#ok<NASGU>
         % great for an accurate simulation
     options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-19, ...
                                     'NonNegative', 1:kinetics.num_eq+2);
