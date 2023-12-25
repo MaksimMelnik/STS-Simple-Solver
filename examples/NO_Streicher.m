@@ -23,7 +23,7 @@ N2.num_elex_levels=1;
 
 %initialization of structures dat and dat1
 tmp.time=0; tmp.T=0; tmp.Tv=0; tmp.nO=0; tmp.nN=0; tmp.nNO=0; tmp.nAr=0;
-tmp.nO2=0; tmp.nN2=0; tmp.p=0;
+tmp.nO2=0; tmp.nN2=0; tmp.p=0; tmp.ni_NO = 0;
 dat(2,4,11,3)=tmp;
 
 tmp1.time=0; tmp1.T=0; tmp1.TvNO=0; tmp1.TvO2=0; tmp1.TvN2=0; tmp1.ni_NO=0;
@@ -225,7 +225,7 @@ for i_rel=2 %[1 2]
     rho0=n0*((1-f)*Ar.mass + f*NO.mass);
     end
     [n1, v1, T1] = in_con_SW(n0, v0, T0, rho0, f);
-    kinetics.n0=n0;
+    kinetics.n0=n0/1e5;
     kinetics.v0=v0;
     kinetics.T0=T0;
     kinetics.Delta=Delta;
@@ -235,21 +235,25 @@ for i_rel=2 %[1 2]
     xspan=[0 x_w]./Delta;
     y0_1=zeros(kinetics.num_eq+2, 1);
     if i_rel==2
-    y0_1(1:end)=Y(end, :).*((1/n0)*n1);
+    y0_1(1:end)=Y(end, :).*((1/kinetics.n0)*n1);
     elseif i_rel==1
-    n=density_f_exc(T0buf, n1*f, NO);
+    n=density_f_exc(T0buf, n1*f*n0/kinetics.n0, NO);
     y0_1(1:length(n))=n;
-    y0_1(kinetics.index{end})=n_Ar/n0*n1;
+    y0_1(kinetics.index{end})=n_Ar/kinetics.n0*n1;
     end
     y0_1(end-1)=v1;
     y0_1(end)=T1;
-    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
-    'NonNegative', 1:kinetics.num_eq+2);
+        % great for an accurate simulation
+    options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-16, ... 
+                                    'NonNegative', 1:kinetics.num_eq+2);
+        % enough for debugging
+    % options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
+    %                                 'NonNegative', 1:kinetics.num_eq+2); 
     [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
         xspan, y0_1, options_s);
     
     X_1=X_1*Delta;
-    Y_1(:, 1:end-2)=Y_1(:, 1:end-2)*n0;
+    Y_1(:, 1:end-2)=Y_1(:, 1:end-2)*kinetics.n0;
     Y_1(:, end-1)=Y_1(:, end-1)*v0;
     Y_1(:, end)=Y_1(:, end)*T0;
     T_1=Y_1(:, end);
@@ -278,7 +282,7 @@ for i_rel=2 %[1 2]
     for ind_e=1:NO.num_elex_levels
     e_i=[e_i, NO.ev_i{ind_e}+NO.ev_0(ind_e)+NO.e_E(ind_e)];
     end
-    En0_1=n0*e_i*y0_1(1:length(n))/n1 + k*T0*n_NO(end) + 1.5*n0*k*T0 +...
+    En0_1=kinetics.n0*e_i*y0_1(1:length(n))/n1 + k*T0*n_NO(end) + 1.5*n0*k*T0 +...
     n_NO(end)*NO.form_e + n_N(end)*N.form_e+n_O(end)*O.form_e;
     Ep0_1=(En0_1+n0*k*T0)/rho0+0.5*v0^2;       % (E0+p0)/rho0+v0^2/2
     disp('Conservation laws check behind RSW')
@@ -303,6 +307,7 @@ for i_rel=2 %[1 2]
     resSt.nAr=n_Ar;
     resSt.nO2=n_O2;
     resSt.nN2=n_N2;
+    resSt.ni_NO = Y(:, kinetics.index{IndexOfMolecules("NO")});
     resSt.p=p;
     dat(i_vibr,i_U,i_ini, i_exch)=resSt;
     end
