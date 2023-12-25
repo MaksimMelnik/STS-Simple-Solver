@@ -210,7 +210,7 @@ for i_ini = 2           % choosing desired initial coonditions
 %    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
 %        React_N2A_O2("Pintassilgo2009"), React_N2B_O2("Kossyi1992")];
    Exch = [ReactZel_1("Kossyi1992") ...
-        ..., ReactZel_2("Kossyi1992")..., ...
+        , ReactZel_2("Kossyi1992")..., ...
         ... React_N2A_O2("Pintassilgo2009")];%, ...
         ... React_N2pX_O2X__O2pX_N2("Kossyi1992")];
         ];
@@ -284,15 +284,9 @@ for i_ini = 2           % choosing desired initial coonditions
    f_O2_3 = ((2-f_O_3-f_N_3)*(f_O2_0+f_NO_0/2) - f_O_3 - f_NO_3)/2;
    f_N2_3 = 1 - f_O2_3 - f_NO_3 - f_O_3 - f_N_3 - f_N2A_3 - f_N2B_3;
    n_N2 = n_N2 * f_N2_3 * (1 - ion_degree);
-   n_O2 = density_f_exc(Tv1/8, f_O2_3 * (1 - ion_degree), O2);
-   n_NO = density_f_exc(Tv1, f_NO_3, NO);
-   % n_N2A = distribution_Boltzmann(Tv1, f_N2A_3, N2, 2)';
-   n_N2A = distribution_Boltzmann(Tv1, f_N2A_3, N2, 1:2)';
-   % n_N2A = n_N2A(N2.num_vibr_levels(1)+1:)
-   M1 = N2; ind_e = 2;
-   n_N2A = n_N2A(1+sum(M1.num_vibr_levels(1:ind_e-1)) : ...
-                                        sum(M1.num_vibr_levels(1:ind_e)));
-   n_N2A = n_N2A / sum(n_N2A) * f_N2A_3;
+   n_O2 = distribution_Boltzmann(Tv1/8, f_O2_3 * (1 - ion_degree),O2, 1)';
+   n_NO = distribution_Boltzmann(Tv1,   f_NO_3,                   NO, 1)';
+   n_N2A = distribution_Boltzmann(Tv1, f_N2A_3, N2, 2)';
    ne   = (f_N2_3 + f_O2_3) * ion_degree;
        % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
    y0 = [n_N2;    f_N2A_3;             n_O2;  n_NO;  f_N_3; f_O_3; ...
