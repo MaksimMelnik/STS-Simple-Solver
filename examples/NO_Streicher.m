@@ -65,7 +65,7 @@ NO.num_elex_levels=1;
 for i_ini=7 % [1 2 3 4 5 6 7 8 9 10 11]
 %choosing testcase
 
-for i_U=2 % [2 3 4]
+for i_U= [2 3 4]
 %choosing desired U dissociation parameter model
 %2 is for D/6k; 3 is for 3T; 4 is for inf
 
@@ -244,7 +244,7 @@ for i_rel=2 %[1 2]
     y0_1(end-1)=v1;
     y0_1(end)=T1;
         % great for an accurate simulation
-    options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-16, ... 
+    options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-18, ... 
                                     'NonNegative', 1:kinetics.num_eq+2);
         % enough for debugging
     % options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
