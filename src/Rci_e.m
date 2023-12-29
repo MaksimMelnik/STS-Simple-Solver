@@ -11,7 +11,6 @@ R  = zeros(kinetics.num_eq + 1, 1);
 Qin = 0;
 Te = kinetics.Te;  % K (temporal using way)
 
-% if isKey(kinetics.reactions, 'free_e') % processes involving free electrons
 IndexOfMolecules = kinetics.IndexOfMolecules;
 e.form_e = 0;
 e.num_vibr_levels = 0;
@@ -33,8 +32,9 @@ for ind_free_e = 1:length(free_e_reactions)
  indM4  = index{IOM_M4};
  switch length(reaction.particles)
   case 4
-   [R_exch_temp, Q_exch] = R_exch(Ps{IOM_M1}, Ps{IOM_M2}, Ps{IOM_M3}, ...
-       Ps{IOM_M4}, y(indM1), y(indM2), y(indM3), y(indM4), Te, reaction);
+   [R_exch_temp, Q_exch] = ...
+       R_exch({Ps{IOM_M1}, Ps{IOM_M2}, Ps{IOM_M3}, Ps{IOM_M4}}, ...
+                    y(indM1), y(indM2), y(indM3), y(indM4), Te, reaction);
    R(indM1) = R(indM1) + sum(R_exch_temp, [2 3 4]);
    R(indM2) = R(indM2) + sum(R_exch_temp, [1 3 4])';
    R(indM3) = R(indM3) - reshape(sum(R_exch_temp, [1 2 4]), [], 1);
@@ -80,8 +80,8 @@ Qin = Qin + Q_ions_wall_data;
                     R_ions_wall(N2p, N2, y(index{Ps_i_N2p}), T, kinetics);
 R_ions_wall_data = R_ions_wall_data / kinetics.n0;
 Q_ions_wall_data = Q_ions_wall_data / kinetics.n0;
-R(index{IndexOfMolecules("N2")}(1)) = R(index{IndexOfMolecules("N2")}(1)) + ...
-    R_ions_wall_data;
+R(index{IndexOfMolecules("N2")}(1)) = ...
+                R(index{IndexOfMolecules("N2")}(1)) + R_ions_wall_data;
 R(index{IndexOfMolecules("N2+")}) = R(index{IndexOfMolecules("N2+")}) ...
     - R_ions_wall_data;
 R(index{IndexOfMolecules("e")}) = R(index{IndexOfMolecules("e")}) ...

@@ -9,7 +9,7 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% fix VV
+% fix the plot by Denis
 % merge main with the VV fixes to this branch
 % turn on all the added previously processes and particles
 % pull request
@@ -147,7 +147,6 @@ for i_ini = 2           % choosing desired initial coonditions
    f_O2_0     = init_c(i_ini, 2);
    f_NO_0     = init_c(i_ini, 3);
    T3         = init_c(i_ini, 5) /T0;
-   % T3         = 470 / T0;               % experimental, not calculated T
    f_O_3      = init_c(i_ini, 6);
    f_N_3      = init_c(i_ini, 8);
    f_NO_3     = init_c(i_ini, 7);
@@ -163,7 +162,7 @@ for i_ini = 2           % choosing desired initial coonditions
    t0    = 1 / (4 * n0 * N2.diameter^2 * sqrt(pi * k * T0 / N2.mass));
 
    Ps = {N2, O2, NO, N, O, N2p, O2p};
-   Ps = {N2, O2, NO, N, O};
+   % Ps = {N2, O2, NO, N, O};
    kinetics.Ps = Ps;
    kinetics.num_Ps = length(kinetics.Ps);
    
@@ -218,20 +217,23 @@ for i_ini = 2           % choosing desired initial coonditions
    ET_diff_c{1} = [Reactions("zero"), N2A_diff("Levron1978"), ...
        ...                                          N2(B)
                                                     Reactions("zero")];
-   Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009"), ...
-                React_e_O2pX__O_O("Kossyi1992"), ...
-                React_e_N2X__e_N4S_N4S("LoKI-B steady")];
+   Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009") ...
+                ..., React_e_O2pX__O_O("Kossyi1992"), ...
+                ... React_e_N2X__e_N4S_N4S("LoKI-B steady")
+                ];
    Reacs_keys = {'VT',     'VV' ...
        , 'Exch' ...
        , 'Wall', 'ET' ...
        , 'Rec_wall' ...
        ..., 'Diss' ...
+       , 'free_e' ...
        };
    reacs_val  = {model_VT, model_VT ...
        , Exch   ...
        , 1,      ET_diff_c ...
        , 1 ...
        ..., Diss ...
+       , Free_e ...
        };
    % Reacs_keys = {'VT',     'VV',     'Exch', 'Wall', 'ET',    ...
    %     'Rec_wall', 'free_e'};
@@ -278,15 +280,6 @@ for i_ini = 2           % choosing desired initial coonditions
    n_NO = distribution_Boltzmann(Tv1,   f_NO_3,                   NO, 1)';
    n_N2A = distribution_Boltzmann(Tv1, f_N2A_3, N2, 2)';
    n_N2B = distribution_Boltzmann(Tv1, f_N2B_3, N2, 3)';
-       % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
-   % y0 = [n_N2;    f_N2A_3;             n_O2;  n_NO;  f_N_3; f_O_3; ...
-   %   ... N2+,               O2+,               e-
-   %       f_N2_3*ion_degree; f_O2_3*ion_degree; ne];
-% if N2.num_elex_levels == 3
-%    y0 = [n_N2;    f_N2A_3;   f_N2B_3;  n_O2;  n_NO;  f_N_3; f_O_3; ...
-%      ... N2+
-%          f_N2_3*ion_degree];
-% end
 if N2.num_elex_levels == 1
     n_N2A = [];
 end
@@ -299,6 +292,8 @@ ne = [];
 if kinetics.num_Ps > 5
     n_N2p = f_N2_3*ion_degree;
     n_O2p = f_O2_3*ion_degree;
+end
+if isKey(kinetics.reactions, 'free_e')
     ne   = (f_N2_3 + f_O2_3) * ion_degree;
 end
        % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
@@ -308,7 +303,6 @@ end
      ];
        % t3 correction, T
    y0 = [y0 * n3/n0;    T3];
-%    y0 = [y0;            T3];
 %    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-20, ...
 %                                     'NonNegative', 1:kinetics.num_eq+1); 
 %    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-13, ...

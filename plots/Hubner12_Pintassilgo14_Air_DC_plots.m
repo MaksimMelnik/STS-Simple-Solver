@@ -383,15 +383,15 @@ end
 if length(kinetics.Ps) > 5
  figure
  loglog(t_ag*1e3, Y(:, kinetics.index{IndexOfMolecules("N2+")})./n_g, ...
-                                ':', 'color', [0.9 0 0], 'linewidth', 1.5)
+      ':', 'color', [0.9 0 0], 'linewidth', 1.5, 'DisplayName', 'N2+/n_g')
  if length(kinetics.Ps) > 6
   hold on
   loglog(t_ag*1e3, Y(:, kinetics.index{IndexOfMolecules("O2+")})./n_g, ...
-                                ':', 'color', [0 0.7 0], 'linewidth', 1.5)
-  % loglog(t_ag*1e3, Y(:, end-1)./n_g, ...
-                                % ':', 'color', [0 0 0], 'linewidth', 1.5)
+      ':', 'color', [0 0.7 0], 'linewidth', 1.5, 'DisplayName', 'O2+/n_g')
+  loglog(t_ag*1e3, Y(:, end-1)./n_g, ...
+         ':', 'color', [0 0 0], 'linewidth', 1.5, 'DisplayName', 'e-/n_g')
  end
- legend('N2+/n_g', 'O2+/n_g', 'e-/n_g', 'location', 'best')
+ legend('location', 'best')
  xlabel('Afterglow time (ms)')
  xlim([1e-4 1.1e0])
  ylim([1e-8 1e-4])

@@ -15,12 +15,12 @@ T = T_DN * kinetics.T0;                           % gas temperature T
 [R, Q] = Rci(y, kinetics);
 R = R * kinetics.n0 * kinetics.t0;                % dimentionless 
 Q = Q * kinetics.n0^2;                            % dimension value
-Re = 0;
 Qe = 0;
 if isKey(kinetics.reactions, 'free_e') %processes involving free electrons
  [Re, Qe] = Rci_e(y, kinetics);
  Re = Re * kinetics.n0 * kinetics.t0;
  Qe = Qe * kinetics.n0^2;
+ R = [R; 0] + Re;
 end
 Q_total = Q + Qe;
     % T equation
@@ -33,7 +33,7 @@ cp_O2 = c_p(kinetics.Ps{2}, T);
 c_p_total = 0.8 * cp_N2 + 0.2 * cp_O2;      % molar heat capacity, J/mol/K
 dT = (8*lambda*(kinetics.Tw - T)/kinetics.tube_R^2 + Q_total) ...
                         /(n_m*c_p_total) /kinetics.T0*kinetics.t0; % K/s
-R_total = [R; 0] + Re;
-out = [R_total; dT];
+% R_total = [R; 0] + Re;
+% out = [R_total; dT];
 out = [R; dT];
 end
