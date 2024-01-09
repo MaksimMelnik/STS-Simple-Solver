@@ -125,8 +125,12 @@ for i_ini = 1 % [1 2]   % choosing desired initial coonditions
     y0(end)=T1;
    end
    xspan=[0 0.015]/t0;
-   options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, ...
+        % great for an accurate simulation
+    options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-19, ...
                                     'NonNegative', 1:kinetics.num_eq+1);
+        % enough for debugging
+   % options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, ...
+   %                                  'NonNegative', 1:kinetics.num_eq+1);
    [X, Y]=ode15s(@(t, y) Rpart_ODE_0D(t, y, kinetics), xspan, y0, ...
                                                               options_s);
 
