@@ -1,51 +1,37 @@
-function out=k_diss_Aliat(M, Coll, T, n0, ind_Arr, ind_U)
-% коэффициент диссоциации по Алиату
-% 24.10.2020
-V_C = 299792458; V_K = 1.380649e-23; V_H = 6.626070041e-34;
-if nargin<5
-   ind_Arr=1;
-   ind_U=2;
-end
-kd_eq = Coll.ArrA(ind_Arr) * T.^Coll.ArrN(ind_Arr).*...
-    exp(-M.diss_e./(V_K*T)); % m^3/sec
-switch ind_U
-    case 2
-        U = M.diss_e/(V_K*6);
-    case 3
-        U = 3*T;
-    case 4
-        U = Inf;
-    case 5
-        U = M.diss_e/V_K *(0.15+T/20000);
-end
-    % Aliat
-Zel=M.s_e*exp(-M.e_E'./(V_K*T));
-divsum=0;
-V=[];
-Kdr=[];
-Theta_r = M.Be'*V_H*V_C/V_K;
-Z_rot = T./(M.sigma.*Theta_r);
-for i=1:M.num_elex_levels
-    ZvibT=sum(exp(-M.e_i(i, 1:M.num_vibr_levels(i))'./(V_K*T)), 1);
-    ZvibU=sum(exp(M.e_i(i, 1:M.num_vibr_levels(i))'./(V_K*U)), 1);
-    divsum=divsum+M.s_e(i)*exp(M.e_E(i)./(V_K*U)).*ZvibU./ZvibT;
-    V=[V; exp((M.e_i(i, 1:M.num_vibr_levels(i))'+M.e_E(i))/V_K.*...
-        (1./T+1./U))];
-    Kdr=[Kdr; Z_rot(i,:)*M.s_e(i).*...
-       exp(-(M.e_i(i,1:M.num_vibr_levels(i))'+M.e_E(i)-M.diss_e)/V_K./T)];
-end
-V=Zel.*V./divsum;
-Kdr=Kdr*(M.mass/M.mltpl_atoms_mass)^(3/2)*V_H^3.*(2*pi*V_K*T).^(-3/2);
-kd_new=V.*kd_eq;
-kr= kd_new .* Kdr;% * n0;
+function kd = k_diss_Aliat(M, T, kd_eq, U)
+% Dissociation coefficient using the Aliat model.
+% kd is the vector of rate coefficients.
+% M is the dissociating molecule; T is the gas temperature;
+% kd_eq is the equlibrium rate coefficient;
+% U is the non-equilibrium parameter.
+% 24.10.2020 Maksim Melnik
 
-i=1;
-ZvibT=sum(exp(-M.e_i(i, 1:M.num_vibr_levels(i))'./(V_K*T)), 1);
-ZvibU=sum(exp(M.e_i(i, 1:M.num_vibr_levels(i))'./(V_K*U)), 1);
-Vc=ZvibT./ZvibU.*exp((M.e_i(i, 1:M.num_vibr_levels(i))')/V_K.*...
-        (1./T+1./U));
-% K=Vc.*Z_rot(1,:);
-% K=[K; K(1,:); K(1,:)]./...
-%     (V.*Z_rot(i,:).*exp(-M.e_E(i)/V_K./T));
-out=V;%[Vc; Vc(1); Vc(1)]./V;
+V_K = 1.380649e-23;     % Boltzmann constant
+Zel = M.s_e(1:M.num_elex_levels) * ...  electronic stat sum
+                            exp( -M.e_E(1:M.num_elex_levels)' / (V_K*T));
+divsum = 0;
+zero_template = zeros(1, sum(M.num_vibr_levels(1:M.num_elex_levels)));
+V  = zero_template;     % non-equilibrium factor
+kd = zero_template;     % diss coef
+for i = 1:M.num_elex_levels    % вот тут энергию e_i от нуля или от e_0?
+ %  ZvibT=sum(exp(-M.ev_i{i}/(V_K*T)));
+ %  ZvibU=sum(exp(M.ev_i{i}/(V_K*U(i))));
+ ZvibT = sum( exp(-(M.ev_0(i) + M.ev_i{i}) / (V_K*T)) ); % vibr stat sum
+ ZvibU = sum( exp( (M.ev_0(i) + M.ev_i{i}) / (V_K*U(i))) );
+ divsum = divsum + M.s_e(i) * exp(M.e_E(i)/(V_K*U(i))) * ZvibU / ZvibT;
+ V(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i))) = ...
+               exp((M.ev_0(i) + M.ev_i{i} + M.e_E(i))/V_K*(1/T + 1/U(i)));
+end
+V = Zel * V / divsum;
+for i = 1:M.num_elex_levels
+ if M.num_vibr_levels(i) > 1
+  kd(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i))) = ...
+      V(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i))) ...
+                                                               * kd_eq(i);
+ else
+  kd(1+sum(M.num_vibr_levels(1:i-1)):sum(M.num_vibr_levels(1:i))) = ...
+                                                                kd_eq(i);
+ end
+end
+
 end

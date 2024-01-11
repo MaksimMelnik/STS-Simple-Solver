@@ -13,6 +13,7 @@ R_diss_data = zeros(kinetics.num_eq, 1);
 R_VE_data   = zeros(kinetics.num_eq, 1);
 R_exch_data = zeros(kinetics.num_eq, 1);
 R_wall_data = zeros(kinetics.num_eq, 1);
+R_ET_data   = zeros(kinetics.num_eq, 1);
 Qin = 0;
 
 for indM1 = 1:kinetics.num_Ps   % considering each particle
@@ -28,7 +29,7 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
      if M1.num_vibr_levels(ind_e) > 1
       i1_e = i1(1+sum(M1.num_vibr_levels(1:ind_e-1)) : ...
                                         sum(M1.num_vibr_levels(1:ind_e)));
-      [R_VT_data_temp , Q_VT] = R_VT(M1, y(i1_e), M2, ...
+      [R_VT_data_temp, Q_VT] = R_VT(M1, y(i1_e), M2, ...
                         sum(y(i2)), T, ind_e, kinetics.reactions('VT'));
       R_VT_data(i1_e) = R_VT_data(i1_e) + R_VT_data_temp;
       Qin = Qin + Q_VT;
@@ -105,14 +106,9 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
     coll2.ArrA=M1.diss_Arrhenius_A(M2.name);
     coll2.ArrN=M1.diss_Arrhenius_n(M2.name);
     y_diss=y(i1);
-    switch kinetics.reactions('Diss').NEmodel
-     case {'MT', 'Aliat'}
-      [R_diss_data_temp, Q_diss] = R_diss_Aliat_onoff(M1, y_diss, nP1, ...
-        nP2, sum(y(i2)), coll2, T, n0, ...
-        kinetics.reactions('Diss').U, kinetics.reactions('Diss').NEmodel);
-     case 'Savelev21'
-       error("Savelev's diss model is still not implemented")
-    end
+    [R_diss_data_temp, Q_diss] = R_diss(M1, y_diss, nP1, nP2, ...
+          sum(y(i2)), coll2, T, n0, kinetics.reactions('Diss').U, ...
+                                    kinetics.reactions('Diss').NEmodel);
     R_diss_data(i1) = R_diss_data(i1) + R_diss_data_temp;
     Qin = Qin + Q_diss;
    end
@@ -128,8 +124,8 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
      Qin = Qin + Qwall/kinetics.n0;
     end
    end
-   if isKey(kinetics.reactions, 'Diss')
-    if M1.sigma == 2
+   if isKey(kinetics.reactions, 'Rec_wall')
+    if M1.sigma == 2 && M1.form_e == 0
      for indM3 = 1:kinetics.num_Ps   % finding indexes of diss parts of M1
       if kinetics.Ps{indM3}.name == M1.diss_parts(1)
        indP1 = indM3;
@@ -147,6 +143,13 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
 	 Qin = Qin + Q_rec_wall/kinetics.n0;
     end
    end
+   if isKey(kinetics.reactions, 'ET')
+    if M1.num_elex_levels > 1
+     [R_ET_data_temp, Q_ET] = R_ET_diff_wall(M1, y, T, kinetics);
+     R_ET_data(i1) = R_ET_data(i1) + R_ET_data_temp/n0^2;
+     Qin = Qin + Q_ET/n0^2;
+    end
+   end
   end
   
  end
@@ -162,21 +165,44 @@ if isKey(kinetics.reactions, 'Exch') % exchange reactions universal attempt
   IOM_M3 = IndexOfMolecules(reaction.particles(3));
   IOM_M4 = IndexOfMolecules(reaction.particles(4));
   indM1 = kinetics.index{IOM_M1};
-  indM1 = indM1(1:kinetics.Ps{IOM_M1}.num_vibr_levels(1));
   indM2 = kinetics.index{IOM_M2};
   indM3 = kinetics.index{IOM_M3};
   indM4 = kinetics.index{IOM_M4};
-  [R_exch_temp, Q_exch] = R_exch(kinetics.Ps{IOM_M1}, ...
-        kinetics.Ps{IOM_M2}, kinetics.Ps{IOM_M3}, kinetics.Ps{IOM_M4}, ...
+  switch length(reaction.particles)
+   case 4
+%     indM1 = indM1(1:kinetics.Ps{IOM_M1}.num_vibr_levels(1));
+    [R_exch_temp, Q_exch] = R_exch({kinetics.Ps{IOM_M1}, ...
+       kinetics.Ps{IOM_M2}, kinetics.Ps{IOM_M3}, kinetics.Ps{IOM_M4}}, ...
                      y(indM1), y(indM2), y(indM3), y(indM4), T, reaction);
-  R_exch_data(indM1) = R_exch_data(indM1) + sum(R_exch_temp, 2);
-  R_exch_data(indM3) = R_exch_data(indM3) - sum(R_exch_temp, 1)';  
-  R_exch_data(indM2) = R_exch_data(indM2) + sum(R_exch_temp, 'all');
-  R_exch_data(indM4) = R_exch_data(indM4) - sum(R_exch_temp, 'all');
+    R_exch_data(indM1) = R_exch_data(indM1) + sum(R_exch_temp, [2 3 4]);
+    R_exch_data(indM2) = R_exch_data(indM2) + sum(R_exch_temp, [1 3 4])';
+    R_exch_data(indM3) = R_exch_data(indM3) ...
+                            - reshape(sum(R_exch_temp, [1 2 4]), [], 1);
+    R_exch_data(indM4) = R_exch_data(indM4) ...
+                            - reshape(sum(R_exch_temp, [1 2 3]), [], 1);
+   case 5
+    IOM_M5 = IndexOfMolecules(reaction.particles(5));
+    indM5  = kinetics.index{IOM_M5};
+    [R_exch_temp, Q_exch] = R_exch_23(...
+       {kinetics.Ps{IOM_M1}, kinetics.Ps{IOM_M2}, kinetics.Ps{IOM_M3}, ...
+        kinetics.Ps{IOM_M4}, kinetics.Ps{IOM_M5}}, ...
+       y(indM1), y(indM2), y(indM3), y(indM4), y(indM5), T, reaction, n0);
+    R_exch_data(indM1) = R_exch_data(indM1) + sum(R_exch_temp, [2, 3]);
+    R_exch_data(indM2) = R_exch_data(indM2) + sum(R_exch_temp, [1, 3])';
+    R_exch_data(indM3) = R_exch_data(indM3) ...
+                            - reshape(sum(R_exch_temp, [1, 2]), [], 1);
+    R_exch_data(indM4) = R_exch_data(indM4) ...
+                            - reshape(sum(R_exch_temp, [1 2 3 5]), [], 1);
+    R_exch_data(indM5) = R_exch_data(indM5) ...
+                            - reshape(sum(R_exch_temp, [1 2 3 4]), [], 1);
+   otherwise
+       error(["Reactions with current number of particles are not " ...
+                                                    "implemented yet"])
+  end
   Qin = Qin + Q_exch;
  end
 end
 
 R = R_VT_data + R_VV_data + R_diss_data + R_VE_data + ... 
-                                            R_exch_data + R_wall_data;
+                                    R_exch_data + R_wall_data + R_ET_data;
 end
