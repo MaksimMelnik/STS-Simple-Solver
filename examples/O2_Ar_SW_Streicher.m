@@ -286,8 +286,8 @@ end
 end
 %%
 %if you want to save your data in .mat file, uncomment following raws
-%save(['..\data\O2_Ar Streicher experiment\O2Ar_betweenSWs_output'], 'dat');
-%save(['..\data\O2_Ar Streicher experiment\O2Ar_behindRSW_output'], 'dat1');
+% save('..\data\O2_Ar Streicher experiment\O2Ar_betweenSWs_output', 'dat');
+% save('..\data\O2_Ar Streicher experiment\O2Ar_behindRSW_output', 'dat1');
 
 rmpath('../src/')
 rmpath('../data/')

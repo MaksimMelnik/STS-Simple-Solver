@@ -150,8 +150,12 @@ for i_rel=2 %[1 2]
     y0(end-1)=v1;
     y0(end)=T1;
     y0(kinetics.index{end})=n1*(1-f);
+        % great for an accurate simulation
     options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-18, ...
-    'NonNegative', 1:kinetics.num_eq+2);
+                                    'NonNegative', 1:kinetics.num_eq+2);
+        % enough for debugging
+    % options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
+    %                                 'NonNegative', 1:kinetics.num_eq+2); 
     if i_rel==2 %if relaxation between SWs on
     [X, Y]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics), xspan, ...
         y0, options_s);
@@ -338,8 +342,8 @@ end
 
 %%
 %if you want to save your data in .mat file, uncomment following raws
-% save(['..\data\NO Streicher experiment\NO_betweenSWs_output.mat'], 'dat');
-%save(['..\data\NO Streicher experiment\NO_behindRSW_output.mat'], 'dat1');
+% save('..\data\NO Streicher experiment\NO_betweenSWs_output.mat', 'dat');
+% save('..\data\NO Streicher experiment\NO_behindRSW_output.mat', 'dat1');
 rmpath('../src/')
 rmpath('../data/')
 toc

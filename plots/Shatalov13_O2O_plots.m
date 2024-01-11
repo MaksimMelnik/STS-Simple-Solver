@@ -98,8 +98,8 @@ for ind_ini = 1 %1:5 % [2 4]   % chossing experimental test cases
    'Color', pl_U(model_U_bm, :), 'LineWidth', 1.5, 'DisplayName', ...
   "Benchmark: " + str_vibr(model_vibr_bm) + ", U = " + str_U(model_U_bm));
     % plotting simulation results
- for model_vibr = 2 %1:3  % choosing vibrational models to plot
   for model_U   = 4 %2:4     % choosing U parameter for plotting
+ for model_vibr = 2 % 1:2%3  % choosing vibrational models to plot
       % the plot
    p3 = plot(out(ind_ini, model_vibr, model_U).time_mus, ...
        out(ind_ini, model_vibr, model_U).Tv, pl_vibr(model_vibr), ...
