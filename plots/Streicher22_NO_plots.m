@@ -28,9 +28,9 @@ data_minor=dat1(:,:,:,:,1); %data with i_exch=1 model(without exch. react.)
 %TVerror_plot - plot deviation for Tv_NO
 %Nerror_plot - plot deviation for n_NO
 
-MACRO_plot=false;
+MACRO_plot=true;
 NNO_plot=false;
-VDF_NO_plot=true;
+VDF_NO_plot=false;
 TVerror_plot=false;
 Nerror_plot=false;
 

@@ -1,5 +1,4 @@
 # todo
-- finish NO Streicher RefSW experiments test cases (NO/N2, NO/N2/Ar)
 - make exchange reactions function more universal (M2 and M4 not atoms)
 - finish the Hubner 2012 experiment DC test case for the afterglow
 - finish the Hubner 2012 experiment DC test case for the discharge zone
@@ -20,3 +19,4 @@
 - add a separate functions for lambda
 - add a possibility to vary an oscillator for vibrations
 - add FHO-FR
+- stop using symbolic calculations

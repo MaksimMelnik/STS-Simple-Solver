@@ -27,7 +27,7 @@ P_plot=true;
 TVerror_plot=false;
 Nerror_plot=false;
 
-for var=1
+for var=1%:9
 %testcases
 %var: %1 - 50-03 T=8110 K, P=75 Torr;  2 - 50-11 T=10470 K, P=53 Torr; 
 %3 - 50-13 T=11410 K, P=30 Torr; 4 - 20-02 T=7840 K, P=130 Torr;

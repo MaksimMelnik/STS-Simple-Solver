@@ -82,12 +82,16 @@ for i_ini = 1 % [1 2 3 4 5]         % choosing desired initial coonditions
    xspan = [0 1e0] / Delta;        % interval of integration
         % initial vibrational Boltzmann distribution, VDF
    n = density_f_exc(T0, n1, O2);   % initial vibrational distribution,VDF
-   y0 = zeros(kinetics.num_eq + 2, 1);  % initial values behind SW
+   y0 = zeros(kinetics.num_eq + 2, 1); % initial values behind SW
    y0(1:length(n))  = n;
    y0(end-1)        = v1;
    y0(end)          = T1;
-   options_s = odeset('RelTol', 1e-5, ... solving accuracy parameters
-                    'AbsTol', 1e-8, 'NonNegative', 1:kinetics.num_eq+2); 
+        % great for an accurate simulation
+   options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-15, ... 
+                                    'NonNegative', 1:kinetics.num_eq+2);
+        % enough for debugging
+   % options_s = odeset('RelTol', 1e-5, ... solving accuracy parameters
+                    % 'AbsTol', 1e-8, 'NonNegative', 1:kinetics.num_eq+2);
    [X, Y] = ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics), ... solving
                                                     xspan, y0, options_s);
                                                 

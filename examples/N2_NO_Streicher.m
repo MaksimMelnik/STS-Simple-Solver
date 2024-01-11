@@ -15,7 +15,7 @@ Na=6.02214076e23;
 
 %initialization of structures dat and dat1
 tmp.time=0; tmp.T=0; tmp.Tv=0; tmp.nO=0; tmp.nN=0; tmp.nNO=0; tmp.nAr=0;
-tmp.nO2=0; tmp.nN2=0; tmp.p=0;
+tmp.nO2=0; tmp.nN2=0; tmp.p=0; tmp.ni_NO = 0;
 dat(2,4,12,3)=tmp;
 
 tmp1.time=0; tmp1.T=0; tmp1.TvNO=0; tmp1.TvO2=0; tmp1.TvN2=0; tmp1.ni_NO=0;
@@ -311,8 +311,12 @@ for i_rel=2 %[1 2]
     end
     y0_1(end-1)=v1;
     y0_1(end)=T1;
-    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
-    'NonNegative', 1:kinetics.num_eq+2);
+        % great for an accurate simulation
+    options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-25, ...
+                                    'NonNegative', 1:kinetics.num_eq+2);
+        % enough for debugging
+    % options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
+    %                                 'NonNegative', 1:kinetics.num_eq+2);
     [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
         xspan, y0_1, options_s);
     
@@ -376,6 +380,7 @@ for i_rel=2 %[1 2]
     resSt.nO2=n_O2;
     resSt.nN2=n_N2;
     resSt.p=p;
+    resSt.ni_NO = Y(:, kinetics.index{IndexOfMolecules("NO")});
     dat(i_vibr,i_U,i_ini, i_exch)=resSt;
     end
     resSt_1.time=time_ms_1;

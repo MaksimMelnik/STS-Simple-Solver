@@ -2,11 +2,12 @@ function kvv = kvv_fho_old(T, M1, M2, ind_e1, ind_e2)
 % Rate coefficients of VV exchanges, AB - CD
 % kdown - array of k_(i->i-1)^(j->j+1)
 % T - temperature, K
+% Based on fho.for by I. Adamovuch
 % Modification for an universal mixture.
 % T is the temperature; M1 is the first molecule; M2 is the partner 
-% particle; ind_e1 is the number of the electronic state of M1; 
+% molecule; ind_e1 is the number of the electronic state of M1; 
 % ind_e2 is the number of the electronic state of M2.
-% 30.01.2023 Maksim Melnik
+% 30.01.2023 Maksim Melnik, Olga Kunova, Igor Adamovich
 
 Lmax=M1.num_vibr_levels(ind_e1)-1;
 Lmax2=M2.num_vibr_levels(ind_e2)-1;
@@ -15,11 +16,11 @@ k = 1.380649e-23;         % Boltzmann constant, J/K
 c = 29979245800;            % speed of light, cm/s (or m/s should be?)
 alpha = 4e10;
 
-gaskin=3.458e-8^2;
-mu = M1.mass*M2.mass/(M1.mass+M2.mass); % kg
+gaskin = ((M1.diameter + M2.diameter) / 2 * 1e2) ^ 2;   % gas. kin. rad.
+mu = M1.mass*M2.mass/(M1.mass+M2.mass); % reduced mass, kg
 d8pi = sqrt(8*pi);
 velt = sqrt(k*T/mu);
-freq = gaskin*100*d8pi*velt;
+freq = gaskin*100*d8pi*velt;    % collision frequency Z
 
 Evibi1 = M1.ev_i{ind_e1}(2:end)'/k;
 Evibf1 = M1.ev_i{ind_e1}(1:end-1)'/k;
@@ -36,8 +37,9 @@ ns2 = 1:Lmax2;
 delE = Evibi1-Evibf1+Evibi2-Evibf2;
 omeg = 2*pi*Evib*c/1.439;
 
-% ro2 = alpha^2*k*T/(2*omeg^2*mu)/27; % вот это не знаю
-ro2 = alpha^2*k*T./(2*omeg.^2*mu)/16;       
+% S_VV = 1/27;
+S_VV = 1/16;
+ro2 = S_VV * alpha^2*k*T./(2*omeg.^2*mu);
  
     % Resonance defect correction (Keck, Carrier, Adamovich)
 popc = 4*pi^2 * mu * omeg.^2 / alpha^2 / k;
@@ -52,7 +54,7 @@ zompl1 = zompl0.*ro2;
 zompl2 = zompl1;
 zompl3 = (1+zompl1).^2;
 zompl4 = zompl2./zompl3;
-kvv = zompl4 .* popc * freq;
+kvv = zompl4 .* popc * freq;    % ? * G * Z
     %вот ето не факт, но у јдамовича так
 kvv=kvv.*exp(0.5*delE/T)/1e6;
 end

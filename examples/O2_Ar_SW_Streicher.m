@@ -44,7 +44,7 @@ for i_U=4 % [2 3 4]    % choosing desired U dissociation parameter model
 % 2 is for D/6k; 3 is for 3T; 4 is for inf
 for i_vibr=2 % [1 2]  % choosing vibrational energy exchange model
 % 1 is for SSH; 2 is for FHO
-for rel=2     % if relaxation between incident and reflected waves 
+for rel= 2 %1:2     % if relaxation between incident and reflected waves 
 % frozen? 1 -relaxation off; 2 - relaxation on
     f=init_c(i_ini, 1); %molar fraction of O2
     p0=init_c(i_ini, 2)*Torr; %initial pressure in shock tube
@@ -117,8 +117,8 @@ for rel=2     % if relaxation between incident and reflected waves
     if f~=1
         y0(kinetics.index{end})=n1*(1-f);
     end
-    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
-            'NonNegative', 1:kinetics.num_eq+2); 
+    options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-19, ...
+                                    'NonNegative', 1:kinetics.num_eq+2); 
     if rel==2  %if relaxation between SWs ON
     [X, Y]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics), ...
                             xspan, y0, options_s); 
@@ -214,8 +214,12 @@ for rel=2     % if relaxation between incident and reflected waves
     end
     y0_1(end-1)=v1;
     y0_1(end)=T1;
-    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
-            'NonNegative', 1:kinetics.num_eq+2); 
+        % great for an accurate simulation
+    options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-15, ... 
+                                    'NonNegative', 1:kinetics.num_eq+2);
+        % enough for debugging
+    % options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
+    %                                 'NonNegative', 1:kinetics.num_eq+2); 
     [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
         xspan, y0_1, options_s);
     X_1=X_1*Delta;
