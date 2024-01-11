@@ -9,11 +9,11 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% fix the plot by Denis
-% merge main with the VV fixes to this branch
-% turn on all the added previously processes and particles
+% merge main to this branch
+% run tests for the whole branch
 % pull request
 % rewrite and recheck to the todo all the processes we need to add
+% electonic field equations
 % fix strange behaviour of 1st bachward Zeldovich reaction for Kossyi
 % remove Arrhenius subfunction in R_exch
 % change reaction initialization to tables
@@ -218,8 +218,8 @@ for i_ini = 2           % choosing desired initial coonditions
        ...                                          N2(B)
                                                     Reactions("zero")];
    Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009") ...
-                ..., React_e_O2pX__O_O("Kossyi1992"), ...
-                ... React_e_N2X__e_N4S_N4S("LoKI-B steady")
+                , React_e_O2pX__O_O("Kossyi1992") ...
+                , React_e_N2X__e_N4S_N4S("LoKI-B steady")
                 ];
    Reacs_keys = {'VT',     'VV' ...
        , 'Exch' ...
@@ -235,10 +235,6 @@ for i_ini = 2           % choosing desired initial coonditions
        ..., Diss ...
        , Free_e ...
        };
-   % Reacs_keys = {'VT',     'VV',     'Exch', 'Wall', 'ET',    ...
-   %     'Rec_wall', 'free_e'};
-   % reacs_val  = {model_VT, model_VT, Exch,   1,      ET_diff_c, ...
-   %     1,          Free_e};
    kinetics.reactions = containers.Map(Reacs_keys, reacs_val);
    kinetics.index = indexes_for_Ps(kinetics.Ps);
    kinetics.num_eq = kinetics.index{end}(end);

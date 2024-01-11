@@ -16,6 +16,7 @@ e.form_e = 0;
 e.num_vibr_levels = 0;
 e.e_E             = 0;
 e.fr_deg_c        = 3;
+e.s_e             = 1;
 IndexOfMolecules("e") = kinetics.num_Ps + 1;
 free_e_reactions      = kinetics.reactions("free_e");
 index                 = [kinetics.index, kinetics.num_eq + 1];
@@ -43,7 +44,7 @@ for ind_free_e = 1:length(free_e_reactions)
    IOM_M5 = IndexOfMolecules(reaction.particles(5));
    indM5  = kinetics.index{IOM_M5};
    [R_exch_temp, Q_exch] = R_exch_23(...
-        Ps{IOM_M1}, Ps{IOM_M2}, Ps{IOM_M3}, Ps{IOM_M4}, Ps{IOM_M5}, ...
+        {Ps{IOM_M1}, Ps{IOM_M2}, Ps{IOM_M3}, Ps{IOM_M4}, Ps{IOM_M5}}, ...
         y(indM1), y(indM2), y(indM3), y(indM4), y(indM5), T, reaction);
    R(indM1) = R(indM1) + sum(R_exch_temp, [2, 3]);
    R(indM2) = R(indM2) + sum(R_exch_temp, [1, 3])';
