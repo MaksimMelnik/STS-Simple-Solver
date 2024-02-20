@@ -17,6 +17,8 @@ Install MATLAB and run one of the `/examples` (better to start with `O2O_SW_Shat
 
 - [M Yu Melnik and E V Kustova 2022 J. Phys.: Conf. Ser. 2308 012014](https://DOI.org/10.1088/1742-6596/2308/1/012014)
 
+- [D Kravchenko, O Kunova, E Kustova and M Melnik 2024 Acta Astronautica 218 47–58](https://doi.org/10.1016/j.actaastro.2024.02.011)
+
 - A. A. Isakov, V. I. Gorikhovskii and M. Yu. Melnik 2024 Vestnik St.Petersb. Univ.Math. (accepted)
 ## References
 [1] [E. Nagnibeda, E. Kustova, Nonequilibrium Reacting Gas Flows. Kinetic Theory of Transport and Relaxation Processes, Springer-Verlag, Berlin, Heidelberg, 2009.](https://doi.org/10.1007/978-3-642-01390-4)
