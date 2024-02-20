@@ -107,6 +107,8 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
     i2=kinetics.index{indM2};
     coll2.ArrA=M1.diss_Arrhenius_A(M2.name);
     coll2.ArrN=M1.diss_Arrhenius_n(M2.name);
+    %coll2.ArrA=M1.diss_Scanlon_A(M2.name);
+    %coll2.ArrN=M1.diss_Scanlon_n(M2.name);
     y_diss=y(i1);
     switch kinetics.reactions('Diss').NEmodel
      case {'MT', 'Aliat'}

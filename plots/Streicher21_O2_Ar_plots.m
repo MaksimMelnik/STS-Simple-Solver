@@ -22,12 +22,12 @@ data_minor=dat1;
 %TVerror_plot - plot deviation for Tv_NO
 %Nerror_plot - plot deviation for n_NO
 
-MACRO_plot=true;
-P_plot=true;
+MACRO_plot=false;
+P_plot=false;
 TVerror_plot=false;
-Nerror_plot=false;
+Nerror_plot=true;
 
-for var=1
+for var=1:9
 %testcases
 %var: %1 - 50-03 T=8110 K, P=75 Torr;  2 - 50-11 T=10470 K, P=53 Torr; 
 %3 - 50-13 T=11410 K, P=30 Torr; 4 - 20-02 T=7840 K, P=130 Torr;
@@ -231,7 +231,8 @@ TEMP=[8110 10470 11410 7840 10310 13830 6230 7940 9560];
 exp_err=[0.043 0.031 0.054 0.045 0.12 0.16 0.053 0.062 0.085];
 
 if Nerror_plot
-figure
+figure("Position", [0, 0, 900, 600])
+set(gca,'FontSize', 14);
 hold on
 for var=1:9
 
@@ -327,32 +328,32 @@ err10=mean(abs(s10-s_exp)./s_exp);
 err11=mean(abs(s11-s_exp)./s_exp);
 err12=mean(abs(s12-s_exp)./s_exp);
 
-p1=plot(TEMP(var), err1, 'ok');
-p2=plot(TEMP(var), err4, 'o','color', [0 0.6 0]);
-p3=plot(TEMP(var), err7, 'ob');
-p4=plot(TEMP(var), err10,'o','color', [0.9 0 0]);
-p5=plot(TEMP(var), err2, 'sk');
-p6=plot(TEMP(var), err5, 's','color',[0 0.6 0]);
-p7=plot(TEMP(var), err8, 'sb');
-p8=plot(TEMP(var), err11, 's','color', [0.9 0 0]);
-p9=plot(TEMP(var), err3, 'dk');
-p10=plot(TEMP(var), err6,'d','color',[0 0.6 0]);
-p11=plot(TEMP(var), err9, 'db');
-p12=plot(TEMP(var), err12, 'd','color', [0.9 0 0]);
+p1=plot(TEMP(var), err1, 'ok', 'LineWidth',1.2);
+p2=plot(TEMP(var), err4, 'o','color', [0 0.6 0], 'LineWidth',1.2);
+p3=plot(TEMP(var), err7, 'ob', 'LineWidth',1.2);
+p4=plot(TEMP(var), err10,'o','color', [0.9 0 0], 'LineWidth',1.2);
+p5=plot(TEMP(var), err2, 'sk', 'LineWidth',1.2);
+p6=plot(TEMP(var), err5, 's','color',[0 0.6 0], 'LineWidth',1.2);
+p7=plot(TEMP(var), err8, 'sb', 'LineWidth',1.2);
+p8=plot(TEMP(var), err11, 's','color', [0.9 0 0], 'LineWidth',1.2);
+p9=plot(TEMP(var), err3, 'dk', 'LineWidth',1.2);
+p10=plot(TEMP(var), err6,'d','color',[0 0.6 0], 'LineWidth',1.2);
+p11=plot(TEMP(var), err9, 'db', 'LineWidth',1.2);
+p12=plot(TEMP(var), err12, 'd','color', [0.9 0 0], 'LineWidth',1.2);
 end
 set(gca, 'FontName', 'Times New Roman');
 [TEMP, I]=sort(TEMP);
 exp_err=exp_err(I);
-p13=plot(TEMP, exp_err, 'k--');
+p13=plot(TEMP, exp_err, 'k--', 'LineWidth',1.2);
 hold off
-legend([p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 p11 p12 p13],"SSH, \it U=D/6k", ...
+legend([p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 p11 p12 p13],{"SSH, \it U=D/6k", ...
     "FHO,\it U=D/6k", "SSH,\it U=D/6k,\rm rel off", ...
     "FHO,\it U=D/6k,\rm rel off", "SSH,\it U=3T", "FHO,\it U=3T", ...
     "SSH,\it U=3T\rm, rel off", "FHO,\it U=3T\rm, rel off", ...
     "SSH,\it U=\infty", "FHO,\it U=\infty", ...
     "SSH,\it U=\infty\rm, rel off", "FHO,\it U=\infty\rm, rel off", ...
-    "mean exp. error", 'Location','eastoutside');
-xlabel("\it T^0 \rm behind reflected SW, K");
+    "mean exp. error"}, 'Location','southoutside', 'NumColumns',4);
+xlabel("\it T^{\rm 0} \rm behind reflected SW, K");
 xticks([6000 7000 8000 9000 10000 11000 12000 13000 14000]);
 ylabel("\Delta \it n_{\rm O_2}/n_{\rm O_2}");
 %title("O2/Ar mean \Delta n_{O_2}/n_{O_2}");

@@ -9,3 +9,9 @@ data/NO_N2 Streicher experiment/NO_N2_behindRSW_output.mat
 data/O2_Ar Streicher experiment/O2Ar_behindRSW_output.mat
 data/NO_N2 Streicher experiment/NO_N2_behindRSW_output_1.mat
 data/NO Streicher experiment/NO_behindRSW_output_1.mat
+data/Air Streicher experiment/Air_betweenSWs_output_withchembetween.mat
+data/Air Streicher experiment/Air_betweenSWs_output.mat
+data/Air Streicher experiment/Air_behindRSW_output_withchembetween.mat
+data/Air Streicher experiment/Air_behindRSW_output.mat
+data/NO Streicher experiment/NO_behindRSW_Scanlon_output.mat
+data/NO_N2 Streicher experiment/NO_N2_behindRSW_Scanlon_output.mat

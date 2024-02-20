@@ -62,14 +62,14 @@ for i_exch=2 % [1 2 3]
 load("..\data\particles.mat", "NO");
 NO.num_elex_levels=1; 
 
-for i_ini=7 % [1 2 3 4 5 6 7 8 9 10 11]
+for i_ini=1:11 % [1 2 3 4 5 6 7 8 9 10 11]
 %choosing testcase
 
-for i_U=2 % [2 3 4]
+for i_U=2:4 % [2 3 4]
 %choosing desired U dissociation parameter model
 %2 is for D/6k; 3 is for 3T; 4 is for inf
 
-for i_vibr=2 %[1 2]
+for i_vibr=1:2 %[1 2]
 % choosing desired vibrational energy exchange model 1 for SSH; 2 for FHO
 
 for i_rel=2 %[1 2]
@@ -277,6 +277,9 @@ for i_rel=2 %[1 2]
         kinetics.index{IndexOfMolecules("NO")}(1))./...
         Y_1(:,kinetics.index{IndexOfMolecules("NO")}(2))));
     end
+    TVVV(i_ini, (i_U-1) + 3*(i_vibr-1)) = Tv_NO_1(1);
+
+
     Tv_O2=O2.ev_i{1}(2)./(k*log(Y_1(:, ...
         kinetics.index{IndexOfMolecules("O2")}(1))./...
      Y_1(:,kinetics.index{IndexOfMolecules("O2")}(2))));
@@ -345,7 +348,7 @@ end
 %%
 %if you want to save your data in .mat file, uncomment following raws
 %save(['..\data\NO Streicher experiment\NO_betweenSWs_output.mat'], 'dat');
-%save(['..\data\NO Streicher experiment\NO_behindRSW_output.mat'], 'dat1');
+%save(['..\data\NO Streicher experiment\NO_behindRSW_Scanlon_output.mat'], 'dat1');
 rmpath('../src/')
 rmpath('../data/')
 toc                
