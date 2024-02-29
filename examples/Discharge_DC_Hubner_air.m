@@ -298,28 +298,32 @@ end
             n_N2p;  n_O2p;    ne...
      ];
        % t3 correction, T
-   y0 = [y0 * n3/n0;    T3];
+   %y0 = [y0 * n3/n0;    T3];
+   y0 = [y0 * n3/n0;    T3; kinetics.Te];
 %    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-20, ...
 %                                     'NonNegative', 1:kinetics.num_eq+1); 
 %    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-13, ...
 %                                     'NonNegative', 1:kinetics.num_eq+1); 
-   options_s = odeset('RelTol', 1e-12, 'AbsTol', 1e-12, ...
+   %options_s = odeset('RelTol', 1e-12, 'AbsTol', 1e-12, ...
+   %                                 'NonNegative', 1:kinetics.num_eq+1); 
+   options_s = odeset('RelTol', 1e-6, 'AbsTol', 1e-8, ...
                                     'NonNegative', 1:kinetics.num_eq+1); 
-   % options_s = odeset('RelTol', 1e-6, 'AbsTol', 1e-8, ...
-   %                                  'NonNegative', 1:kinetics.num_eq+1); 
    [X, Y] = ode15s(@(t, y) ...
     Rpart_ODE_tube_DC_discharge_0D(t, y, kinetics), xspan, y0, options_s);
 
    t = X*t0;
-   Y(:, 1:end-1) = Y(:, 1:end-1)*n0;
-   Y(:, end)=Y(:, end)*T0;
-   T=Y(:, end);
+   %Y(:, 1:end-1) = Y(:, 1:end-1)*n0;
+   %T=Y(:, end) * T0;
+   Y(:, 1:end-2) = Y(:, 1:end-2)*n0;
+   T=Y(:, end - 1) * T0;
+   Te=Y(:, end) * T0;
    Tv = N2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
    out.res=[t, Y, Tv];
    out.Y = Y;
    out.t = t;
    out.T = T;
    out.Tv = Tv;
+   out.Te = Te;
    out.kinetics = kinetics;
   end
  end
