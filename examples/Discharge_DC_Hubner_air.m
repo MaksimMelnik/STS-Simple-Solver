@@ -9,11 +9,8 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% merge main to this branch
-% run tests for the whole branch
-% pull request
-% rewrite and recheck to the todo all the processes we need to add
 % electonic field equations
+% rewrite and recheck to the todo all the processes we need to add
 % fix strange behaviour of 1st bachward Zeldovich reaction for Kossyi
 % remove Arrhenius subfunction in R_exch
 % change reaction initialization to tables
@@ -282,48 +279,55 @@ end
 if N2.num_elex_levels < 3
     n_N2B = [];
 end
-n_N2p = [];
-n_O2p = [];
-ne = [];
+n_N2p   = [];
+n_O2p   = [];
+ne      = [];
+Te0     = [];
+num_eq_plus = 1;
 if kinetics.num_Ps > 5
-    n_N2p = f_N2_3*ion_degree;
-    n_O2p = f_O2_3*ion_degree;
+    n_N2p = f_N2_3 * ion_degree;
+    n_O2p = f_O2_3 * ion_degree;
 end
 if isKey(kinetics.reactions, 'free_e')
     ne   = (f_N2_3 + f_O2_3) * ion_degree;
+    num_eq_plus = 1 + 2;
+    Te0         = kinetics.Te/T0;
 end
        % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
    y0 = [n_N2;    n_N2A;     n_N2B;    n_O2;  n_NO;  f_N_3; f_O_3; ...
      ...    N2+,    O2+,      e-
             n_N2p;  n_O2p;    ne...
      ];
-       % t3 correction, T
+       % t3 correction, T,  Te
    %y0 = [y0 * n3/n0;    T3];
-   y0 = [y0 * n3/n0;    T3; kinetics.Te];
+   y0 = [y0 * n3/n0;    T3; Te0];
 %    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-20, ...
-%                                     'NonNegative', 1:kinetics.num_eq+1); 
+%                         'NonNegative', 1:kinetics.num_eq + num_eq_plus); 
 %    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-13, ...
-%                                     'NonNegative', 1:kinetics.num_eq+1); 
+%                         'NonNegative', 1:kinetics.num_eq + num_eq_plus); 
    %options_s = odeset('RelTol', 1e-12, 'AbsTol', 1e-12, ...
-   %                                 'NonNegative', 1:kinetics.num_eq+1); 
+   %                      'NonNegative', 1:kinetics.num_eq + num_eq_plus); 
    options_s = odeset('RelTol', 1e-6, 'AbsTol', 1e-8, ...
-                                    'NonNegative', 1:kinetics.num_eq+1); 
+                        'NonNegative', 1:kinetics.num_eq + num_eq_plus); 
    [X, Y] = ode15s(@(t, y) ...
     Rpart_ODE_tube_DC_discharge_0D(t, y, kinetics), xspan, y0, options_s);
 
    t = X*t0;
-   %Y(:, 1:end-1) = Y(:, 1:end-1)*n0;
-   %T=Y(:, end) * T0;
-   Y(:, 1:end-2) = Y(:, 1:end-2)*n0;
-   T=Y(:, end - 1) * T0;
-   Te=Y(:, end) * T0;
+   if isKey(kinetics.reactions, 'free_e')
+    Y(:, 1:end-2) = Y(:, 1:end-2)*n0;
+    T  = Y(:, end - 1) * T0;
+    Te = Y(:, end) * T0;
+    out.Te = Te;
+   else
+    Y(:, 1:end-1) = Y(:, 1:end-1)*n0;
+    T=Y(:, end) * T0;
+   end
    Tv = N2.ev_i{1}(2)./(k*log(Y(:,1)./Y(:,2)));
    out.res=[t, Y, Tv];
    out.Y = Y;
    out.t = t;
    out.T = T;
    out.Tv = Tv;
-   out.Te = Te;
    out.kinetics = kinetics;
   end
  end
