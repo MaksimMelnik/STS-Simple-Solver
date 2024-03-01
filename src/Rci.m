@@ -24,15 +24,17 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
   if isKey(kinetics.reactions, 'VT')
    for indM2 = 1:kinetics.num_Ps
     M2 = kinetics.Ps{indM2};
-    i2 = kinetics.index{indM2};
-    for ind_e = 1:M1.num_elex_levels
-     if M1.num_vibr_levels(ind_e) > 1
-      i1_e = i1(1+sum(M1.num_vibr_levels(1:ind_e-1)) : ...
+    if M2.num_elex_levels > 0
+     i2 = kinetics.index{indM2};
+     for ind_e = 1:M1.num_elex_levels
+      if M1.num_vibr_levels(ind_e) > 1
+       i1_e = i1(1+sum(M1.num_vibr_levels(1:ind_e-1)) : ...
                                         sum(M1.num_vibr_levels(1:ind_e)));
-      [R_VT_data_temp, Q_VT] = R_VT(M1, y(i1_e), M2, ...
+       [R_VT_data_temp, Q_VT] = R_VT(M1, y(i1_e), M2, ...
                         sum(y(i2)), T, ind_e, kinetics.reactions('VT'));
-      R_VT_data(i1_e) = R_VT_data(i1_e) + R_VT_data_temp;
-      Qin = Qin + Q_VT;
+       R_VT_data(i1_e) = R_VT_data(i1_e) + R_VT_data_temp;
+       Qin = Qin + Q_VT;
+      end
      end
     end
    end
@@ -70,7 +72,9 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
      i1_e1=i1(1:M1.num_vibr_levels(1));
      np=0;
      for indM2=1:kinetics.num_Ps
-      np=np+sum(y(kinetics.index{indM2}));
+      if M2.num_elex_levels > 0
+       np=np+sum(y(kinetics.index{indM2}));
+      end
      end
      for ind_e=2:M1.num_elex_levels
       i1_e2=i1(1+sum(M1.num_vibr_levels(1:ind_e-1)):...
@@ -102,15 +106,17 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
    nP2=sum(y(iP2));
    for indM2=1:kinetics.num_Ps
     M2=kinetics.Ps{indM2};
-    i2=kinetics.index{indM2};
-    coll2.ArrA=M1.diss_Arrhenius_A(M2.name);
-    coll2.ArrN=M1.diss_Arrhenius_n(M2.name);
-    y_diss=y(i1);
-    [R_diss_data_temp, Q_diss] = R_diss(M1, y_diss, nP1, nP2, ...
+    if M2.num_elex_levels > 0
+     i2=kinetics.index{indM2};
+     coll2.ArrA=M1.diss_Arrhenius_A(M2.name);
+     coll2.ArrN=M1.diss_Arrhenius_n(M2.name);
+     y_diss=y(i1);
+     [R_diss_data_temp, Q_diss] = R_diss(M1, y_diss, nP1, nP2, ...
           sum(y(i2)), coll2, T, n0, kinetics.reactions('Diss').U, ...
                                     kinetics.reactions('Diss').NEmodel);
-    R_diss_data(i1) = R_diss_data(i1) + R_diss_data_temp;
-    Qin = Qin + Q_diss;
+     R_diss_data(i1) = R_diss_data(i1) + R_diss_data_temp;
+     Qin = Qin + Q_diss;
+    end
    end
    R_diss_data(iP1) = R_diss_data(iP1) - sum(R_diss_data(i1));
    R_diss_data(iP2) = R_diss_data(iP2) - sum(R_diss_data(i1));
@@ -170,7 +176,6 @@ if isKey(kinetics.reactions, 'Exch') % exchange reactions universal attempt
   indM4 = kinetics.index{IOM_M4};
   switch length(reaction.particles)
    case 4
-%     indM1 = indM1(1:kinetics.Ps{IOM_M1}.num_vibr_levels(1));
     [R_exch_temp, Q_exch] = R_exch({kinetics.Ps{IOM_M1}, ...
        kinetics.Ps{IOM_M2}, kinetics.Ps{IOM_M3}, kinetics.Ps{IOM_M4}}, ...
                      y(indM1), y(indM2), y(indM3), y(indM4), T, reaction);

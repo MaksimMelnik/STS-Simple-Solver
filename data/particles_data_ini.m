@@ -340,6 +340,19 @@ NO.BMbeta=3.303;            % beta parameter of Born-Mayer potential, A^-1
 
 
 
+e.name              = 'e-';
+e.mass              = 9.1094E-31;
+e.diameter          = 5.6359E-15;
+e.charge            = -1;
+e.form_e            = 0;
+e.num_elex_levels   = 0;         % let light particles have no elex levels
+e.num_vibr_levels   = 0;
+e.e_E               = 0;
+e.fr_deg_c          = 3;
+e.s_e               = 1;
+
+
+
 
     % объявляем столкновения
     Coll_CO_CO.coll_diameter=CO.diameter;

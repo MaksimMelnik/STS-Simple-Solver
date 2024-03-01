@@ -299,7 +299,6 @@ end
             n_N2p;  n_O2p;    ne...
      ];
        % t3 correction, T,  Te
-   %y0 = [y0 * n3/n0;    T3];
    y0 = [y0 * n3/n0;    T3; Te0];
 %    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-20, ...
 %                         'NonNegative', 1:kinetics.num_eq + num_eq_plus); 
