@@ -253,8 +253,9 @@ for i_ini = 2           % choosing desired initial coonditions
    end
    kinetics.IndexOfMolecules=IndexOfMolecules;
    xspan = [0.005 0.2]/t0;      % from Pintassilgo 2014
-   % xspan = [0.005 0.015]/t0;    % the Hubner experiment measurments time
-   % xspan = [0.005 0.0052]/t0; % tests
+   xspan = [0.005 0.015]/t0;    % the Hubner experiment measurments time
+   xspan = [0.005 0.0052]/t0; % tests
+   xspan = [0.005 0.00502]/t0; % tests
    load('../data/for comparison/Hubner2012_and_Pintassilgo2014.mat' ...
                                                             ) %#ok<LOAD>
    i_vec = 0:30;
@@ -308,6 +309,8 @@ end
    %                      'NonNegative', 1:kinetics.num_eq + num_eq_plus); 
    options_s = odeset('RelTol', 1e-6, 'AbsTol', 1e-8, ...
                         'NonNegative', 1:kinetics.num_eq + num_eq_plus); 
+   options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-5, ...
+                        'NonNegative', 1:kinetics.num_eq + num_eq_plus);
    [X, Y] = ode15s(@(t, y) ...
     Rpart_ODE_tube_DC_discharge_0D(t, y, kinetics), xspan, y0, options_s);
 

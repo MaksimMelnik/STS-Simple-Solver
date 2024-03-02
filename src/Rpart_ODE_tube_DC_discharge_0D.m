@@ -9,18 +9,19 @@ function out=Rpart_ODE_tube_DC_discharge_0D(~, y, kinetics)
     % constants
 kb = 1.380649e-23;               % Boltzmann constant, J/K
 N_a = 6.02214076e23;    % Avogadro constant
-ne = y(end - 1);
+% ne = y(end - 1);
+ne = y(end - 2);
 %T_DN = y(end);          % dimentionless gas temperature T
 T_DN = y(end - 1);
 T = T_DN * kinetics.T0;                           % gas temperature T
 Te = y(end);
-Te = Te * kinetics.T0;
+% Te = Te * kinetics.T0;
 
     % relaxation terms and energy flux
  y_rci = y(1:end-1);
 [R, Q] = Rci(y_rci, kinetics);
-R = R * kinetics.n0 * kinetics.t0;                % dimentionless 
-Q = Q * kinetics.n0^2;                            % dimension value
+R = R * kinetics.n0 * kinetics.t0;              % dimentionless 
+Q = Q * kinetics.n0^2;                          % dimension value, kg/m/s3
 Qe = 0;
 if isKey(kinetics.reactions, 'free_e') %processes involving free electrons
  [Re, Qe] = Rci_e(y_rci, kinetics);
@@ -38,10 +39,11 @@ cp_N2 = c_p(kinetics.Ps{1}, T);
 cp_O2 = c_p(kinetics.Ps{2}, T);
 c_p_total = 0.8 * cp_N2 + 0.2 * cp_O2;      % molar heat capacity, J/mol/K
 dT = (8*lambda*(kinetics.Tw - T)/kinetics.tube_R^2 + Q_total) ...
-                        /(n_m*c_p_total) /kinetics.T0*kinetics.t0; % K/s
+                /(n_m*c_p_total) /kinetics.T0*kinetics.t0; % dimentionless
 dTe = [];
 if isKey(kinetics.reactions, 'free_e')
- dTe = (2 / 3 / kb ) * sum(Q) - R(end) * Te / ne;
+ dTe = (2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0...
+                                    - R(end) * Te / ne; % dimentionless
 end
 % R_total = [R; 0] + Re;
 % out = [R_total; dT];
