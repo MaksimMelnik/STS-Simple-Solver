@@ -310,7 +310,7 @@ end
    options_s = odeset('RelTol', 1e-6, 'AbsTol', 1e-8, ...
                         'NonNegative', 1:kinetics.num_eq + num_eq_plus); 
    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-5, ..._
-                        'NonNegative', 1:kinetics.num_eq + num_eq_plus);
+                        'NonNegative', 1:kinetics.num_eq + num_eq_plus);    
    [X, Y] = ode15s(@(t, y) ...
     Rpart_ODE_tube_DC_discharge_0D(t, y, kinetics), xspan, y0, options_s);
 
