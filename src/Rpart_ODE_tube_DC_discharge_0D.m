@@ -14,7 +14,7 @@ ne = y(end - 2);
 %T_DN = y(end);          % dimentionless gas temperature T
 T_DN = y(end - 1);
 T = T_DN * kinetics.T0;                           % gas temperature T
-Te = y(end);
+Te = y(end)* kinetics.T0;
 % Te = Te * kinetics.T0;
 
     % relaxation terms and energy flux
@@ -47,11 +47,11 @@ mN2 = kinetics.Ps{1}.mass;
 mO2 = kinetics.Ps{2}.mass;
 me = 9.1*10^(-31);
 if isKey(kinetics.reactions, 'free_e')
- %dTe = (2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0...
- %                                   - R(end) * Te / ne - 3*kb*(T-Te)*ne/kinetics.n0*me*(frN2/mN2 + frO2/mO2);
- % - 3*kb*me*(frN2/mN2 + frO2/mO2)
  dTe = (2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0...
-                                    - R(end) * Te / ne - 3*kb*(T-Te)*ne/kinetics.n0*frN2*me/mN2;  % dimentionless
+                                    - R(end) * Te / ne - 3*kb*(T-Te)*ne/kinetics.n0*me*(frN2/mN2 + frO2/mO2);
+ % - 3*kb*me*(frN2/mN2 + frO2/mO2)
+ %dTe = (2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0...
+ %                                   - R(end) * Te / ne - 3*kb*(T-Te)*ne/kinetics.n0*frN2*me/mN2;  % dimentionless
  %disp(3*kb*(T-Te)*ne/kinetics.n0*frN2*me/mN2);
  %disp(3*kb*(T-Te)*ne/kinetics.n0*frO2*me/mO2);
 end
