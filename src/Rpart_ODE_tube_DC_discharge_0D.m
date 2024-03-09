@@ -41,19 +41,18 @@ c_p_total = 0.8 * cp_N2 + 0.2 * cp_O2;      % molar heat capacity, J/mol/K
 dT = (8*lambda*(kinetics.Tw - T)/kinetics.tube_R^2 + Q_total) ...
                 /(n_m*c_p_total) /kinetics.T0*kinetics.t0; % dimentionless
 dTe = [];
-frN2 = 2.33*10^(-11)*y(1)*(1 - 1.21*10^(-4)*Te)*Te/kinetics.n0;
-frO2 = 1.82*10^(-10)*y(2)*(1 + 3.6*10^(-2)*sqrt(Te))*sqrt(Te)/kinetics.n0;
-mN2 = kinetics.Ps{1}.mass;
-mO2 = kinetics.Ps{2}.mass;
-me = 9.1*10^(-31);
 if isKey(kinetics.reactions, 'free_e')
+ me = 9.1094e-31;
+ fr = 0;
+ for i = [1, 2]
+    mi = kinetics.Ps{i}.mass;
+    mred = mi*me/(mi+me);
+    ni = sum(y(kinetics.index{i}));
+    z = sqrt(8*pi*kb*T/mred);
+    fr = fr + z*ni;
+ end
  dTe = (2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0...
-                                    - R(end) * Te / ne - 3*kb*(T-Te)*ne/kinetics.n0*me*(frN2/mN2 + frO2/mO2);
- % - 3*kb*me*(frN2/mN2 + frO2/mO2)
- %dTe = (2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0...
- %                                   - R(end) * Te / ne - 3*kb*(T-Te)*ne/kinetics.n0*frN2*me/mN2;  % dimentionless
- %disp(3*kb*(T-Te)*ne/kinetics.n0*frN2*me/mN2);
- %disp(3*kb*(T-Te)*ne/kinetics.n0*frO2*me/mO2);
+                                    - R(end) * Te / ne - 1.5*kb*(Te-T)*fr*ne;
 end
 % R_total = [R; 0] + Re;
 % out = [R_total; dT];
