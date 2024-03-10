@@ -10,7 +10,7 @@ function out=Rpart_ODE_tube_DC_discharge_0D(~, y, kinetics)
 kb = 1.380649e-23;               % Boltzmann constant, J/K
 N_a = 6.02214076e23;    % Avogadro constant
 % ne = y(end - 1);
-ne = y(end - 2);
+ne = y(end - 2);         % dimentionless
 %T_DN = y(end);          % dimentionless gas temperature T
 T_DN = y(end - 1);
 T = T_DN * kinetics.T0;                           % gas temperature T
@@ -50,12 +50,11 @@ if isKey(kinetics.reactions, 'free_e')
     ni = sum(y(kinetics.index{i}));
     r = kinetics.Ps{i}.diameter / 2;
     z = sqrt(8*pi*kb*T/mred)*r^2;    % m3/s
-    fr = fr + z*ni;                  % 1/s
+    fr = fr + z*ni/mi*kinetics.n0;      % 1/kg/s
  end
  dTe = (2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0...
-                                    - R(end) * Te / ne / kinetics.T0 ...
-                                    ...- 1.5*kb*(Te-T)*fr*ne...
-                                                                    ;  % K
+             - R(end) * Te / ne / kinetics.T0 ...
+             - 3*(Te-T)*fr*ne*me*kinetics.t0/kinetics.T0;  % dimentionless
  % dTe = 0;
 end
 % R_total = [R; 0] + Re;
