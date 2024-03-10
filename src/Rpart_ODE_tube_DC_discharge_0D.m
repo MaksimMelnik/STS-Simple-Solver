@@ -19,8 +19,8 @@ Te = y(end)* kinetics.T0;
 
     % relaxation terms and energy flux
  y_rci = y(1:end-1);
-[R, Q] = Rci(y_rci, kinetics);
-R = R * kinetics.n0 * kinetics.t0;              % dimentionless 
+[Rh, Q] = Rci(y_rci, kinetics);                 % heavy particles
+R = Rh * kinetics.n0 * kinetics.t0;             % dimentionless 
 Q = Q * kinetics.n0^2;                          % dimension value, kg/m/s3
 Qe = 0;
 if isKey(kinetics.reactions, 'free_e') %processes involving free electrons
@@ -52,7 +52,10 @@ if isKey(kinetics.reactions, 'free_e')
     fr = fr + z*ni;
  end
  dTe = (2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0...
-                                    - R(end) * Te / ne - 1.5*kb*(Te-T)*fr*ne;
+                                    - R(end) * Te / ne / kinetics.T0 ...
+                                    ...- 1.5*kb*(Te-T)*fr*ne...
+                                                                    ;
+ % dTe = 0;
 end
 % R_total = [R; 0] + Re;
 % out = [R_total; dT];

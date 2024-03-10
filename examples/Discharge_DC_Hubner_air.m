@@ -9,6 +9,7 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
+% fix energy fluxes for Te
 % electonic field equations
 % rewrite and recheck to the todo all the processes we need to add
 % fix strange behaviour of 1st bachward Zeldovich reaction for Kossyi
@@ -214,9 +215,9 @@ for i_ini = 2           % choosing desired initial coonditions
    ET_diff_c{1} = [Reactions("zero"), N2A_diff("Levron1978"), ...
        ...                                          N2(B)
                                                     Reactions("zero")];
-   Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009") ...
-                , React_e_O2pX__O_O("Kossyi1992") ...
-                , React_e_N2X__e_N4S_N4S("LoKI-B steady")
+   Free_e = [...React_e_N2pX__N4S_N4S("Pintassilgo2009") ...
+                ..., React_e_O2pX__O_O("Kossyi1992") ...
+                ..., React_e_N2X__e_N4S_N4S("LoKI-B steady")
                 ];
    Reacs_keys = {'VT',     'VV' ...
        , 'Exch' ...
@@ -320,6 +321,9 @@ end
     T  = Y(:, end - 1) * T0;
     Te = Y(:, end) * T0;
     plot(t, Te);
+    ylabel('Te, K')
+    xlabel('t, s')
+    legend('Te')
     out.Te = Te;
    else
     Y(:, 1:end-1) = Y(:, 1:end-1)*n0;

@@ -414,7 +414,7 @@ e.s_e               = 1;
     Coll_C2.ArrA(7)   =3.72e14/N_a*1e-6;    Coll_C2.ArrN(7)   =0;
     Coll_CO_C__C2_O.ArrA(7)=6e-10/1e6;       Coll_CO_C__C2_O.ArrN(7)=0; 
 
-save particles.mat C O N CO C2 Ar O2 N2 NO N2p O2p
+save particles.mat C O N CO C2 Ar O2 N2 NO N2p O2p e
 
 rmpath('../src/')
 
