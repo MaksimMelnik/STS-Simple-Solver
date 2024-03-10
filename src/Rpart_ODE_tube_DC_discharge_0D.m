@@ -12,13 +12,17 @@ N_a = 6.02214076e23;    % Avogadro constant
 % ne = y(end - 1);
 ne = y(end - 2);         % dimentionless
 %T_DN = y(end);          % dimentionless gas temperature T
-T_DN = y(end - 1);
-T = T_DN * kinetics.T0;                           % gas temperature T
+% T_DN = y(end - 1);
+% T = T_DN * kinetics.T0;                           % gas temperature T
+T = y(end) * kinetics.T0;         % gas temperature T, if free_e see below
 Te = y(end)* kinetics.T0;
-% Te = Te * kinetics.T0;
 
     % relaxation terms and energy flux
+y_rci = y;
+if isKey(kinetics.reactions, 'free_e') %processes involving free electrons
+ T = y(end-1) * kinetics.T0;                    % gas temperature T if e
  y_rci = y(1:end-1);
+end
 [Rh, Q] = Rci(y_rci, kinetics);                 % heavy particles
 R = Rh * kinetics.n0 * kinetics.t0;             % dimentionless 
 Q = Q * kinetics.n0^2;                          % dimension value, kg/m/s3
@@ -54,7 +58,8 @@ if isKey(kinetics.reactions, 'free_e')
  end
  dTe = (2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0...
              - R(end) * Te / ne / kinetics.T0 ...
-             - 3*(Te-T)*fr*ne*me*kinetics.t0/kinetics.T0;  % dimentionless
+             ...- 3*(Te-T)*fr*ne*me*kinetics.t0/kinetics.T0...  % dimentionless
+             ;
  % dTe = 0;
 end
 % R_total = [R; 0] + Re;

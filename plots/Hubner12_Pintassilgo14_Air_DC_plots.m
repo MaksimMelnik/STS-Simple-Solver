@@ -388,8 +388,10 @@ if length(kinetics.Ps) > 5
   hold on
   loglog(t_ag*1e3, Y(:, kinetics.index{IndexOfMolecules("O2+")})./n_g, ...
       ':', 'color', [0 0.7 0], 'linewidth', 1.5, 'DisplayName', 'O2+/n_g')
-  loglog(t_ag*1e3, Y(:, end-2)./n_g, ...
+  if isKey(kinetics.reactions, 'free_e')
+   loglog(t_ag*1e3, Y(:, end-2)./n_g, ...
          ':', 'color', [0 0 0], 'linewidth', 1.5, 'DisplayName', 'e-/n_g')
+  end
  end
  legend('location', 'best')
  xlabel('Afterglow time (ms)')
