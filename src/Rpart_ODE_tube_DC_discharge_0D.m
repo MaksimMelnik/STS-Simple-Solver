@@ -26,7 +26,7 @@ Qe = 0;
 if isKey(kinetics.reactions, 'free_e') %processes involving free electrons
  [Re, Qe] = Rci_e(y_rci, kinetics);
  Re = Re * kinetics.n0 * kinetics.t0;
- Qe = Qe * kinetics.n0^2;
+ Qe = Qe * kinetics.n0^2;              
  R = [R; 0] + Re;
 end
 Q_total = Q + Qe;
@@ -48,13 +48,14 @@ if isKey(kinetics.reactions, 'free_e')
     mi = kinetics.Ps{i}.mass;
     mred = mi*me/(mi+me);
     ni = sum(y(kinetics.index{i}));
-    z = sqrt(8*pi*kb*T/mred);
-    fr = fr + z*ni;
+    r = kinetics.Ps{i}.diameter / 2;
+    z = sqrt(8*pi*kb*T/mred)*r^2;    % m3/s
+    fr = fr + z*ni;                  % 1/s
  end
  dTe = (2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0...
                                     - R(end) * Te / ne / kinetics.T0 ...
                                     ...- 1.5*kb*(Te-T)*fr*ne...
-                                                                    ;
+                                                                    ;  % K
  % dTe = 0;
 end
 % R_total = [R; 0] + Re;
