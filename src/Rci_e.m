@@ -1,4 +1,4 @@
-function [R, Qin] = Rci_e(y, kinetics)
+function [R, Qin, Qe] = Rci_e(y, kinetics)
 % Universal function for relaxation terms R_{c\alpha i} for processes 
 % involving free electrons e-.
 % R is the relaxation term Rci_e, Qin is the energy flux.
@@ -6,10 +6,11 @@ function [R, Qin] = Rci_e(y, kinetics)
 % kinetics is the big structure with all kinetics.
 % 11.08.2023 by Maksim Melnik.
 
-T = y(end) * kinetics.T0;
+% T = y(end) * kinetics.T0;
+Te = y(end) * kinetics.T0;
 R  = zeros(kinetics.num_eq + 1, 1);
 Qin = 0;
-Te = kinetics.Te;  % K (temporal using way)
+Qe  = 0;
 
 IndexOfMolecules = kinetics.IndexOfMolecules;
 e.form_e = 0;
@@ -45,7 +46,7 @@ for ind_free_e = 1:length(free_e_reactions)
    indM5  = kinetics.index{IOM_M5};
    [R_exch_temp, Q_exch] = R_exch_23(...
         {Ps{IOM_M1}, Ps{IOM_M2}, Ps{IOM_M3}, Ps{IOM_M4}, Ps{IOM_M5}}, ...
-        y(indM1), y(indM2), y(indM3), y(indM4), y(indM5), T, reaction);
+        y(indM1), y(indM2), y(indM3), y(indM4), y(indM5), Te, reaction);
    R(indM1) = R(indM1) + sum(R_exch_temp, [2, 3]);
    R(indM2) = R(indM2) + sum(R_exch_temp, [1, 3])';
    R(indM3) = R(indM3) - reshape(sum(R_exch_temp, [1, 2]), [], 1);

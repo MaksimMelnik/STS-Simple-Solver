@@ -26,14 +26,14 @@ end
 [Rh, Q] = Rci(y_rci, kinetics);                 % heavy particles
 R = Rh * kinetics.n0 * kinetics.t0;             % dimentionless 
 Q = Q * kinetics.n0^2;                          % dimension value, kg/m/s3
-Qe = 0;
+Qin_e = 0;
 if isKey(kinetics.reactions, 'free_e') %processes involving free electrons
- [Re, Qe] = Rci_e(y_rci, kinetics);
+ [Re, Qin_e, Qe] = Rci_e(y_rci, kinetics);
  Re = Re * kinetics.n0 * kinetics.t0;
- Qe = Qe * kinetics.n0^2;              
+ Qin_e = Qin_e * kinetics.n0^2;              
  R = [R; 0] + Re;
 end
-Q_total = Q + Qe;
+Q_total = Q + Qin_e;
     % T equation
 lambdaN2 = (1.717 + 0.084*T - 1.948e-5*T^2)/1e3;  % W / m / K
 lambdaO2 = (1.056 + 0.087*T - 8.912e-6*T^2)/1e3;  % W / m / K
