@@ -53,12 +53,12 @@ if isKey(kinetics.reactions, 'free_e')
     mred = mi*me/(mi+me);
     ni = sum(y(kinetics.index{i}));
     r = kinetics.Ps{i}.diameter / 2;
-    z = sqrt(8*pi*kb*T/mred)*r^2;    % m3/s
+    z = sqrt(8*pi*kb*Te/mred)*r^2;       % m3/s
     fr = fr + z*ni/mi*kinetics.n0;      % 1/kg/s
  end
  dTe = (2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0...
              - R(end) * Te / ne / kinetics.T0 ...
-             ...- 3*(Te-T)*fr*ne*me*kinetics.t0/kinetics.T0...  % dimentionless
+             - 3*(Te-T)*fr*ne*me*kinetics.t0/kinetics.T0...  % dimentionless
              ;
  % dTe = 0;
 end
