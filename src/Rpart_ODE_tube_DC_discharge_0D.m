@@ -63,9 +63,6 @@ if isKey(kinetics.reactions, 'free_e')
              - R(end) * Te / ne / kinetics.T0 ...
              - 3*(Te-T)*fr*ne*me*kinetics.t0/kinetics.T0...  % dimentionless
              ;
- disp((2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0);
- disp(R(end) * Te / ne / kinetics.T0);
- disp(3*(Te-T)*fr*ne*me*kinetics.t0/kinetics.T0);
  % dTe = 0;
 end
 % R_total = [R; 0] + Re;
