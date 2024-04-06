@@ -48,6 +48,7 @@ template.A   = 0;
 template.n   = 0;
 template.E   = 0;
 template.d_T = 1;
+template.E_th = 0;
 
      % zero reaction
 zero_r.name = 'zero';
@@ -299,6 +300,7 @@ react1.source             = 'LoKI-B steady';
 react1.type               = "const";
 react1.index              = {{1, 1}, {1, "all"}, {1, 1}, {1, 1}, {1, 1}};
 react1.A                  = 7.52016817823127e-18;    % m3 / s
+react1.E_th               = 6.242e18*13; % energy threshold, J
 keySet                    = {react1.source};
 valueSet                  = {react1};
 e_N2X__e_N4S_N4S.data     = containers.Map(keySet, valueSet);

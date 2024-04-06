@@ -14,7 +14,7 @@ h = 6.626070041e-34;      % Plank constant, J*sec
 
 num_particles = length(Ms);
 index = cell(1, num_particles);      % indexes from the reaction structure
-    % indexes from the 0th lvl of the ground el. state
+% indexes from the 0th lvl of the ground el. state
 i_sum = cell(1, num_particles);     
 E_t   = cell(1, num_particles);       % total energy
 for ind = 1:num_particles

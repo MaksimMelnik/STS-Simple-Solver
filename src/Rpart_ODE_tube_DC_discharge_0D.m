@@ -29,8 +29,8 @@ Q = Q * kinetics.n0^2;                          % dimension value, kg/m/s3
 Qin_e = 0;
 if isKey(kinetics.reactions, 'free_e') %processes involving free electrons
  [Re, Qin_e, Qe] = Rci_e(y_rci, kinetics);
- Re = Re * kinetics.n0 * kinetics.t0;
- Qin_e = Qin_e * kinetics.n0^2;              
+ Re = Re * kinetics.n0 * kinetics.t0; 
+ Qin_e = Qin_e * kinetics.n0^2; 
  R = [R; 0] + Re;
 end
 Q_total = Q + Qin_e;
@@ -63,6 +63,9 @@ if isKey(kinetics.reactions, 'free_e')
              - R(end) * Te / ne / kinetics.T0 ...
              - 3*(Te-T)*fr*ne*me*kinetics.t0/kinetics.T0...  % dimentionless
              ;
+ disp((2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0);
+ disp(R(end) * Te / ne / kinetics.T0);
+ disp(3*(Te-T)*fr*ne*me*kinetics.t0/kinetics.T0);
  % dTe = 0;
 end
 % R_total = [R; 0] + Re;

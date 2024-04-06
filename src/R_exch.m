@@ -31,7 +31,6 @@ for ind = 1:num_particles
                             + Ms{ind}.ev_i{index{ind}{1}}(index{ind}{2});
  end
 end
-
 kf = zeros(length(index{1}{2}), length(index{2}{2}), ...
                                 length(index{3}{2}), length(index{4}{2}));
 	% rate coefficient of backward (b) reaction

@@ -41,6 +41,7 @@ for ind_free_e = 1:length(free_e_reactions)
    R(indM2) = R(indM2) + sum(R_exch_temp, [1 3 4])';
    R(indM3) = R(indM3) - reshape(sum(R_exch_temp, [1 2 4]), [], 1);
    R(indM4) = R(indM4) - reshape(sum(R_exch_temp, [1 2 3]), [], 1);
+
   case 5
    IOM_M5 = IndexOfMolecules(reaction.particles(5));
    indM5  = kinetics.index{IOM_M5};
@@ -56,9 +57,15 @@ for ind_free_e = 1:length(free_e_reactions)
        error(["Reactions with current number of particles are not " ...
                                                     "implemented yet"])
  end
+ if reaction.E_th
+     for i = 1:length(y(indM1))
+         for j = 1:length(y(indM2))
+            Qe = Qe - reaction.E_th * sum(R_exch_temp(i, j, :, :));
+         end
+     end
+ end
  Qin = Qin + Q_exch;
 end
-
     % temporary commented
 % Ps_i_O2p = IndexOfMolecules("O2+");
 % O2p = Ps{Ps_i_O2p};
