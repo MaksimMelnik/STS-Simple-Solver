@@ -57,14 +57,8 @@ for ind_free_e = 1:length(free_e_reactions)
        error(["Reactions with current number of particles are not " ...
                                                     "implemented yet"])
  end
- if reaction.E_th
-     for i = 1:length(y(indM1))
-         for j = 1:length(y(indM2))
-            Qe = Qe + reaction.E_th * sum(R_exch_temp(i, j, :, :));
-         end
-     end
- end
  Qin = Qin + Q_exch;
+ Qe  = Qe  + reaction.E_th * sum(R_exch_temp, 'all');
 end
     % temporary commented
 % Ps_i_O2p = IndexOfMolecules("O2+");
