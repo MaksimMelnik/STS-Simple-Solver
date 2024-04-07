@@ -34,7 +34,8 @@ function reactions_data_ini
 %  - .E
 
 load('particles.mat') %#ok<LOAD>
-k = 1.380649e-23;         % Boltzmann constant, J/K
+k = 1.380649e-23;           % Boltzmann constant, J/K
+eV_to_J = 1.6022e-19;       % eV to J
 
     % template
 template.name = NaN;
@@ -299,8 +300,8 @@ react1.particles          = e_N2X__e_N4S_N4S.particles;
 react1.source             = 'LoKI-B steady';
 react1.type               = "const";
 react1.index              = {{1, 1}, {1, "all"}, {1, 1}, {1, 1}, {1, 1}};
-react1.A                  = 7.52016817823127e-18;    % m3 / s
-react1.E_th               = 6.242e18*13; % energy threshold, J
+react1.A                  = 7.52016817823127e-18;   % m3 / s
+react1.E_th               = 13 * eV_to_J;           % energy threshold, J
 keySet                    = {react1.source};
 valueSet                  = {react1};
 e_N2X__e_N4S_N4S.data     = containers.Map(keySet, valueSet);

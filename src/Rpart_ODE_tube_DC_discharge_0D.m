@@ -58,14 +58,13 @@ dT = (8*lambda*(kinetics.Tw - T)/kinetics.tube_R^2 + Q_total ...
                 + 3*(Te-T)*fr*ne*me*kb*kinetics.n0) ...
                 /(n_m*c_p_total) /kinetics.T0*kinetics.t0; % dimentionless
 dTe = [];
+    % Te equation
 if isKey(kinetics.reactions, 'free_e')
  dTe = (2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0...
-             - R(end) * Te / ne / kinetics.T0 ...
-             - 3*(Te-T)*fr*ne*me*kinetics.t0/kinetics.T0...  % dimentionless
-             ;
+            - R(end) * Te / ne / kinetics.T0 ...
+            - 3*(Te-T)*fr*ne*me*kinetics.t0/kinetics.T0... % dimentionless
+            ;
  % dTe = 0;
 end
-% R_total = [R; 0] + Re;
-% out = [R_total; dT];
 out = [R; dT; dTe];
 end
