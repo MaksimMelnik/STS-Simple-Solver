@@ -57,7 +57,7 @@ for ind_free_e = 1:length(free_e_reactions)
        error(["Reactions with current number of particles are not " ...
                                                     "implemented yet"])
  end
- Qin = Qin + Q_exch;
+ Qin = Qin + Q_exch - reaction.E_th * sum(R_exch_temp, 'all');
  Qe  = Qe  + reaction.E_th * sum(R_exch_temp, 'all');
 end
     % temporary commented

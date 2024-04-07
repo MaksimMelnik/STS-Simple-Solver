@@ -27,10 +27,12 @@ end
 R = Rh * kinetics.n0 * kinetics.t0;             % dimentionless 
 Q = Q * kinetics.n0^2;                          % dimension value, kg/m/s3
 Qin_e = 0;
+Qe = 0;
 if isKey(kinetics.reactions, 'free_e') %processes involving free electrons
- [Re, Qin_e, Qe] = Rci_e(y_rci, kinetics);
- Re = Re * kinetics.n0 * kinetics.t0; 
- Qin_e = Qin_e * kinetics.n0^2; 
+ [Re, Qin_e, Qe] = Rci_e(y, kinetics);
+ Re = Re * kinetics.n0 * kinetics.t0;
+ Qin_e = Qin_e * kinetics.n0^2;
+ Qe = Qe * kinetics.n0^2;
  R = [R; 0] + Re;
 end
 Q_total = Q + Qin_e;
