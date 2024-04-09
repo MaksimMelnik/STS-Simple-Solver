@@ -41,11 +41,11 @@ for ind_free_e = 1:length(free_e_reactions)
    R(indM2) = R(indM2) + sum(R_exch_temp, [1 3 4])';
    R(indM3) = R(indM3) - reshape(sum(R_exch_temp, [1 2 4]), [], 1);
    R(indM4) = R(indM4) - reshape(sum(R_exch_temp, [1 2 3]), [], 1);
-
+   Qe_temp = 0;
   case 5
    IOM_M5 = IndexOfMolecules(reaction.particles(5));
    indM5  = kinetics.index{IOM_M5};
-   [R_exch_temp, Q_exch] = R_exch_23(...
+   [R_exch_temp, Q_exch, Qe_temp] = R_exch_23_e(...
         {Ps{IOM_M1}, Ps{IOM_M2}, Ps{IOM_M3}, Ps{IOM_M4}, Ps{IOM_M5}}, ...
         y(indM1), y(indM2), y(indM3), y(indM4), y(indM5), Te, reaction);
    R(indM1) = R(indM1) + sum(R_exch_temp, [2, 3]);
@@ -58,7 +58,8 @@ for ind_free_e = 1:length(free_e_reactions)
                                                     "implemented yet"])
  end
  Qin = Qin + Q_exch - reaction.E_th * sum(R_exch_temp, 'all');
- Qe  = Qe  + reaction.E_th * sum(R_exch_temp, 'all');
+ % Qe  = Qe  + reaction.E_th * sum(R_exch_temp, 'all');
+ Qe  = Qe  + Qe_temp;
 end
     % temporary commented
 % Ps_i_O2p = IndexOfMolecules("O2+");
