@@ -54,23 +54,65 @@ init_c=[ % f;  p0, Torr;   v0, m/s;   T0, K;   v0_1
     0.004 5.35 1241 296 662
     0.004 2.34 1597 296 830
     ];
+
+% init coefs for FHO-FR
+path_to_coefs = ["../FHO-FR_coefs/coefs_for_poly_FHO_FR_O2-O2.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_O2-O.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_O2-Ar.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_O2-N.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_O2-N2.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_O2-NO.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_N2-O2.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_N2-O.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_N2-Ar.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_N2-N.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_N2-N2.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_N2-NO.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_NO-O2.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_NO-O.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_NO-Ar.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_NO-N.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_NO-N2.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_NO-NO.dat"];
+
+coefs_for_polys = [{readmatrix(path_to_coefs(1))}
+                   {readmatrix(path_to_coefs(2))}
+                   {readmatrix(path_to_coefs(3))}
+                   {readmatrix(path_to_coefs(4))}
+                   {readmatrix(path_to_coefs(5))}
+                   {readmatrix(path_to_coefs(6))}
+                   {readmatrix(path_to_coefs(7))}
+                   {readmatrix(path_to_coefs(8))}
+                   {readmatrix(path_to_coefs(9))}
+                   {readmatrix(path_to_coefs(10))}
+                   {readmatrix(path_to_coefs(11))}
+                   {readmatrix(path_to_coefs(12))}
+                   {readmatrix(path_to_coefs(13))}
+                   {readmatrix(path_to_coefs(14))}
+                   {readmatrix(path_to_coefs(15))}
+                   {readmatrix(path_to_coefs(16))}
+                   {readmatrix(path_to_coefs(17))}
+                   {readmatrix(path_to_coefs(18))}
+                  ];
+
 for i_exch=2 % [1 2 3]
 % 1 - full NO vibr. spectrum and exchange reactions off;
 % 2 - full NO vibr. spectrum and exchange reactions on with Kunova model
 % 3 - exchange reaction with average Kunova model and disabled NO vibr.
 % spectrum
-load("..\data\particles.mat", "NO");
+load("../data/particles.mat", "NO");
 NO.num_elex_levels=1; 
 
 for i_ini=7 % [1 2 3 4 5 6 7 8 9 10 11]
 %choosing testcase
 
-for i_U= [2 3 4]
+for i_U=2:4 % [2 3 4]
 %choosing desired U dissociation parameter model
 %2 is for D/6k; 3 is for 3T; 4 is for inf
 
-for i_vibr=2 %[1 2]
-% choosing desired vibrational energy exchange model 1 for SSH; 2 for FHO
+for i_vibr=1:3 %[1 2 3]
+% choosing desired vibrational energy exchange model 1 for SSH; 2 for FHO;
+% 3 for FHO-FR
 
 for i_rel=2 %[1 2]
 % 1 -relaxation off; 2 - relaxation on
@@ -118,6 +160,8 @@ for i_rel=2 %[1 2]
          model_VT='SSH';
     case 2
          model_VT='FHO';
+    case 3
+         model_VT='FHO-FR';
     end
     Reacs_keys={'VT', 'VV'};
     reacs_val={model_VT, model_VT};
@@ -157,8 +201,8 @@ for i_rel=2 %[1 2]
     % options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
     %                                 'NonNegative', 1:kinetics.num_eq+2); 
     if i_rel==2 %if relaxation between SWs on
-    [X, Y]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics), xspan, ...
-        y0, options_s);
+    [X, Y]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics, coefs_for_polys), ...
+                                       xspan, y0, options_s);
     X=X*Delta;
     Y(:, 1:end-2)=Y(:, 1:end-2)*n0;
     Y(:, end-1)= Y(:, end-1)*v0 ;
@@ -254,7 +298,7 @@ for i_rel=2 %[1 2]
         % enough for debugging
     % options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
     %                                 'NonNegative', 1:kinetics.num_eq+2); 
-    [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
+    [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics, coefs_for_polys),...
         xspan, y0_1, options_s);
     
     X_1=X_1*Delta;
@@ -342,8 +386,8 @@ end
 
 %%
 %if you want to save your data in .mat file, uncomment following raws
-% save('..\data\NO Streicher experiment\NO_betweenSWs_output.mat', 'dat');
-% save('..\data\NO Streicher experiment\NO_behindRSW_output.mat', 'dat1');
+save('../data/NO Streicher experiment/NO_betweenSWs_output.mat', 'dat');
+save('../data/NO Streicher experiment/NO_behindRSW_output.mat', 'dat1');
 rmpath('../src/')
 rmpath('../data/')
 toc

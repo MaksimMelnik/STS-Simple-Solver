@@ -39,11 +39,52 @@ init_c=[ %  f;  p0,     Torr;   v0, m/s;    T0, K;   v0_1
         1 0.07 2510 296 870     % pure O2
         1 0.05 2760 296 950     % pure O2
         ];
+
+% init coefs for FHO-FR
+path_to_coefs = ["../FHO-FR_coefs/coefs_for_poly_FHO_FR_O2-O2.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_O2-O.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_O2-Ar.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_O2-N.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_O2-N2.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_O2-NO.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_N2-O2.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_N2-O.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_N2-Ar.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_N2-N.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_N2-N2.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_N2-NO.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_NO-O2.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_NO-O.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_NO-Ar.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_NO-N.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_NO-N2.dat"
+                 "../FHO-FR_coefs/coefs_for_poly_FHO_FR_NO-NO.dat"];
+
+coefs_for_polys = [{readmatrix(path_to_coefs(1))}
+                   {readmatrix(path_to_coefs(2))}
+                   {readmatrix(path_to_coefs(3))}
+                   {readmatrix(path_to_coefs(4))}
+                   {readmatrix(path_to_coefs(5))}
+                   {readmatrix(path_to_coefs(6))}
+                   {readmatrix(path_to_coefs(7))}
+                   {readmatrix(path_to_coefs(8))}
+                   {readmatrix(path_to_coefs(9))}
+                   {readmatrix(path_to_coefs(10))}
+                   {readmatrix(path_to_coefs(11))}
+                   {readmatrix(path_to_coefs(12))}
+                   {readmatrix(path_to_coefs(13))}
+                   {readmatrix(path_to_coefs(14))}
+                   {readmatrix(path_to_coefs(15))}
+                   {readmatrix(path_to_coefs(16))}
+                   {readmatrix(path_to_coefs(17))}
+                   {readmatrix(path_to_coefs(18))}
+                  ];
+
 for i_ini=9 % [1 2 3 4 5 6 7 8 9] % choosing desired initial coonditions
 for i_U=4 % [2 3 4]    % choosing desired U dissociation parameter model
 % 2 is for D/6k; 3 is for 3T; 4 is for inf
 for i_vibr=2 % [1 2]  % choosing vibrational energy exchange model
-% 1 is for SSH; 2 is for FHO
+% 1 is for SSH; 2 is for FHO; 3 is for FHO-FR;
 for rel= 2 %1:2     % if relaxation between incident and reflected waves 
 % frozen? 1 -relaxation off; 2 - relaxation on
     f=init_c(i_ini, 1); %molar fraction of O2
@@ -89,6 +130,8 @@ for rel= 2 %1:2     % if relaxation between incident and reflected waves
             model_VT='SSH';
         case 2
             model_VT='FHO';
+        case 3
+         model_VT='FHO-FR';
     end
     Reacs_keys={'Diss', 'VT', 'VV'};
     reacs_val={Diss, model_VT, model_VT};
@@ -120,7 +163,7 @@ for rel= 2 %1:2     % if relaxation between incident and reflected waves
     options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-19, ...
                                     'NonNegative', 1:kinetics.num_eq+2); 
     if rel==2  %if relaxation between SWs ON
-    [X, Y]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics), ...
+    [X, Y]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics, coefs_for_polys), ...
                             xspan, y0, options_s); 
     %incident SW
     X=X*Delta;
@@ -220,7 +263,7 @@ for rel= 2 %1:2     % if relaxation between incident and reflected waves
         % enough for debugging
     % options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
     %                                 'NonNegative', 1:kinetics.num_eq+2); 
-    [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
+    [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics, coefs_for_polys),...
         xspan, y0_1, options_s);
     X_1=X_1*Delta;
     Y_1(:, 1:end-2)=Y_1(:, 1:end-2)*n0;
