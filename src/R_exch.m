@@ -119,9 +119,10 @@ switch reaction.type
 end
     % if the reaction proceeds in the opposite direction
 if ~reaction.direction_forward
- kb = permute(kf, [3 4 1 2]);     % transposition
+%  kb = permute(kf, [3 4 1 2]);     % transposition
+ kb = kf;     % test
  kf = kb * 0;
- dE_fb = - permute(dE_fb, [3 4 1 2]);
+%  dE_fb = - permute(dE_fb, [3 4 1 2]);
 end
 if reaction.reverse     % if backward reaction included
  Z_rot = zeros(1, length(Ms)) + 1;
