@@ -330,11 +330,6 @@ end
     Y(:, 1:end-2) = Y(:, 1:end-2)*n0;
     T  = Y(:, end - 1) * T0;
     Te = Y(:, end) * T0;
-    figure
-    plot(t, Te);
-    ylabel('Te, K')
-    xlabel('t, s')
-    legend('Te')
     out.Te = Te;
    else
     Y(:, 1:end-1) = Y(:, 1:end-1)*n0;

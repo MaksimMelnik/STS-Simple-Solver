@@ -21,6 +21,7 @@ addpath('../src/')
 Y  = data.Y;
 t  = data.t;
 T  = data.T;
+Te = data.Te;
 Tv = data.Tv;
 kinetics = data.kinetics;
 N2 = kinetics.Ps{1};
@@ -48,14 +49,24 @@ xlabel('t, ms')
 end
 %% T vs exp plot
     figure('Position', fsize)
-plot(Hubner_2012_T(:, 1), Hubner_2012_T(:, 2), 'sq', t*1e3, T, ...
-                        t*1e3, Tv, '-.', 'linewidth', 1.5) %#ok<USENS>
-% errorbar T Hubner +- 40 K
+tH = Hubner_2012_T(:, 1);
+TH = Hubner_2012_T(:, 2);
+hold on
+plot(tH, TH, 'sq', 'MarkerEdgeColor', '#5A5A5A', 'linewidth', 1.5);
+plot(t*1e3, T, t*1e3, Tv, '-.', 'linewidth', 1.5); %#ok<USENS>
+err = 30*ones(size(TH(5:5:end)))';
+errorbar(tH(5:5:end), TH(5:5:end),...
+                     err, 's', 'color', '#5A5A5A', 'linewidth', 1);
+hold off 
 legend('T_{exp}, Hubner 2012', 'T', 'Tv', 'location', 'best')
 xlabel('t, ms')
 xlim([-2 14])
 ylim([250 620])
-
+%% Te plot
+    figure
+plot(t*1e3, Te, 'linewidth', 1.5);
+xlabel('t, ms')
+legend('Te')
 %% N, O and NO ag plot
     figure('Position', fsize)
 loglog(Pintassilgo2014_ag_N(:, 1), Pintassilgo2014_ag_N(:, 2), ...
