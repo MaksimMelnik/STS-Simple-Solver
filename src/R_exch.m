@@ -99,6 +99,8 @@ switch reaction.type
    reaction2.index{4} = reaction.index{2};
   end
   [kf, dE_fb] = k_exch_Starik(T, kd_eq, reaction2, Ps_r, Ps_p);
+  U = 3 * T;
+  % [kf, dE_fb] = k_exch_Savelev(T, kd_eq, reaction2, Ps_r, Ps_p, U);
  case "Starik_test_on_T"
   kd_eq = reaction.A(T) * T ^ reaction.n(T) * exp(- reaction.E(T) / k /T);
   Ps_r = {Ms{1}, Ms{2}};
@@ -119,8 +121,8 @@ switch reaction.type
 end
     % if the reaction proceeds in the opposite direction
 if ~reaction.direction_forward
-%  kb = permute(kf, [3 4 1 2]);     % transposition
- kb = kf;     % test
+ kb = permute(kf, [3 4 1 2]);     % transposition
+ % kb = kf;     % test
  kf = kb * 0;
 %  dE_fb = - permute(dE_fb, [3 4 1 2]);
 end

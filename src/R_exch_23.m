@@ -61,6 +61,8 @@ switch reaction.type
    reaction2.index{4} = reaction.index{2};
   end
   [kf, dE_fb] = k_exch_Starik(T, kd_eq, reaction2, Ps_r, Ps_p);
+  U = 3 * T;
+  % [kf, dE_fb] = k_exch_Savelev(T, kd_eq, reaction2, Ps_r, Ps_p, U);
  otherwise
         error("Exchange reactions of this type are still not " + ...
             "implemented: " + reaction.type)    
