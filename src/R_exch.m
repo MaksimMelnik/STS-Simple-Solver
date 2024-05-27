@@ -31,12 +31,16 @@ for ind = 1:num_particles
                             + Ms{ind}.ev_i{index{ind}{1}}(index{ind}{2});
  end
 end
+    % initialization of kf with a proper size
 kf = zeros(length(index{1}{2}), length(index{2}{2}), ...
                                 length(index{3}{2}), length(index{4}{2}));
+if ~reaction.direction_forward  % transposition for an inverted direction
+ kf = permute(kf, [3 4 1 2]);     
+end
 	% rate coefficient of backward (b) reaction
 kb = kf;
 
-switch reaction.type
+switch reaction.type    % choosing reaction type
  case "const"
   kf = kf + reaction.A;
   dE_fb = Ms{3}.form_e + Ms{4}.form_e - Ms{1}.form_e - Ms{2}.form_e;
@@ -99,8 +103,11 @@ switch reaction.type
    reaction2.index{4} = reaction.index{2};
   end
   [kf, dE_fb] = k_exch_Starik(T, kd_eq, reaction2, Ps_r, Ps_p);
-  U = 3 * T;
+  % U = 3 * T;
   % [kf, dE_fb] = k_exch_Savelev(T, kd_eq, reaction2, Ps_r, Ps_p, U);
+  if ~reaction.direction_forward
+   dE_fb = - permute(dE_fb, [3 4 1 2]);
+  end
  case "Starik_test_on_T"
   kd_eq = reaction.A(T) * T ^ reaction.n(T) * exp(- reaction.E(T) / k /T);
   Ps_r = {Ms{1}, Ms{2}};
@@ -115,6 +122,9 @@ switch reaction.type
    reaction2.index{4} = reaction.index{2};
   end
   [kf, dE_fb] = k_exch_Starik(T, kd_eq, reaction2, Ps_r, Ps_p);
+  if ~reaction.direction_forward
+   dE_fb = - permute(dE_fb, [3 4 1 2]);
+  end
  otherwise
         error("Exchange reactions of this type are still not " + ...
             "implemented " + reaction.type)    
@@ -122,9 +132,7 @@ end
     % if the reaction proceeds in the opposite direction
 if ~reaction.direction_forward
  kb = permute(kf, [3 4 1 2]);     % transposition
- % kb = kf;     % test
  kf = kb * 0;
-%  dE_fb = - permute(dE_fb, [3 4 1 2]);
 end
 if reaction.reverse     % if backward reaction included
  Z_rot = zeros(1, length(Ms)) + 1;
