@@ -64,7 +64,7 @@ dTe = [];
 if isKey(kinetics.reactions, 'free_e')
  dTe = (2 / 3 / kb) * Qe / ne / kinetics.T0 / kinetics.n0 * kinetics.t0...
             - R(end) * Te / ne / kinetics.T0 ...
-            - 3*(Te-T)*fr*ne*me*kinetics.t0/kinetics.T0... % dimentionless
+            - 2*(Te-T)*fr*ne*me*kinetics.t0/kinetics.T0... % dimentionless
             ;
  % dTe = 0;
 end
