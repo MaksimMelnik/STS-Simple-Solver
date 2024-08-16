@@ -10,6 +10,7 @@ function out = Discharge_DC_Hubner_air
 
 %  todo:
 % fix energy fluxes for Te
+% recheck if rotational energy accounted when a molecule dissociates
 % electonic field equations
 % rewrite and recheck to the todo all the processes we need to add
 % fix strange behaviour of 1st bachward Zeldovich reaction for Kossyi
@@ -318,10 +319,10 @@ end
 %                         'NonNegative', 1:kinetics.num_eq + num_eq_plus); 
    %options_s = odeset('RelTol', 1e-12, 'AbsTol', 1e-12, ...
    %                      'NonNegative', 1:kinetics.num_eq + num_eq_plus); 
-   %options_s = odeset('RelTol', 1e-6, 'AbsTol', 1e-8, ...
-   %                     'NonNegative', 1:kinetics.num_eq + num_eq_plus); 
+   options_s = odeset('RelTol', 1e-6, 'AbsTol', 1e-8, ...
+                                        'NonNegative', 1:length(y0)); 
    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-5, ..._
-                        'NonNegative', 1:kinetics.num_eq + num_eq_plus);    
+                                        'NonNegative', 1:length(y0));    
    [X, Y] = ode15s(@(t, y) ...
     Rpart_ODE_tube_DC_discharge_0D(t, y, kinetics), xspan, y0, options_s);
 

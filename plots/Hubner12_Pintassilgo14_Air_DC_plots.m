@@ -18,12 +18,14 @@ load('../data/for comparison/Hubner2012_and_Pintassilgo2014.mat' ...
 addpath('../src/')
 
     % taking required data
+kinetics = data.kinetics;
 Y  = data.Y;
 t  = data.t;
 T  = data.T;
-Te = data.Te;
+if isKey(kinetics.reactions, 'free_e')
+    Te = data.Te;
+end
 Tv = data.Tv;
-kinetics = data.kinetics;
 N2 = kinetics.Ps{1};
 O2 = kinetics.Ps{2};
 NO = kinetics.Ps{3};
@@ -165,10 +167,12 @@ xlabel('t, ms')
 xlim([-2 14])
 ylim([250 620])
 %% Te plot
-    figure
-plot(t*1e3, Te, 'linewidth', 1.5);
-xlabel('t, ms')
-legend('Te')
+if isKey(kinetics.reactions, 'free_e')
+        figure
+    plot(t*1e3, Te, 'linewidth', 1.5);
+    xlabel('t, ms')
+    legend('Te')
+end
 %% N, O and NO ag plot
     figure('Position', fsize)
 loglog(Pintassilgo2014_ag_N(:, 1), Pintassilgo2014_ag_N(:, 2), ...
