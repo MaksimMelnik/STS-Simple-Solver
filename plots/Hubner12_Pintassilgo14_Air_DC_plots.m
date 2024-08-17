@@ -43,16 +43,16 @@ fsize = [200 50 900 550];
 
 %%  Omega
 %VT
-figure
-hold on
-for i_M1 = 1:5
+for i_M1 = 1:3
+    figure
+    hold on
     M1 = kinetics.Ps{i_M1};
     iM1 = kinetics.index{i_M1};
-    R_VT_M1 = zeros(length(t), 1);
-    for i_out = 1:length(t)
-        for i_M2 = 1:5
-            M2 = kinetics.Ps{i_M2};
-            iM2 = kinetics.index{i_M2};
+    for i_M2 = 1:5
+        R_VT_M1 = zeros(length(t), 1);
+        M2 = kinetics.Ps{i_M2};
+        iM2 = kinetics.index{i_M2};
+        for i_out = 1:length(t)
             for ind_e = 1:M1.num_elex_levels
                 if M1.num_vibr_levels(ind_e) > 1
                     if ind_e > 1
@@ -67,24 +67,25 @@ for i_M1 = 1:5
                 end
             end
         end
+        plot(t, R_VT_M1, 'linewidth', 1.5);
     end
-    plot(t, R_VT_M1);
+    s = strcat('\Omega VT, ', M1.name());
+    title(s);
+    legend('+ N2', '+ O2', '+ NO', '+ N', '+ O');
+    hold off
 end
-title('\Omega VT');
-legend({'N2', 'O2', 'NO', 'N', 'O'});
-hold off
 
 %VV
-figure
-hold on
-for i_M1 = 1:5
+for i_M1 = 1:3
+    figure
+    hold on
     M1 = kinetics.Ps{i_M1};
     iM1 = kinetics.index{i_M1};
-    R_VV_M1 = zeros(length(t), 1);
-    for i_out = 1:length(t)
-        for i_M2 = 1
-            M2 = kinetics.Ps{i_M2};
-            iM2 = kinetics.index{i_M2};
+    for i_M2 = 1:3
+        R_VV_M1 = zeros(length(t), 1);
+        M2 = kinetics.Ps{i_M2};
+        iM2 = kinetics.index{i_M2};
+        for i_out = 1:length(t)
             for ind_e = 1:M1.num_elex_levels
                 if M1.num_vibr_levels(ind_e) > 1
                     if ind_e > 1
@@ -109,12 +110,13 @@ for i_M1 = 1:5
                 end
             end
         end
+        plot(t, R_VV_M1, 'linewidth', 1.5); %
     end
-    plot(t, R_VV_M1);
+    s = strcat('\Omega VV, ', M1.name());
+    title(s);
+    legend('+ N2', '+ O2', '+ NO', '+ N', '+ O');
+    hold off
 end
-title('\Omega VV');
-legend({'N2', 'O2', 'NO', 'N', 'O'});
-hold off
 
 %Exch
 figure
