@@ -62,8 +62,8 @@ for i_M1 = 1:3
                     end
                     ie_M1 = iM1(i_e_prev + 1:i_e_prev + M1.num_vibr_levels(ind_e));
                     [R_VT_data, ~] = R_VT(M1, Y(i_out, ie_M1)', M2, ...
-                        Y(i_out, iM2(1)), T(i_out), ind_e, kinetics.reactions('VT'));
-                    R_VT_M1(i_out) = R_VT_M1(i_out) + sum(R_VT_data .* (M1.ev_i{ind_e})');
+                        sum(Y(i_out, iM2)), T(i_out), ind_e, kinetics.reactions('VT'));
+                    R_VT_M1(i_out) = R_VT_M1(i_out) + sum(R_VT_data .* (M1.ev_0(ind_e) + M1.ev_i{ind_e})');
                 end
             end
         end
@@ -104,7 +104,7 @@ for i_M1 = 1:3
                             ie_M2 = iM2(i_e_prev + 1:i_e_prev + M2.num_vibr_levels(ind_eM2));
                             [R_VV_data, ~] = R_VV(M1, Y(i_out, ie_M1)', M2, Y(i_out, ie_M2)', ...
                                     T(i_out), ind_e, ind_eM2, kinetics.reactions('VV'));
-                            R_VV_M1(i_out) = R_VV_M1(i_out) + sum(M1.ev_i{ind_e} * R_VV_data);
+                            R_VV_M1(i_out) = R_VV_M1(i_out) + sum((M1.ev_0(ind_e) + M1.ev_i{ind_e}) * R_VV_data);
                         end
                     end
                 end
@@ -114,15 +114,13 @@ for i_M1 = 1:3
     end
     s = strcat('\Omega VV, ', M1.name());
     title(s);
-    legend('+ N2', '+ O2', '+ NO', '+ N', '+ O');
+    legend('+ N2', '+ O2', '+ NO');
     hold off
 end
 
 %Exch
-figure
-hold on
+R_exch_data_full = zeros(length(kinetics.Ps), length(Exch_reactions), length(t));
 for ind_exch = 1:length(Exch_reactions)
-    R_exch_data = zeros(length(t), 1); 
     reaction = Exch_reactions(ind_exch);
 
     IOM_M1 = IndexOfMolecules(reaction.particles(1));
@@ -140,17 +138,27 @@ for ind_exch = 1:length(Exch_reactions)
     for i_out = 1:length(t)
         [R_exch_temp, ~] = R_exch({M1, M2, M3, M4}, ...
                      Y(i_out, indM1)', Y(i_out, indM2)', Y(i_out, indM3)', Y(i_out, indM4)', T(i_out), reaction);
-        for i = 1:kinetics.Ps{IOM_M1}.num_vibr_levels(1)
-            for j = 1:kinetics.Ps{IOM_M3}.num_vibr_levels(1)
-                R_exch_data(i_out) = R_exch_data(i_out) + R_exch_temp(i, 1, j) * (M1.ev_i{1}(i) + M3.ev_i{1}(j));
-            end
+        if M1.num_vibr_levels(1) > 1
+            R_exch_data_full(IOM_M1, ind_exch, i_out) = sum(R_exch_temp(1:M1.num_vibr_levels(1), :, :, :) .* (M1.ev_0(1) + M1.ev_i{1}'), 'all');
+        end
+        if M2.num_vibr_levels(1) > 1
+            R_exch_data_full(IOM_M2, ind_exch, i_out) = sum(R_exch_temp(1, 1:M2.num_vibr_levels(1), :, :) .* (M2.ev_0(1) + M2.ev_i{1}), 'all');
+        end
+        if M3.num_vibr_levels(1) > 1
+            R_exch_data_full(IOM_M3, ind_exch, i_out) = sum(R_exch_temp(:, :, 1:M3.num_vibr_levels(1), :) .* reshape(M3.ev_0(1) + M3.ev_i{1}', 1, 1, []), 'all');
+        end
+        if M4.num_vibr_levels(1) > 1
+            R_exch_data_full(IOM_M4, ind_exch, i_out) = sum(R_exch_temp(:, :, :, 1:M4.num_vibr_levels(1)) .* reshape(M4.ev_0(1) + M4.ev_i{1}', 1, 1, 1, []), 'all');
         end
     end
-    plot(t, R_exch_data);
 end
-title('\Omega Exch');
-legend('N2 + O -> NO + N', 'O2 + N -> NO + O', 'N2+(X) + O2(X) -> O2+(X) + N2', 'N2 + O <- NO + N', 'O2 + N <- NO + O', 'N2+(X) + O2(X) <- O2+(X) + N2');
-hold off
+
+for ind = 1:3
+figure
+    plot(t, reshape(R_exch_data_full(ind, 1, :), [], 1), t, reshape(R_exch_data_full(ind, 2, :), [], 1), t, reshape(R_exch_data_full(ind, 3, :), [], 1), 'linewidth', 1.5)
+    title(strcat("\Omega exchange reactions, ", kinetics.Ps{ind}.name))
+    legend(Exch_reactions(1).name, Exch_reactions(2).name, Exch_reactions(3).name)
+end
 %% T and Tv plot
 if is_T_Tv_plot 
     figure  
