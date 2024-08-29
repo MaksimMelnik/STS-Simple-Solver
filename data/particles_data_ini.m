@@ -1,4 +1,4 @@
-h = 6.626070041e-34;      % Plank constant, J*sec
+h = 6.62607015e-34;       % Plank constant, J*sec
 N_a=6.02214076e23;        % Avogadro constant
 c = 299792458;            % speed of light
 k = 1.380649e-23;         % Boltzmann constant, J/K

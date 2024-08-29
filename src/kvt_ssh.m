@@ -11,9 +11,9 @@ function k_down = kvt_ssh(t, M1, M2, ind_e, anharm)
 % the anharmonicity indicator.
 
 % constants
-k = 1.3807e-23;                 % Boltzmann constant (J/K)
+k = 1.380649e-23;               % Boltzmann constant, J/K
 c = 299792458;                  % speed of light (m/s)
-h = 6.6261*10^(-34);            % Plank constant (J*s)
+h = 6.62607015e-34;             % Plank constant, J*sec
 h_bar = h/(2*pi);
 om_e=M1.we(ind_e);              % \omega_e of M1
 om_x_e=M1.wexe(ind_e);          % \omega_e x_e of M1
@@ -46,9 +46,6 @@ chi = (pi^2*om0^2/2/k*(mu./a.^2)*t^(-1)).^(1/3);% dim-less
 r = r0 .* (0.5 * sqrt(1+(chi*t)./em) + 0.5).^(-1/6);
 % steric factor
 Z_0 = (a .* M1.r_e).^2 .* exp(-((3*a .* M1.r_e.^2)./(8*r)));
-    
-%     disp((-((3*a .* M1.r_e.^2)./(8*r)))')
-%     disp(M1.r_e)
 
 Const = 1.294./Z_0*4*pi^2*om0/h_bar*sqrt(4*pi/3);
 %
