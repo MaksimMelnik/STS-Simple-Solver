@@ -224,17 +224,17 @@ for ind_free_e = 1:length(Free_e_reactions)
                 R_free_e_data_full(IOM_M1, ind_free_e, i_out) = sum(R_free_e_temp(1:M1.num_vibr_levels(1), :, :, :, :) .* (M1.ev_0(1) + M1.ev_i{1}'), 'all');
             end
             if M2.num_vibr_levels(1) > 1
-                R_free_e_data_full(IOM_M2, ind_free_e, i_out) = sum(R_free_e_temp(1, 1:M2.num_vibr_levels(1), :, :) .* (M2.ev_0(1) + M2.ev_i{1}), 'all');
+                R_free_e_data_full(IOM_M2, ind_free_e, i_out) = sum(R_free_e_temp(1, 1:M2.num_vibr_levels(1), :, :, :) .* (M2.ev_0(1) + M2.ev_i{1}), 'all');
             else
-                R_free_e_data_full(IOM_M2, ind_free_e, i_out) = sum(R_free_e_temp(1, 1:M2.num_vibr_levels(1), :, :) * (M2.form_e), 'all');
+                R_free_e_data_full(IOM_M2, ind_free_e, i_out) = sum(R_free_e_temp(1, 1:M2.num_vibr_levels(1), :, :, :) * (M2.form_e), 'all');
             end
             if M3.num_vibr_levels(1) > 1
                 R_free_e_data_full(IOM_M3, ind_free_e, i_out) = sum(R_free_e_temp(:, :, 1:M3.num_vibr_levels(1), :, :) .* reshape(M3.ev_0(1) + M3.ev_i{1}', 1, 1, []), 'all');
             end
             if M4.num_vibr_levels(1) > 1
-                R_free_e_data_full(IOM_M4, ind_free_e, i_out) = sum(R_free_e_temp(:, :, :, 1:M4.num_vibr_levels(1)) .* reshape(M4.ev_0(1) + M4.ev_i{1}', 1, 1, 1, []), 'all');
+                R_free_e_data_full(IOM_M4, ind_free_e, i_out) = sum(R_free_e_temp(:, :, :, 1:M4.num_vibr_levels(1), :) .* reshape(M4.ev_0(1) + M4.ev_i{1}', 1, 1, 1, []), 'all');
             else
-                R_free_e_data_full(IOM_M4, ind_free_e, i_out) = sum(R_free_e_temp(:, :, :, 1:M4.num_vibr_levels(1)) * M4.form_e, 'all');
+                R_free_e_data_full(IOM_M4, ind_free_e, i_out) = sum(R_free_e_temp(:, :, :, 1:M4.num_vibr_levels(1), :) * M4.form_e, 'all');
             end
             if M5.num_vibr_levels(1) > 1
                 R_free_e_data_full(IOM_M5, ind_free_e, i_out) = sum(R_free_e_temp(:, :, :, :, 1:M5.num_vibr_levels(1)) .* reshape(M5.ev_0(1) + M5.ev_i{1}', 1, 1, 1, 1, []), 'all');
