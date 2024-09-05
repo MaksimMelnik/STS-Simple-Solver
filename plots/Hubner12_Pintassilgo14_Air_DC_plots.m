@@ -5,10 +5,11 @@ function Hubner12_Pintassilgo14_Air_DC_plots(data)
 % [2] C D Pintassilgo et al Plasma Sources Sci. Technol. 23 (2014) 025006.
 % 26.07.2023 Maksim Melnik
 
-is_T_Tv_plot = true;
+is_T_Tv_plot = false;
 is_Q_plot = true;
 is_n_NO_N_O = true;
-is_VDF = true;
+is_VDF = false;
+is_Omega_plot = false;
 
     % constants
 N_a = 6.02214076e23;              % Avogadro constant
@@ -52,6 +53,8 @@ t_ag=t-0.005;
 fsize = [200 50 900 550];
 
 %%  Omega
+if is_Omega_plot
+
 %VT
 for i_M1 = 1:3
     figure
@@ -251,6 +254,8 @@ figure
     plot(t, reshape(R_free_e_data_full(ind, 1, :), [], 1), t, reshape(R_free_e_data_full(ind, 2, :), [], 1), t, reshape(R_free_e_data_full(ind, 3, :), [], 1), 'linewidth', 1.5);
     title(strcat("\Omega free e reactions, ", Ps{ind}.name));
     legend(Free_e_reactions(1).name, Free_e_reactions(2).name, Free_e_reactions(3).name);
+end
+
 end
 %% T and Tv plot
 if is_T_Tv_plot 

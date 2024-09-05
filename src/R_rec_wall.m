@@ -26,5 +26,6 @@ v_th = sqrt( 2*k*T / M.mass);       % thermal average velocity of M
 nu_w = gamma * v_th / 2 / kinetics.tube_R;
 R = - n_a .* nu_w;
 beta = 0.5;
-Q = - sum(R) * dE * (1-beta);
+    % Q of recombination and rotational energy flow
+Q = - sum(R) * dE * (1-beta) + sum(R)/2 * k*T;
 end
