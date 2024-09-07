@@ -11,6 +11,7 @@ function reactions_data_ini
 % .name
 % .particles
 % .type = const, ATn, Arrhenius, Heaviside
+% .neq_model = equal, Starik, Savelev, Heaviside
 % .direction_forward = 1 (forward), 0 (backward)
 % .reverse = on, off
 % .source = name of the model or authors 
@@ -42,6 +43,7 @@ template.name = NaN;
 template.source = NaN;
 template.particles = NaN;
 template.type = NaN;
+template.neq_model = "equal";
 template.direction_forward = true;
 template.reverse = false;
 template.index = NaN;
@@ -70,6 +72,7 @@ react1.name = Zeldovich1.name;
 react1.source = 'Savelev2018';
 react1.particles = Zeldovich1.particles;
 react1.type = "Heaviside";
+react1.neq_model = "Heaviside";
 react1.direction_forward = true;
 react1.reverse = true;
  % all ground states
@@ -81,6 +84,7 @@ react1.E = 37484 * k;   % J
 react2 = react1;
 react2.source = 'Savelev2018, NO avg';
 react2.type = "Heaviside, avg";
+react2.neq_model = "Heaviside, avg";
  % only ground NO state included
 react2.index = {{1, "all"}, {1, 1}, {1, 1}, {1, 1}};
    % from works by V. Guerra [1]
@@ -110,6 +114,7 @@ react5 = react1;
 react5.source = 'Kossyi1992';
 % react5.type = "ATn";
 react5.type = "Starik_test";
+react5.neq_model = "Starik_test";
 react5.direction_forward = false;
 react5.reverse = true;
 % react5.reverse = false;
@@ -132,6 +137,7 @@ react1.name = Zeldovich2.name;
 react1.source = 'Savelev2018';
 react1.particles = Zeldovich2.particles;
 react1.type = "Heaviside";
+react1.neq_model = "Heaviside";
 react1.direction_forward = true;
 react1.reverse = true;
  % all ground states
@@ -143,6 +149,7 @@ react1.E = 1449 * k;   % J
 react2 = react1;
 react2.source = 'Savelev2018, NO avg';
 react2.type = "Heaviside, avg";
+react2.neq_model = "Heaviside, avg";
  % only ground NO state included
 react2.index = {{1, "all"}, {1, 1}, {1, 1}, {1, 1}};
    % from works by C D Pintassilgo [2] and V Guerra, data from [4]
@@ -158,6 +165,7 @@ react3.index = {{1, "all"}, {1, 1}, {1, "all"}, {1, 1}};
 react4          = react1;
 react4.source   = 'Kossyi1992';
 react4.type     = "Starik_test_on_T";
+react4.neq_model = "Starik_test_on_T";
 react4.reverse  = true;
 react4.A        = @(T) (4.5e-12 / 1e6) ^ (T >= 200 && T <= 300) * ...
                                             (1.1e-14 / 1e6) ^ (T > 300);
@@ -248,8 +256,11 @@ react1.index     = {{1, "all"}, {1, "all"}, {1, "all"}, {1, "all"}};
 react1.A         = 6e-11 / 1e6;
 react1.n         = - 0.5;
 react1.d_T       = 300;
-keySet           = {react1.source};
-valueSet         = {react1};
+react2           = react1;
+react2.source    = 'Kossyi1992_Starik';
+react2.neq_model = "Starik_test";
+keySet           = {react1.source, react2.source};
+valueSet         = {react1, react2};
 N2pX_O2X__O2pX_N2.data = containers.Map(keySet, valueSet);
 
 
@@ -267,8 +278,11 @@ react1.index              = {{1, 1}, {1, "all"}, {1, 1}, {1, 1}};
 react1.A                  = 4.8e-7 / 1e6;    % m3 / s
 react1.n                  = - 1;
 react1.d_T                = 300;
-keySet                    = {react1.source};
-valueSet                  = {react1};
+react2                    = react1;
+react2.source             = 'Pintassilgo2009_Starik';
+react2.neq_model          = "Starik_test";
+keySet                    = {react1.source, react2.source};
+valueSet                  = {react1, react2};
 e_N2pX__N4S_N4S.data      = containers.Map(keySet, valueSet);
 
 
@@ -285,8 +299,11 @@ react1.index              = {{1, 1}, {1, "all"}, {1, 1}, {1, 1}};
 react1.A                  = 2e-7 / 1e6;    % m3 / s
 react1.n                  = - 1;
 react1.d_T                = 300;
-keySet                    = {react1.source};
-valueSet                  = {react1};
+react2                    = react1;
+react2.source             = 'Kossyi1992_Starik';
+react2.neq_model          = "Starik_test";
+keySet                    = {react1.source, react2.source};
+valueSet                  = {react1, react2};
 e_O2pX__O_O.data          = containers.Map(keySet, valueSet);
 
 
@@ -303,8 +320,12 @@ react1.type               = "const";
 react1.index              = {{1, 1}, {1, "all"}, {1, 1}, {1, 1}, {1, 1}};
 react1.A                  = 7.52016817823127e-18 / 3e4;   % m3 / s
 react1.E_th               = 13 * eV_to_J;           % energy threshold, J
-keySet                    = {react1.source};
-valueSet                  = {react1};
+react2                    = react1;
+react2.source             = 'LoKI-B steady Starik';
+react2.neq_model          = "Starik_test";
+react2.A                  = 7.52016817823127e-18 / 4.8e3;   % m3 / s
+keySet                    = {react1.source, react2.source};
+valueSet                  = {react1, react2};
 e_N2X__e_N4S_N4S.data     = containers.Map(keySet, valueSet);
 
 

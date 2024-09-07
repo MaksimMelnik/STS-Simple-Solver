@@ -40,15 +40,10 @@ end
 	% rate coefficient of backward (b) reaction
 kb = kf;
 
-switch reaction.type    % choosing reaction type
- case "const"
-  kf = kf + reaction.A;
-  dE_fb = Ms{3}.form_e + Ms{4}.form_e - Ms{1}.form_e - Ms{2}.form_e;
- case "ATn"
-  kf = kf + reaction.A * T ^ reaction.n;
-  dE_fb = Ms{3}.form_e + Ms{4}.form_e - Ms{1}.form_e - Ms{2}.form_e;
- case "Arrhenius"
-  kf = kf + reaction.A * T ^ reaction.n * exp(- reaction.E / k / T);
+
+switch reaction.neq_model    % choosing reaction type
+ case {"const", "ATn", "Arrhenius", "equal"}
+  kf = kf + k_equilibrium(reaction, T);
   dE_fb = Ms{3}.form_e + Ms{4}.form_e - Ms{1}.form_e - Ms{2}.form_e;
  case "Heaviside"
   coll.ArrA = reaction.A(T);
@@ -90,8 +85,7 @@ switch reaction.type    % choosing reaction type
     - repmat((Ms{1}.ev_i{1} + Ms{1}.ev_0(1))', 1, 1)) + ...
                                     (Ms{1}.diss_e(1) - Ms{3}.diss_e(1));
  case {"Starik_test", "A(T/d_T)^n"}
-  kd_eq = reaction.A * (T / reaction.d_T) ^ reaction.n * ...
-                                                exp(- reaction.E / k / T);
+  kd_eq = k_equilibrium(reaction, T);
   Ps_r = {Ms{1}, Ms{2}};
   Ps_p = {Ms{3}, Ms{4}};
   reaction2 = reaction;
@@ -109,7 +103,7 @@ switch reaction.type    % choosing reaction type
    dE_fb = - permute(dE_fb, [3 4 1 2]);
   end
  case "Starik_test_on_T"
-  kd_eq = reaction.A(T) * T ^ reaction.n(T) * exp(- reaction.E(T) / k /T);
+  kd_eq = k_equilibrium(reaction, T);
   Ps_r = {Ms{1}, Ms{2}};
   Ps_p = {Ms{3}, Ms{4}};
   reaction2 = reaction;
@@ -127,8 +121,10 @@ switch reaction.type    % choosing reaction type
   end
  otherwise
         error("Exchange reactions of this type are still not " + ...
-            "implemented " + reaction.type)    
+            "implemented " + reaction.type)
 end
+
+
     % if the reaction proceeds in the opposite direction
 if ~reaction.direction_forward
  kb = permute(kf, [3 4 1 2]);     % transposition

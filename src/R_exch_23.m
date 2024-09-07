@@ -36,9 +36,9 @@ kf = zeros(length(index{1}{2}), length(index{2}{2}), ...
 	% rate coefficient of backward (b) reaction
 kb = kf;
 
-switch reaction.type
- case "const"
-  kf = kf + reaction.A;
+switch reaction.neq_model    % choosing reaction type
+ case {"const", "ATn", "Arrhenius", "equal"}
+  kf = kf + k_equilibrium(reaction, T);
   dE_fb = Ms{3}.form_e + Ms{4}.form_e + Ms{5}.form_e ...
                                             - Ms{1}.form_e - Ms{2}.form_e;
  % case "A(T/d_T)^n"
@@ -46,8 +46,7 @@ switch reaction.type
  %  dE_fb = Ms{3}.form_e + Ms{4}.form_e + Ms{5}.form_e ...
  %                                            - Ms{1}.form_e - Ms{2}.form_e;
  case {"Starik_test", "A(T/d_T)^n"}
-  kd_eq = reaction.A * (T / reaction.d_T) ^ reaction.n * ...
-                                                exp(- reaction.E / k / T);
+  kd_eq = k_equilibrium(reaction, T);
   Ps_r = {Ms{1}, Ms{2}};
   Ps_p = {Ms{3}, Ms{4}, Ms{5}};
   reaction2 = reaction;
