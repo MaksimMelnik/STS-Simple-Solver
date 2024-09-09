@@ -9,23 +9,34 @@ function out = Discharge_DC_Hubner_air
 % 5.06.2023 Maksim Melnik
 
 %  todo:
-% include and test kinetic scheme w/o non-eqilibrium models for exchange
-% expand the kinetic scheme
+% expand the kinetic scheme:
+%       - add back N2B
+%       adding N2(B3Пg)
+%       - add N2(B3Пg) formation reaction
+%       - fix n_N2B and Q_R7 N2B + O2 -> N2X + O + O
+%       - (R12) N2B + N2 -> N2A + N2
+%       - plot N2B + N2 -> N2A + N2
+%       - e+N2(X)->e+N2(A3Su+,v=0-4),Excitation
+% add reaction N2(A) + O2 -> N2(X) + O + O 
+% add  (R2)  e      + O2  → e+O2(A, C, c) → e+O(3P) + O(3P)
+% - add 11 processes and corresponding Qin:
+%   (1) Elastic collisions of electrons with N2 and O2
+%   (2) Nitrogen and oxygen dissociation by electron
+%   (4) VV N2-O2
+%   (6) V–T energy exchanges in N2–N collisions involving multiquantum
+%   (9) Diffusion of molecular and atomic metastable states to the wall
+%   (10) Chemical reactions, Qchem
+%   (11) Electron–ion recombination involving nitrogen or oxygen ions,Qe−i
 % fix energy fluxes for Te
+% finish kinetic scheme w/o non-eqilibrium models for exchange (like
+%   Pintassilgo2014)
 % electonic field equations
-% rewrite and recheck to the todo all the processes we need to add
 % fix strange behaviour of 1st bachward Zeldovich reaction for Kossyi
 % remove Arrhenius subfunction in R_exch
 % change reaction initialization to tables
-% reinclude e interactions
 % add VT switcher for different molecules
 % remove density_f_exc
 % merge R_exch and R_exch_23
-% e-
-%   e + without LoKI
-% e-
-%   e + something using LoKI
-%       e+N2(X)->e+N2(A3Su+,v=0-4),Excitation
 % properly include: 
 %   e + O2+(X) + wall -> O2(X) (mb take from LoKI)
 %   e + N2+(X) + wall -> N2(X)  (mb in LoKI)
@@ -40,14 +51,7 @@ function out = Discharge_DC_Hubner_air
 %   O+
 %   NO+
 %   O-
-% add back N2B
-% add N2(B3Пg) formation reaction
-% adding N2(B3Пg)
-%   (R12) N2B + N2 -> N2A + N2
-%   plot N2B + N2 -> N2A + N2
-% send application
 % add an array of electronic states taking into account for each particle
-% fix n_N2B and Q_R7 N2B + O2 -> N2X + O + O
 % - add all particles:
 %   N2(B3Пg, B'3Σ−u, C3Пu, a'1Σ−u, a1Пg, w1Δu)
 %   O2(a1Δg, b1Σ+g)
@@ -62,7 +66,6 @@ function out = Discharge_DC_Hubner_air
 %   e-
 % - add all 15 reactions:
 %   (R1)  e      + N2  → e+N∗2 → e+N(4S) + N(2D)
-%   (R2)  e      + O2  → e+O2(A, C, c) → e+O(3P) + O(3P)
 %   (R3)  e      + O2  → e+O2(B) → e+O(3P) + O(1D)
 %   (R7)  N2(B)  + O2  → N2(X) + O + O
 %   (R8)  N2(a') + O2  → N2(X) + O + O
@@ -73,20 +76,10 @@ function out = Discharge_DC_Hubner_air
 %   (R13) e      + N+2 → N(4S) + N(4S)
 %   (R14) e+O+2 → O(3P) + O(3P)
 %   (R15) e + NO+ → N(4S) + O(3P)
-% - add 11 processes and corresponding Qin:
-%   (1) Elastic collisions of electrons with N2 and O2
-%   (2) Nitrogen and oxygen dissociation by electron
-%   (4) VV N2-O2
-%   (6) V–T energy exchanges in N2–N collisions involving multiquantum
-%   (9) Diffusion of molecular and atomic metastable states to the wall
-%   (10) Chemical reactions, Qchem
-%   (11) Electron–ion recombination involving nitrogen or oxygen ions,Qe−i
-% add vibrational excitation of O2
 % add VT rates from V. Guerra works and fix the VT fluxes
 % - N2-N    % first five transitions, same as i->i-1
 % Consider the second Zeldovich reaction. It's not included in 
 %   prof. Guerra's works, but it affects
-% fix Heaviside
 % rewrite Aliat dissociation for cases if electronicaly excited states have
 %   no vibrations
 
@@ -194,31 +187,10 @@ for i_ini = 2           % choosing desired initial coonditions
    React_e_N2pX__N4S_N4S   = Reactions("e + N2+(X) -> N(4S) + N(4S)");
    React_e_O2pX__O_O       = Reactions("e + O2+(X) -> O + O");
    React_e_N2X__e_N4S_N4S  = Reactions("e+N2(X)->e+2N(4S),Excitation");
-        % V Guerra Zeldovich model
-   % Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
-   %     React_N2A_O2("Pintassilgo2009"), ReactZel_2("Kossyi1992"), ...
-   %     React_N2pX_O2X__O2pX_N2("Kossyi1992")];
-   % Exch = [ReactZel_1("Savelev2018"), ... ReactZel_1("Guerra95_reverse"), ...
-   %     React_N2A_O2("Pintassilgo2009"), ReactZel_2("Savelev2018"), ...
-   %     React_N2pX_O2X__O2pX_N2("Kossyi1992")];
-%    Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
-%        React_N2A_O2("Pintassilgo2009"), React_N2B_O2("Kossyi1992")];
-   % Exch = [ReactZel_1("Kossyi1992") ...
-   %      , ReactZel_2("Kossyi1992")..., ...
-   %      ... React_N2A_O2("Pintassilgo2009")];%, ...
-   %      ... React_N2pX_O2X__O2pX_N2("Kossyi1992")];
-   %      ];
-        % revived backward Zeldovich reactions by Guerra, not sure if it
-        %   work properly
-   % Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse"), ...
-   %          ...ReactZel_2("Savelev2018") ...
-   %          ReactZel_2("Kossyi1992_from_Guerra") ...
-   %       ..., React_N2A_O2("Pintassilgo2009") ...
-   %          ,React_N2pX_O2X__O2pX_N2("Kossyi1992")
-   %          ];
         % changing the non-equilibrium model of the reaction
-   React_N2A_O2_Pintassilgo2009 = React_N2A_O2("Pintassilgo2009");
+   React_N2A_O2_Pintassilgo2009         = React_N2A_O2("Pintassilgo2009");
    React_N2A_O2_Pintassilgo2009.neq_model = "Starik_test";
+   React_N2A_O2_Pintassilgo2009.reverse   = true;
         % actual kinetic scheme
    Exch = [ReactZel_1("Savelev2018"), ReactZel_2("Savelev2018") ...
          , React_N2A_O2_Pintassilgo2009 ...
@@ -228,6 +200,16 @@ for i_ini = 2           % choosing desired initial coonditions
                 , React_e_O2pX__O_O("Kossyi1992_Starik") ...
                 , React_e_N2X__e_N4S_N4S("LoKI-B steady Starik")
                 ];
+        % Portuguese kinetic scheme
+   % Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse") ...
+   %       , React_N2A_O2("Pintassilgo2009") ...
+   %          ,React_N2pX_O2X__O2pX_N2("Kossyi1992")
+   %          ];
+   % Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009") ...
+   %              , React_e_O2pX__O_O("Kossyi1992") ...
+   %              , React_e_N2X__e_N4S_N4S("LoKI-B steady")
+   %              ];
+
    N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");
    ET_diff_c    = cell(1, kinetics.num_Ps);
                     % N2(X),          N2(A)
