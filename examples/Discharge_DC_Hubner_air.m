@@ -135,6 +135,9 @@ for i_ini = 2           % choosing desired initial coonditions
   for i_vibr =2%  [1 2 3] % choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO;
                         %   3 is for kinetics from V. Guerra works
+for i_scheme = 2 % [1 2] % chosing the kinetic scheme: 
+                         % 1 is for actual non-equilibrium kinetic scheme
+                         % 2 is for scheme from Pintassilgo2014
    T0         = init_c(i_ini, 4);         % K
    n0         = init_c(i_ini, 1)/k/T0;    % m-3
    f_O2_0     = init_c(i_ini, 2);
@@ -187,29 +190,32 @@ for i_ini = 2           % choosing desired initial coonditions
    React_e_N2pX__N4S_N4S   = Reactions("e + N2+(X) -> N(4S) + N(4S)");
    React_e_O2pX__O_O       = Reactions("e + O2+(X) -> O + O");
    React_e_N2X__e_N4S_N4S  = Reactions("e+N2(X)->e+2N(4S),Excitation");
-        % changing the non-equilibrium model of the reaction
-   React_N2A_O2_Pintassilgo2009         = React_N2A_O2("Pintassilgo2009");
-   React_N2A_O2_Pintassilgo2009.neq_model = "Starik_test";
-   React_N2A_O2_Pintassilgo2009.reverse   = true;
-        % actual kinetic scheme
-   Exch = [ReactZel_1("Savelev2018"), ReactZel_2("Savelev2018") ...
-         , React_N2A_O2_Pintassilgo2009 ...
-            ,React_N2pX_O2X__O2pX_N2("Kossyi1992_Starik")
-            ];
-   Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009_Starik") ...
-                , React_e_O2pX__O_O("Kossyi1992_Starik") ...
-                , React_e_N2X__e_N4S_N4S("LoKI-B steady Starik")
+   switch i_scheme
+       case 1   % actual kinetic scheme
+            % changing the non-equilibrium model of the reaction
+        React_N2A_O2_Pintassilgo2009    = React_N2A_O2("Pintassilgo2009");
+        React_N2A_O2_Pintassilgo2009.neq_model = "Starik_test";
+        React_N2A_O2_Pintassilgo2009.reverse   = true;
+        model_VT = 'FHO';
+        Exch = [ReactZel_1("Savelev2018"), ReactZel_2("Savelev2018") ...
+                , React_N2A_O2_Pintassilgo2009 ...
+                ,React_N2pX_O2X__O2pX_N2("Kossyi1992_Starik")
                 ];
-        % Portuguese kinetic scheme
-   % Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse") ...
-   %       , React_N2A_O2("Pintassilgo2009") ...
-   %          ,React_N2pX_O2X__O2pX_N2("Kossyi1992")
-   %          ];
-   % Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009") ...
-   %              , React_e_O2pX__O_O("Kossyi1992") ...
-   %              , React_e_N2X__e_N4S_N4S("LoKI-B steady")
-   %              ];
-
+        Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009_Starik") ...
+                    , React_e_O2pX__O_O("Kossyi1992_Starik") ...
+                    , React_e_N2X__e_N4S_N4S("LoKI-B steady Starik")
+                    ];
+       case 2   % Portuguese kinetic scheme
+	    model_VT = 'Guerra';
+        Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse") ...
+                , React_N2A_O2("Pintassilgo2009") ...
+                ,React_N2pX_O2X__O2pX_N2("Kossyi1992")
+                ];
+        Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009") ...
+                    , React_e_O2pX__O_O("Kossyi1992") ...
+                    , React_e_N2X__e_N4S_N4S("LoKI-B steady")
+                    ];
+   end
    N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");
    ET_diff_c    = cell(1, kinetics.num_Ps);
                     % N2(X),          N2(A)
@@ -252,6 +258,7 @@ for i_ini = 2           % choosing desired initial coonditions
         IndexOfMolecules=containers.Map(names,serial_index);
    end
    kinetics.IndexOfMolecules=IndexOfMolecules;
+   % xspan = [0.005 0.1]/t0;     % test
    xspan = [0.005 0.2]/t0;      % from Pintassilgo 2014
    % xspan = [0.005 0.015]/t0;    % the Hubner experiment measurments time
    % xspan = [0.005 0.0052]/t0; % tests
@@ -332,18 +339,10 @@ end
    out.T = T;
    out.Tv = Tv;
    out.kinetics = kinetics;
+end
   end
  end
 end
-
-%     figure  % T vs exp plot
-% plot(Hubner_2012_T(:, 1), Hubner_2012_T(:, 2), 'sq', t*1e3, T, ...
-%                         t*1e3, Tv, '-.', 'linewidth', 1.5) %#ok<USENS>
-% % errorbar T Hubner +- 40 K
-% legend('T_{exp}, Hubner 2012', 'T', 'Tv', 'location', 'best')
-% xlabel('t, ms')
-% xlim([-2 14])
-% ylim([250 620])
 
 rmpath('../src/')
 
