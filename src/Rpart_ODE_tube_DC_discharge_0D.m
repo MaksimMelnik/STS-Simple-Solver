@@ -39,14 +39,14 @@ Q_total = Q + Qin_e;
 
  me = 9.1094e-31;
  fr = 0;
- for i = [1, 2]
-    mi = kinetics.Ps{i}.mass;
-    mred = mi*me/(mi+me);
-    ni = sum(y(kinetics.index{i}));
-    r = kinetics.Ps{i}.diameter / 2;
-    z = sqrt(8*pi*kb*Te/mred)*r^2;       % m3/s
-    fr = fr + z*ni/mi*kinetics.n0;      % 1/kg/s
- end
+  for i = 1:length(kinetics.Ps)
+     mi = kinetics.Ps{i}.mass;
+     mred = mi*me/(mi+me);
+     ni = sum(y(kinetics.index{i}));
+     r = kinetics.Ps{i}.diameter / 2;
+     z = sqrt(8*pi*kb*Te/mred)*r^2;       % m3/s
+     fr = fr + z*ni/mi*kinetics.n0;      % 1/kg/s
+  end
 
     % T equation
 lambdaN2 = (1.717 + 0.084*T - 1.948e-5*T^2)/1e3;  % W / m / K

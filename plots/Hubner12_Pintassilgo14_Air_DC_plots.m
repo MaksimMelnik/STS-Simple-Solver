@@ -9,10 +9,11 @@ is_T_Tv_plot = false;
 is_Q_plot = true;
 is_n_NO_N_O = true;
 is_VDF = false;
-is_Omega_plot = false;
+is_Omega_plot = true;
 
     % constants
 N_a = 6.02214076e23;              % Avogadro constant
+k = 1.380649e-23;                 % Boltzmann constant, J/K
     % loading data from papers
 load('../data/for comparison/Hubner2012_and_Pintassilgo2014.mat' ...
                                                             ) %#ok<LOAD>
@@ -260,6 +261,31 @@ figure
     xlim([0 20]);
 end
 
+% elastic collisions e with particles
+R_e_data_full = zeros(length(kinetics.Ps), length(t));
+figure
+hold on
+for iM = 1:length(kinetics.Ps)
+    M = kinetics.Ps{iM};
+    indM = kinetics.index{iM};
+    me = 9.1094e-31;
+    mi = kinetics.Ps{iM}.mass;
+    mred = mi*me/(mi+me);
+    r = M.diameter / 2;
+    for i_out = 1:length(t)
+     ni = sum(Y(i_out, indM));
+     ind_e = max(kinetics.index{length(kinetics.Ps)})+1;
+     ne = Y(i_out, ind_e);
+     z = sqrt(8*pi*k*Te(i_out)/mred)*r^2;                          % m3/s
+     R_e_data_full(iM, i_out) = z*ni*ne*me/mi*kinetics.n0...
+                                        * (3/2*k*Te(i_out));        % 1/s
+    end
+    plot(t*1e3, R_e_data_full(iM, :), 'linewidth', 1.5);
+end
+title("\Omega elastic collisions e with particles");
+legend('+N2', '+O2', '+NO', '+N', '+O', '+N2+', '+O2+');
+xlim([0 20]);
+hold off
 end
 %% T and Tv plot
 if is_T_Tv_plot 
