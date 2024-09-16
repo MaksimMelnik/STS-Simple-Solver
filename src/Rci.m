@@ -42,7 +42,7 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
    
   if isKey(kinetics.reactions, 'VV')
    for ind_e1 = 1:M1.num_elex_levels
-    if M1.num_vibr_levels(ind_e) > 1
+    if M1.num_vibr_levels(ind_e1) > 1
      for indM2 = indM1:kinetics.num_Ps
       M2 = kinetics.Ps{indM2};
       for ind_e2 = 1:M2.num_elex_levels

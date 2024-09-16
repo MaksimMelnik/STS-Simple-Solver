@@ -28,6 +28,7 @@ if isKey(kinetics.reactions, 'free_e')
     Te = data.Te;
     Free_e_reactions = kinetics.reactions("free_e");
     IndexOfMolecules = kinetics.IndexOfMolecules;
+    e.name = "e";
     e.form_e = 0;
     e.num_vibr_levels = 0;
     e.e_E             = 0;
@@ -138,7 +139,7 @@ end
 R_exch_data_full = zeros(length(kinetics.Ps), length(Exch_reactions), length(t));
 for ind_exch = 1:length(Exch_reactions)
     reaction = Exch_reactions(ind_exch);
-
+    
     IOM_M1 = IndexOfMolecules(reaction.particles(1));
     IOM_M2 = IndexOfMolecules(reaction.particles(2));
     IOM_M3 = IndexOfMolecules(reaction.particles(3));
@@ -203,22 +204,9 @@ for ind_free_e = 1:length(Free_e_reactions)
         for i_out = 1:length(t)
             [R_free_e_temp, ~] = R_exch({M1, M2, M3, M4}, ...
                         Y(i_out, indM1)', Y(i_out, indM2)', Y(i_out, indM3)', Y(i_out, indM4)', T(i_out), reaction);
-            if M1.num_vibr_levels(1) > 1
-                R_free_e_data_full(IOM_M1, ind_free_e, i_out) = sum(R_free_e_temp(1:M1.num_vibr_levels(1), :, :, :) .* (M1.ev_0(1) + M1.ev_i{1}' + M1.form_e), 'all');
-            end
-            if M2.num_vibr_levels(1) > 1
-                R_free_e_data_full(IOM_M2, ind_free_e, i_out) = sum(R_free_e_temp(1, 1:M2.num_vibr_levels(1), :, :) .* (M2.ev_0(1) + M2.ev_i{1} + M2.form_e), 'all');
-            else
-                R_free_e_data_full(IOM_M2, ind_free_e, i_out) = sum(R_free_e_temp(1, 1:M2.num_vibr_levels(1), :, :) * (M2.form_e), 'all');
-            end
-            if M3.num_vibr_levels(1) > 1
-                R_free_e_data_full(IOM_M3, ind_free_e, i_out) = sum(R_free_e_temp(:, :, 1:M3.num_vibr_levels(1), :) .* reshape(M3.ev_0(1) + M3.ev_i{1}' + M3.form_e, 1, 1, []), 'all');
-            end
-            if M4.num_vibr_levels(1) > 1
-                R_free_e_data_full(IOM_M4, ind_free_e, i_out) = sum(R_free_e_temp(:, :, :, 1:M4.num_vibr_levels(1)) .* reshape(M4.ev_0(1) + M4.ev_i{1}' + M4.form_e, 1, 1, 1, []), 'all');
-            else
-                R_free_e_data_full(IOM_M4, ind_free_e, i_out) = sum(R_free_e_temp(:, :, :, 1:M4.num_vibr_levels(1)) * M4.form_e, 'all');
-            end
+            R_free_e_data_full(IOM_M1, ind_free_e, i_out) = R_free_e_temp * (3/2*k*Te(i_out));
+            R_free_e_data_full(IOM_M2, ind_free_e, i_out) = R_free_e_temp * (M2.form_e);
+            R_free_e_data_full(IOM_M3, ind_free_e, i_out) = -2*R_free_e_temp * (M3.form_e);
         end
     case 5
         IOM_M5 = IndexOfMolecules(reaction.particles(5));
@@ -227,33 +215,14 @@ for ind_free_e = 1:length(Free_e_reactions)
         for i_out = 1:length(t)
             [R_free_e_temp, ~] = R_exch_23_e({M1, M2, M3, M4, M5}, ...
                     Y(i_out, indM1)', Y(i_out, indM2)', Y(i_out, indM3)', Y(i_out, indM4)', Y(i_out, indM5)', Te(i_out), reaction);
-            if M1.num_vibr_levels(1) > 1
-                R_free_e_data_full(IOM_M1, ind_free_e, i_out) = sum(R_free_e_temp(1:M1.num_vibr_levels(1), :, :, :, :) .* (M1.ev_0(1) + M1.ev_i{1}' + M1.form_e), 'all');
-            end
-            if M2.num_vibr_levels(1) > 1
-                R_free_e_data_full(IOM_M2, ind_free_e, i_out) = sum(R_free_e_temp(1, 1:M2.num_vibr_levels(1), :, :, :) .* (M2.ev_0(1) + M2.ev_i{1} + M2.form_e), 'all');
-            else
-                R_free_e_data_full(IOM_M2, ind_free_e, i_out) = sum(R_free_e_temp(1, 1:M2.num_vibr_levels(1), :, :, :) * (M2.form_e), 'all');
-            end
-            if M3.num_vibr_levels(1) > 1
-                R_free_e_data_full(IOM_M3, ind_free_e, i_out) = sum(R_free_e_temp(:, :, 1:M3.num_vibr_levels(1), :, :) .* reshape(M3.ev_0(1) + M3.ev_i{1}' + M3.form_e, 1, 1, []), 'all');
-            end
-            if M4.num_vibr_levels(1) > 1
-                R_free_e_data_full(IOM_M4, ind_free_e, i_out) = sum(R_free_e_temp(:, :, :, 1:M4.num_vibr_levels(1), :) .* reshape(M4.ev_0(1) + M4.ev_i{1}' + M4.form_e, 1, 1, 1, []), 'all');
-            else
-                R_free_e_data_full(IOM_M4, ind_free_e, i_out) = sum(R_free_e_temp(:, :, :, 1:M4.num_vibr_levels(1), :) * M4.form_e, 'all');
-            end
-            if M5.num_vibr_levels(1) > 1
-                R_free_e_data_full(IOM_M5, ind_free_e, i_out) = sum(R_free_e_temp(:, :, :, :, 1:M5.num_vibr_levels(1)) .* reshape(M5.ev_0(1) + M5.ev_i{1}' + M5.form_e, 1, 1, 1, 1, []), 'all');
-            else
-                R_free_e_data_full(IOM_M5, ind_free_e, i_out) = sum(R_free_e_temp(:, :, :, :, 1:M5.num_vibr_levels(1)) * M5.form_e, 'all');
-            end
+            R_free_e_data_full(IOM_M2, ind_free_e, i_out) = sum(R_free_e_temp(1, 1:M2.num_vibr_levels(1), :, :) .* (M2.ev_0(1) + M2.ev_i{1} + M2.form_e), 'all');
+            R_free_e_data_full(IOM_M4, ind_free_e, i_out) = -2*sum(R_free_e_temp(1, 1:M2.num_vibr_levels(1), :, :)) * (M4.form_e);
         end
     end
     
 end
 
-for ind = 1:size(kinetics.Ps, 2)
+for ind = 1:size(Ps, 2)
 figure
     plot(t*1e3, reshape(R_free_e_data_full(ind, 1, :), [], 1), t*1e3, reshape(R_free_e_data_full(ind, 2, :), [], 1), t*1e3, reshape(R_free_e_data_full(ind, 3, :), [], 1), 'linewidth', 1.5);
     title(strcat("\Omega free e reactions, ", Ps{ind}.name));
@@ -277,8 +246,8 @@ for iM = 1:length(kinetics.Ps)
      ind_e = max(kinetics.index{length(kinetics.Ps)})+1;
      ne = Y(i_out, ind_e);
      z = sqrt(8*pi*k*Te(i_out)/mred)*r^2;                          % m3/s
-     R_e_data_full(iM, i_out) = z*ni*ne*me/mi*kinetics.n0...
-                                        * (3/2*k*Te(i_out));        % 1/s
+     R_e_data_full(iM, i_out) = z*ni*ne*me/mi...
+                                        * (3/2*k*Te(i_out));
     end
     plot(t*1e3, R_e_data_full(iM, :), 'linewidth', 1.5);
 end

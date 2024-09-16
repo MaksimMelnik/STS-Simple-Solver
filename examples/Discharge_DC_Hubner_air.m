@@ -135,7 +135,7 @@ for i_ini = 2           % choosing desired initial coonditions
   for i_vibr =2%  [1 2 3] % choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO;
                         %   3 is for kinetics from V. Guerra works
-for i_scheme = 2 % [1 2] % chosing the kinetic scheme: 
+for i_scheme = 1 % [1 2] % chosing the kinetic scheme: 
                          % 1 is for actual non-equilibrium kinetic scheme
                          % 2 is for scheme from Pintassilgo2014
    T0         = init_c(i_ini, 4);         % K
