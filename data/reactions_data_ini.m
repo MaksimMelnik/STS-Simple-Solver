@@ -234,20 +234,23 @@ valueSet = {react1, react2};
 N2B_O2__N2X_O_O.data = containers.Map(keySet, valueSet);
 
 
-%      % N2(B) + N2 -> N2(A) + N2
-% N2B_N2__N2A_N2.name = 'N2(B) + N2 -> N2(A) + N2';
-% N2B_N2__N2A_N2.particles = ["N2", "N2", "N2", "N2"];
-%    % from works by C D Pintassilgo [2] and V Guerra [5]
-% react1 = template;
-% react1.name = N2B_N2__N2A_N2.name;
-% react1.particles = N2B_N2__N2A_N2.particles;
-% react1.source = 'Guerra1997';
-% react1.type = "const";
-% react1.A   = 0.95*3e-11 / 1e6;
-% react1.index = {{3, "all"}, {1, "all"}, {2, "all"}, {1, "all"}};
-% keySet = {react1.source};
-% valueSet = {react1};
-% N2B_N2__N2A_N2.data = containers.Map(keySet, valueSet);
+     % N2(B) + N2 -> N2(A) + N2
+N2B_N2__N2A_N2.name = 'N2(B) + N2 -> N2(A) + N2';
+N2B_N2__N2A_N2.particles = ["N2", "N2", "N2", "N2"];
+   % from works by C D Pintassilgo [2] and V Guerra [5]
+react1 = template;
+react1.name = N2B_N2__N2A_N2.name;
+react1.particles = N2B_N2__N2A_N2.particles;
+react1.source = 'Guerra1997';
+react1.type = "const";
+react1.A   = 0.95*3e-11 / 1e6;
+react1.index = {{3, "all"}, {1, "all"}, {2, "all"}, {1, "all"}};
+react2              = react1;
+react2.source       = 'Guerra1997_Starik';
+react2.neq_model    = "Starik_test";
+keySet = {react1.source, react2.source};
+valueSet = {react1, react2};
+N2B_N2__N2A_N2.data = containers.Map(keySet, valueSet);
 
 
      % N2+(X) + O2(X) -> O2+(X) + N2
@@ -355,11 +358,11 @@ e_N2X__e_e_N2pX.data      = containers.Map(keySet, valueSet);
 keySet = {zero_r.name, Zeldovich1.name, Zeldovich2.name, ...
  N2A_wall_diffusion.name, N2A_O2__N2X_O_O.name, N2B_O2__N2X_O_O.name, ...
  N2pX_O2X__O2pX_N2.name, e_N2pX__N4S_N4S.name, e_O2pX__O_O.name, ...
- e_N2X__e_N4S_N4S.name, e_N2X__e_e_N2pX.name};
+ e_N2X__e_N4S_N4S.name, e_N2X__e_e_N2pX.name, N2B_N2__N2A_N2.name};
 valueSet = {zero_r.data, Zeldovich1.data, Zeldovich2.data, ...
  N2A_wall_diffusion.data, N2A_O2__N2X_O_O.data, N2B_O2__N2X_O_O.data, ...
  N2pX_O2X__O2pX_N2.data, e_N2pX__N4S_N4S.data, e_O2pX__O_O.data, ...
- e_N2X__e_N4S_N4S.data, e_N2X__e_e_N2pX.data};
+ e_N2X__e_N4S_N4S.data, e_N2X__e_e_N2pX.data, N2B_N2__N2A_N2.data};
 Reactions = containers.Map(keySet, valueSet);
 save reactions.mat Reactions
 

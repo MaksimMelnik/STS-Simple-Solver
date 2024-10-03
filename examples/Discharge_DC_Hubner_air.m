@@ -13,7 +13,6 @@ function out = Discharge_DC_Hubner_air
 %       adding N2(B3Пg)
 %       - add N2(B3Пg) formation reaction
 %       - fix n_N2B and Q_R7 N2B + O2 -> N2X + O + O
-%       - (R12) N2B + N2 -> N2A + N2
 %       - plot N2B + N2 -> N2A + N2
 %       - e+N2(X)->e+N2(A3Su+,v=0-4),Excitation
 % add  (R2)  e      + O2  → e+O2(A, C, c) → e+O(3P) + O(3P)
@@ -82,7 +81,6 @@ warning('Check energies in the wall recombination function')
 warning('Zeldovich reactions are without electronic excitation')
 warning("VV exchanges are with a crutch.")
 warning('Find correct N2+ EM value.')
-% warning('R_exch with zero kb.')
 warning('Tv of O2 is much lower. Why?')
 disp('Started.')
 
@@ -124,9 +122,6 @@ init_c = [% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
 for i_ini = 2           % choosing desired initial coonditions
  for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
-  for i_vibr =2%  [1 2 3] % choosing vibrational energy exchange model
-                        %   1 is for SSH; 2 is for FHO;
-                        %   3 is for kinetics from V. Guerra works
 for i_scheme = 1 % [1 2] % chosing the kinetic scheme: 
                          % 1 is for actual non-equilibrium kinetic scheme
                          % 2 is for scheme from Pintassilgo2014
@@ -165,19 +160,12 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
 	case 4
 	 Diss.U='inf';
    end
-   switch i_vibr
-    case 1
-	 model_VT = 'SSH';
-	case 2
-	 model_VT = 'FHO';
-	case 3
-	 model_VT = 'Guerra';
-   end
    load('../data/reactions.mat', 'Reactions');
    ReactZel_1   = Reactions("N2 + O -> NO + N");
+   ReactZel_2   = Reactions("O2 + N -> NO + O");
    React_N2A_O2 = Reactions("N2(A) + O2 -> N2(X) + O + O");
    React_N2B_O2 = Reactions("N2(B) + O2 -> N2(X) + O + O");
-   ReactZel_2 = Reactions("O2 + N -> NO + O");
+   React_N2B_N2__N2A_N2 = Reactions("N2(B) + N2 -> N2(A) + N2");
    React_N2pX_O2X__O2pX_N2 = Reactions("N2+(X) + O2(X) -> O2+(X) + N2");
    React_e_N2pX__N4S_N4S   = Reactions("e + N2+(X) -> N(4S) + N(4S)");
    React_e_O2pX__O_O       = Reactions("e + O2+(X) -> O + O");
@@ -189,10 +177,12 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
         React_N2A_O2_Pintassilgo2009.neq_model = "Starik_test";
         React_N2A_O2_Pintassilgo2009.reverse   = true;
         model_VT = 'FHO';
+        % model_VT = 'SSH';
         Exch = [ReactZel_1("Savelev2018"), ReactZel_2("Savelev2018") ...
                 , React_N2A_O2_Pintassilgo2009 ...
                 ,React_N2pX_O2X__O2pX_N2("Kossyi1992_Starik") ...
-                , React_N2B_O2('Kossyi1992_Starik')
+                , React_N2B_O2('Kossyi1992_Starik') ...
+                , React_N2B_N2__N2A_N2("Guerra1997_Starik") ...
                 ];
         Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009_Starik") ...
                     , React_e_O2pX__O_O("Kossyi1992_Starik") ...
@@ -203,7 +193,8 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
         Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse") ...
                 , React_N2A_O2("Pintassilgo2009") ...
                 ,React_N2pX_O2X__O2pX_N2("Kossyi1992") ...
-                , React_N2B_O2('Kossyi1992')
+                , React_N2B_O2('Kossyi1992') ...
+                , React_N2B_N2__N2A_N2("Guerra1997") ...
                 ];
         Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009") ...
                     , React_e_O2pX__O_O("Kossyi1992") ...
@@ -332,7 +323,6 @@ end
    out.Tv = Tv;
    out.kinetics = kinetics;
 end
-  end
  end
 end
 
