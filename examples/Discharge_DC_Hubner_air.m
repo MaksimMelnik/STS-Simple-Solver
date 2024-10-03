@@ -10,26 +10,18 @@ function out = Discharge_DC_Hubner_air
 
 %  todo:
 % expand the kinetic scheme:
-%       - add back N2B
 %       adding N2(B3Пg)
 %       - add N2(B3Пg) formation reaction
 %       - fix n_N2B and Q_R7 N2B + O2 -> N2X + O + O
 %       - (R12) N2B + N2 -> N2A + N2
 %       - plot N2B + N2 -> N2A + N2
 %       - e+N2(X)->e+N2(A3Su+,v=0-4),Excitation
-% add reaction N2(A) + O2 -> N2(X) + O + O 
 % add  (R2)  e      + O2  → e+O2(A, C, c) → e+O(3P) + O(3P)
 % - add 11 processes and corresponding Qin:
-%   (1) Elastic collisions of electrons with N2 and O2
 %   (2) Nitrogen and oxygen dissociation by electron
-%   (4) VV N2-O2
 %   (6) V–T energy exchanges in N2–N collisions involving multiquantum
 %   (9) Diffusion of molecular and atomic metastable states to the wall
-%   (10) Chemical reactions, Qchem
 %   (11) Electron–ion recombination involving nitrogen or oxygen ions,Qe−i
-% fix energy fluxes for Te
-% finish kinetic scheme w/o non-eqilibrium models for exchange (like
-%   Pintassilgo2014)
 % electonic field equations
 % fix strange behaviour of 1st bachward Zeldovich reaction for Kossyi
 % remove Arrhenius subfunction in R_exch
@@ -103,7 +95,7 @@ load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO', 'N2p', 'O2p')
 N2.num_elex_levels = 1;         % N2(X1Σg+)
 N2.num_elex_levels = 2;         % N2(X1Σg+, A3Σu+)
 % N2.num_vibr_levels(2) = 1;  N2.ev_0(2) = 0;  N2.ev_i{2} = 0;
-% N2.num_elex_levels = 3;         % N2(X1Σg+, A3Σu+, B3Пg)
+N2.num_elex_levels = 3;         % N2(X1Σg+, A3Σu+, B3Пg)
 % N2.num_vibr_levels(3) = 1;  N2.ev_0(3) = 0;  N2.ev_i{3} = 0;
     % no electronic excitation
 O2.num_elex_levels  = 1;         
@@ -135,7 +127,7 @@ for i_ini = 2           % choosing desired initial coonditions
   for i_vibr =2%  [1 2 3] % choosing vibrational energy exchange model
                         %   1 is for SSH; 2 is for FHO;
                         %   3 is for kinetics from V. Guerra works
-for i_scheme = 2 % [1 2] % chosing the kinetic scheme: 
+for i_scheme = 1 % [1 2] % chosing the kinetic scheme: 
                          % 1 is for actual non-equilibrium kinetic scheme
                          % 2 is for scheme from Pintassilgo2014
    T0         = init_c(i_ini, 4);         % K
@@ -199,7 +191,8 @@ for i_scheme = 2 % [1 2] % chosing the kinetic scheme:
         model_VT = 'FHO';
         Exch = [ReactZel_1("Savelev2018"), ReactZel_2("Savelev2018") ...
                 , React_N2A_O2_Pintassilgo2009 ...
-                ,React_N2pX_O2X__O2pX_N2("Kossyi1992_Starik")
+                ,React_N2pX_O2X__O2pX_N2("Kossyi1992_Starik") ...
+                , React_N2B_O2('Kossyi1992_Starik')
                 ];
         Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009_Starik") ...
                     , React_e_O2pX__O_O("Kossyi1992_Starik") ...
@@ -209,7 +202,8 @@ for i_scheme = 2 % [1 2] % chosing the kinetic scheme:
 	    model_VT = 'Guerra';
         Exch = [ReactZel_1("Guerra95"), ReactZel_1("Guerra95_reverse") ...
                 , React_N2A_O2("Pintassilgo2009") ...
-                ,React_N2pX_O2X__O2pX_N2("Kossyi1992")
+                ,React_N2pX_O2X__O2pX_N2("Kossyi1992") ...
+                , React_N2B_O2('Kossyi1992')
                 ];
         Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009") ...
                     , React_e_O2pX__O_O("Kossyi1992") ...
@@ -291,14 +285,12 @@ n_N2p   = [];
 n_O2p   = [];
 ne      = [];
 Te0     = [];
-num_eq_plus = 1;
 if kinetics.num_Ps > 5
     n_N2p = f_N2_3 * ion_degree;
     n_O2p = f_O2_3 * ion_degree;
 end
 if isKey(kinetics.reactions, 'free_e')
     ne   = (f_N2_3 + f_O2_3) * ion_degree;
-    num_eq_plus = 1 + 2;
     Te0         = kinetics.Te/T0;
 end
        % N2(X,v), N2(A3Σu+), N2(B3Пg), O2(X), NO(X), N(X),  O(X),  
@@ -310,13 +302,13 @@ end
    y0 = [y0 * n3/n0;    T3; Te0];
    
 %    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-20, ...
-%                         'NonNegative', 1:kinetics.num_eq + num_eq_plus); 
+%                         'NonNegative', 1:length(y0)); 
 %    options_s = odeset('RelTol', 1e-13, 'AbsTol', 1e-13, ...
-%                         'NonNegative', 1:kinetics.num_eq + num_eq_plus); 
+%                         'NonNegative', 1:length(y0)); 
    %options_s = odeset('RelTol', 1e-12, 'AbsTol', 1e-12, ...
-   %                      'NonNegative', 1:kinetics.num_eq + num_eq_plus); 
-   options_s = odeset('RelTol', 1e-6, 'AbsTol', 1e-8, ...
-                                        'NonNegative', 1:length(y0)); 
+   %                      'NonNegative', 1:length(y0)); 
+   % options_s = odeset('RelTol', 1e-6, 'AbsTol', 1e-8, ...
+   %                                      'NonNegative', 1:length(y0)); 
    options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-5, ..._
                                         'NonNegative', 1:length(y0));    
    [X, Y] = ode15s(@(t, y) ...

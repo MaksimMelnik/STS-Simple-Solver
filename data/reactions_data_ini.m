@@ -226,8 +226,11 @@ react1.source = 'Kossyi1992';
 react1.type = "const";
 react1.A   = 3e-10 / 1e6;% / 1e2;
 react1.index = {{3, "all"}, {1, "all"}, {1, "all"}, {1, 1}, {1, 1}};
-keySet = {react1.source};
-valueSet = {react1};
+react2              = react1;
+react2.source       = 'Kossyi1992_Starik';
+react2.neq_model    = "Starik_test";
+keySet = {react1.source, react2.source};
+valueSet = {react1, react2};
 N2B_O2__N2X_O_O.data = containers.Map(keySet, valueSet);
 
 
