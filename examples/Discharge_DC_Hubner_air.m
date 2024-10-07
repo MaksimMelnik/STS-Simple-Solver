@@ -133,7 +133,6 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
    f_O_3      = init_c(i_ini, 6);
    f_N_3      = init_c(i_ini, 8);
    f_NO_3     = init_c(i_ini, 7);
-%    f_N2A_3    = 0;
    f_N2A_3    = init_c(i_ini, 9);
    % f_N2B_3    = 0;
    f_N2B_3    = init_c(i_ini, 10);
@@ -160,12 +159,15 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
 	case 4
 	 Diss.U='inf';
    end
-   load('../data/reactions.mat', 'Reactions');
+   % load('../data/reactions.mat', 'Reactions');
+   addpath('../data/')
+   Reactions = read_reaction_table;
    ReactZel_1   = Reactions("N2 + O -> NO + N");
    ReactZel_2   = Reactions("O2 + N -> NO + O");
    React_N2A_O2 = Reactions("N2(A) + O2 -> N2(X) + O + O");
    React_N2B_O2 = Reactions("N2(B) + O2 -> N2(X) + O + O");
    React_N2B_N2__N2A_N2 = Reactions("N2(B) + N2 -> N2(A) + N2");
+   React_N2A_N2A__N2B_N2X = Reactions("N2(A) + N2(A) -> N2(B) + N2(X)");
    React_N2pX_O2X__O2pX_N2 = Reactions("N2+(X) + O2(X) -> O2+(X) + N2");
    React_e_N2pX__N4S_N4S   = Reactions("e + N2+(X) -> N(4S) + N(4S)");
    React_e_O2pX__O_O       = Reactions("e + O2+(X) -> O + O");
@@ -183,6 +185,7 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
                 ,React_N2pX_O2X__O2pX_N2("Kossyi1992_Starik") ...
                 , React_N2B_O2('Kossyi1992_Starik') ...
                 , React_N2B_N2__N2A_N2("Guerra1997_Starik") ...
+                , React_N2A_N2A__N2B_N2X("Pintassilgo2009_Starik")
                 ];
         Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009_Starik") ...
                     , React_e_O2pX__O_O("Kossyi1992_Starik") ...
@@ -195,6 +198,7 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
                 ,React_N2pX_O2X__O2pX_N2("Kossyi1992") ...
                 , React_N2B_O2('Kossyi1992') ...
                 , React_N2B_N2__N2A_N2("Guerra1997") ...
+                , React_N2A_N2A__N2B_N2X("Pintassilgo2009")
                 ];
         Free_e = [React_e_N2pX__N4S_N4S("Pintassilgo2009") ...
                     , React_e_O2pX__O_O("Kossyi1992") ...
