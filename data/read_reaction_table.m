@@ -32,14 +32,14 @@ template.E_th = 0;
 
 % table_t = table2cell(readtable("reactions_data_table.csv"));
 table_t = readtable("reactions_data_table.csv");
-ind = 1;
-temp_react = template;
-temp_react.name     = table_t.ReactionName{ind};
-temp_react.A        = table_t.A(ind);
-temp_react.source   = table_t.Source{ind};
-if isKey(Reactions, temp_react.name)
+for ind = 1:height(table_t)
+ temp_react = template;
+ temp_react.name     = table_t.ReactionName{ind};
+ temp_react.A        = table_t.A(ind);
+ temp_react.source   = table_t.Source{ind};
+ if isKey(Reactions, temp_react.name)
     error("reaction already exist")
-else
+ else
     new_reaction.name = temp_react.name;
     new_reaction.particles = [convertCharsToStrings(table_t.Reagent1{ind}), ...
         convertCharsToStrings(table_t.Reagent2{ind}), ...
@@ -67,5 +67,6 @@ else
     valueSet            = {temp_react, temp_react_Starik};
     new_reaction.data   = containers.Map(keySet, valueSet);
     Reactions(new_reaction.name) = new_reaction.data;
+ end
 end
 end
