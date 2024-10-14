@@ -176,20 +176,35 @@ if isKey(kinetics.reactions, 'Exch') % exchange reactions universal attempt
   indM4 = kinetics.index{IOM_M4};
   switch length(reaction.particles)
    case 4
-    [R_exch_temp, Q_exch] = R_exch({kinetics.Ps{IOM_M1}, ...
+    [R_exch_temp, Q_exch, ...
+        R_exch_data_1, R_exch_data_2, R_exch_data_3, R_exch_data_4...
+        ] = R_exch({kinetics.Ps{IOM_M1}, ...
        kinetics.Ps{IOM_M2}, kinetics.Ps{IOM_M3}, kinetics.Ps{IOM_M4}}, ...
                      y(indM1), y(indM2), y(indM3), y(indM4), T, reaction);
-    R_exch_data(indM4) = R_exch_data(indM4) ...
-                            - reshape(sum(R_exch_temp, [1 2 3]), [], 1);
-    R_exch_temp4 = sum(R_exch_temp, 4);     % optimization, 
-    R_exch_temp34 = sum(R_exch_temp4, 3);   %   this dumb way is faster
-    R_exch_temp234 = sum(R_exch_temp34, 2);
-    R_exch_temp134 = sum(R_exch_temp34, 1)';
-    R_exch_temp24 = sum(R_exch_temp4, 2);
-    R_exch_temp124 = reshape(sum(R_exch_temp24, 1), [], 1);
-    R_exch_data(indM1) = R_exch_data(indM1) + R_exch_temp234;
-    R_exch_data(indM2) = R_exch_data(indM2) + R_exch_temp134;
-    R_exch_data(indM3) = R_exch_data(indM3) - R_exch_temp124;
+    % R_exch_temp4 = sum(R_exch_temp, 4);     % optimization, 
+    % R_exch_temp34 = sum(R_exch_temp4, 3);   %   this dumb way is faster
+    % R_exch_temp234 = sum(R_exch_temp34, 2);
+    % R_exch_temp134 = sum(R_exch_temp34, 1)';
+    % R_exch_temp24 = sum(R_exch_temp4, 2);
+    % R_exch_temp124 = reshape(sum(R_exch_temp24, 1), [], 1);
+    % R_exch_data(indM1) = R_exch_data(indM1) + R_exch_temp234;
+    % R_exch_data(indM2) = R_exch_data(indM2) + R_exch_temp134;
+    % R_exch_data(indM3) = R_exch_data(indM3) - R_exch_temp124;
+    % R_exch_data(indM4) = R_exch_data(indM4) ...
+    %                         - reshape(sum(R_exch_temp, [1 2 3]), [], 1);
+    R_exch_data(indM1) = R_exch_data(indM1) + R_exch_data_1;
+    R_exch_data(indM2) = R_exch_data(indM2) + R_exch_data_2;
+    R_exch_data(indM3) = R_exch_data(indM3) - R_exch_data_3;
+    R_exch_data(indM4) = R_exch_data(indM4) - R_exch_data_4;
+    % gg1 = max(abs((R_exch_data_1 - R_exch_temp234)./R_exch_temp234));
+    % gg2 = max(abs((R_exch_data_2 - R_exch_temp134)./R_exch_temp134));
+    % gg3 = max(abs((R_exch_data_3 - R_exch_temp124)./R_exch_temp124));
+    % R_exch_temp123 = reshape(sum(R_exch_temp, [1 2 3]), [], 1);
+    % gg4 = max(abs((R_exch_data_4 - R_exch_temp123)./R_exch_temp123));
+    % gg = max([gg1, gg2, gg3, gg4]);
+    % if gg> 1e-15
+    %     disp(gg)
+    % end
    case 5
     IOM_M5 = IndexOfMolecules(reaction.particles(5));
     indM5  = kinetics.index{IOM_M5};

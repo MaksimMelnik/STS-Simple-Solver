@@ -1,4 +1,5 @@
-function [R_exch_data, Q] = ...
+function [R_exch_data, Q, R_exch_data_1, R_exch_data_2, ...
+    R_exch_data_3, R_exch_data_4] = ...
                         R_exch(Ms, n_M1, n_M2, n_M3, n_M4, T, reaction)
 % The third iteration of the universal function for exchange reactions
 % M1 + M2 -> M3 + M4. 
@@ -42,7 +43,7 @@ kb = kf;
 
 
 switch reaction.neq_model    % choosing reaction type
- case {"const", "ATn", "Arrhenius", "equal"}
+ case {"const", "ATn", "Arrhenius", "equal", "equilibrium"}
   kf = kf + k_equilibrium(reaction, T);
   dE_fb = Ms{3}.form_e + Ms{4}.form_e - Ms{1}.form_e - Ms{2}.form_e;
  case "Heaviside"
@@ -61,7 +62,7 @@ switch reaction.neq_model    % choosing reaction type
    n_M32 = n_M1;
    n_M42 = n_M2;
   end
-  kf = R_exch_Heaviside(Ms2{1}, Ms2{2}, Ms2{3}, Ms2{4}, ...
+  kf = k_exch_Heaviside(Ms2{1}, Ms2{2}, Ms2{3}, Ms2{4}, ...
                                 n_M12, n_M22, n_M32, n_M42, T, coll);
   size_kf = size(kf);
   kf = reshape(kf, size_kf(1), 1, size_kf(2));
@@ -78,7 +79,7 @@ switch reaction.neq_model    % choosing reaction type
   coll.ArrE = reaction.E / k;   % in K
   load("..\data\particles.mat", "NO");
   NO.num_elex_levels=1; 
-  kf = R_exch_Heaviside(Ms{1}, Ms{2}, Ms{3}, Ms{4}, ...
+  kf = k_exch_Heaviside(Ms{1}, Ms{2}, Ms{3}, Ms{4}, ...
                                 n_M1, n_M2, n_M3, n_M4, T, coll);
   kf=sum(kf,2);
   dE_fb = (repmat(Ms{3}.ev_0(1), Ms{1}.num_vibr_levels(1), 1) ...
@@ -148,14 +149,77 @@ if reaction.reverse     % if backward reaction included
   kf = kb ./ Kfb;
  end
 end
-% kf(20:end, :, :) = 0;
-% kf(:, :, 2:end) = 0;
+
 R_exch_data = ...
             zeros(length(n_M1), length(n_M2), length(n_M3), length(n_M4));
 R_exch_data(i_sum{1}, i_sum{2}, i_sum{3}, i_sum{4}) = ... 
     reshape(n_M3(i_sum{3}), 1, 1, []) .* ...
                         reshape(n_M4(i_sum{4}), 1, 1, 1, []) .* kb  ...
                                 - n_M1(i_sum{1}) .* n_M2(i_sum{2})' .* kf;
+switch reaction.neq_model
+ case {"equilibrium", "equal"}
+  kf_eq = k_equilibrium(reaction, T);
+  kb_eq = 0;
+  if ~reaction.direction_forward
+   kb_eq = kf_eq;
+   kf_eq = 0;
+  end
+  if reaction.reverse     % if backward reaction included
+   Z_rot = zeros(1, length(Ms)) + 1;
+   for ind = 1:length(Ms)
+    if Ms{ind}.fr_deg_c > 3
+     Z_rot(ind) = T / ... % statistical rotational sum
+                    (Ms{ind}.Be(index{ind}{1}) * h * c / k * Ms{ind}.sigma);
+    end
+   end
+   Kfb_eq = Ms{1}.s_e(index{1}{1}) * Ms{2}.s_e(index{2}{1}) / ...
+     (Ms{3}.s_e(index{3}{1}) * Ms{4}.s_e(index{4}{1})) * ...
+        (Ms{1}.mass * Ms{2}.mass / (Ms{3}.mass * Ms{4}.mass))^1.5 * ...
+            prod(Z_rot(1:2)) / prod(Z_rot(3:end)) * exp( dE_fb / (k*T));
+   if reaction.direction_forward
+    kb_eq = kf_eq .* Kfb_eq;
+   else
+    kf_eq = kb_eq ./ Kfb_eq;
+   end
+  end
+  R_exch_data_1 = zeros(length(n_M1), 1);
+  R_exch_data_2 = zeros(length(n_M2), 1);
+  R_exch_data_3 = zeros(length(n_M3), 1);
+  R_exch_data_4 = zeros(length(n_M4), 1);
+  R_exch_data_1(i_sum{1}) = length(i_sum{2}) * sum(n_M3(i_sum{3}) ...
+                                .* n_M4(i_sum{4})', 'all') * kb_eq ...
+        - n_M1(i_sum{1}) * sum(n_M2(i_sum{2})) * length(i_sum{3}) ...
+                                            * length(i_sum{4}) * kf_eq;
+  R_exch_data_2(i_sum{2}) = length(i_sum{1}) * sum(n_M3(i_sum{3}) ...
+                                .* n_M4(i_sum{4})', 'all') * kb_eq ...
+        - sum(n_M1(i_sum{1})) * n_M2(i_sum{2}) * length(i_sum{3}) ...
+                                            * length(i_sum{4}) * kf_eq;
+  R_exch_data_3(i_sum{3}) = length(i_sum{1}) * length(i_sum{2}) ...
+                    * n_M3(i_sum{3}) * sum(n_M4(i_sum{4})) * kb_eq ...
+        - length(i_sum{4}) ...
+                * sum(n_M1(i_sum{1}) .* n_M2(i_sum{2})', 'all') * kf_eq;
+  R_exch_data_4(i_sum{4}) = length(i_sum{1}) * length(i_sum{2}) ...
+                    * sum(n_M3(i_sum{3})) * n_M4(i_sum{4}) * kb_eq ...
+        - length(i_sum{3}) ...
+                * sum(n_M1(i_sum{1}) .* n_M2(i_sum{2})', 'all') * kf_eq;
+  % Q2 = kb_eq * (length(i_sum{1}) * length(i_sum{2}) * ...
+  %  sum(n_M3(i_sum{3}) .* n_M4(i_sum{4})' .* (E_t{3}' + E_t{4}), 'all') ...
+  %  - (length(i_sum{2}) * sum(E_t{1}) + length(i_sum{1}) * sum(E_t{2})) ...
+  %                   * sum(n_M3(i_sum{3}) .* n_M4(i_sum{4})', 'all')) ...
+  %     - 0;
+    otherwise
+  R_exch_temp = R_exch_data;
+  R_exch_temp4 = sum(R_exch_temp, 4);     % optimization, 
+  R_exch_temp34 = sum(R_exch_temp4, 3);   %   this dumb way is faster
+  R_exch_temp234 = sum(R_exch_temp34, 2);
+  R_exch_temp134 = sum(R_exch_temp34, 1)';
+  R_exch_temp24 = sum(R_exch_temp4, 2);
+  R_exch_temp124 = reshape(sum(R_exch_temp24, 1), [], 1);
+  R_exch_data_1 = R_exch_temp234;
+  R_exch_data_2 = R_exch_temp134;
+  R_exch_data_3 = R_exch_temp124;
+  R_exch_data_4 = reshape(sum(R_exch_temp, [1 2 3]), [], 1);
+end
     % energy change in the reaction (after - before)
 dE_Q = reshape(E_t{3}, 1, 1, []) + reshape(E_t{4}, 1, 1, 1, []) ...
                                                     - E_t{1}' - E_t{2};
@@ -164,14 +228,11 @@ Q = sum(R_exch_data(i_sum{1}, i_sum{2}, i_sum{3}, i_sum{4}) .* dE_Q, ...
 end
 
 
-function kf = ...
-   R_exch_Heaviside(M1, M2, M3, M4, n_M1, n_M2, n_M3, n_M4, T, coll)
+function kf = k_exch_Heaviside(M1, M3, T, coll)
 % parameters in Arrhenius law for reactuib in structure coll: ArrA, ArrN,
 % ArrE
 %(kd_eq=A*T^N*exp(-E/T))
-c = 299792458;  % speed of light
 k = 1.380649e-23; % Boltzmann constant, J/K
-h = 6.626070041e-34; % Plank constant, J*sec
 
 %vibrational statistical sums
 exp_M1 = exp(-M1.ev_i{1}/(k*T));

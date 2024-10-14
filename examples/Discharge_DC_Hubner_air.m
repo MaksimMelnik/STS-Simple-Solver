@@ -13,7 +13,6 @@ function out = Discharge_DC_Hubner_air
 %   N(4S) + N(4S) + N2 → N2(B) + N2
 %   e–V e + N2(X, v) ↔ e+N2(X, w) ?
 %   N2(B) → N2(A) + hv
-%   e+N+2 (X) → N(4S) + N(4S) ?
 %   N + wall → 1/2N2 ?
 %   e+O+2 → O+O ?
 %   N2(A) + O2 → N2(X) +O+O
@@ -176,9 +175,10 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
    ReactZel_2   = Reactions("O2 + N -> NO + O");
    React_N2A_O2 = Reactions("N2(A) + O2 -> N2(X) + O + O");
    React_N2B_O2 = Reactions("N2(B) + O2 -> N2(X) + O + O");
-   React_N2B_N2__N2A_N2     = Reactions("N2(B) + N2 -> N2(A) + N2");
-   React_N2A_N2A__N2B_N2X   = Reactions("N2(A) + N2(A) -> N2(B) + N2(X)");
-   React_N2B_N2__N2X_N2     = Reactions("N2(B) + N2 -> N2(X) + N2");
+   React_N2B_N2__N2A_N2   = Reactions("N2(B) + N2 -> N2(A) + N2");
+   React_N2A_N2A__N2B_N2X = Reactions("N2(A) + N2(A) -> N2(B) + N2(X)");
+   React_N2B_N2__N2X_N2   = Reactions("N2(B) + N2 -> N2(X) + N2");
+   React_N2B_N2__N_N_N2   = Reactions("N2(B) + N2 -> N(4S) + N(4S) + N2");
    React_N2pX_O2X__O2pX_N2 = Reactions("N2+(X) + O2(X) -> O2+(X) + N2");
    React_e_N2pX__N4S_N4S   = Reactions("e + N2+(X) -> N(4S) + N(4S)");
    React_e_O2pX__O_O       = Reactions("e + O2+(X) -> O + O");
