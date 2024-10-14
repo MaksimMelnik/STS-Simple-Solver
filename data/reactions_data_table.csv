@@ -1,3 +1,4 @@
-﻿ReactionName ;Source;Reagent1;Reagent2;Product1;Product2;Product3;A;n;E;T_reaction;type;neq_model;E_threshold;Reagent1_e;Reagent1_v;Reagent2_e;Reagent2_v;Product1_e;Product1_v;Product2_e;Product2_v;Product3_e;Product3_v
-N2(A) + N2(A) -> N2(B) + N2(X);Pintassilgo2009;N2;N2;N2;N2;;7.7e-17;;;;const;equilibrium;;2;all;2;all;3;all;1;all;;
-N2(B) + N2 -> N2(X) + N2;Pintassilgo2009;N2;N2;N2;N2;;1.5e-18;;;;const;equilibrium;;3;all;1;all;1;all;1;all;;
+﻿ReactionName ;Source;Reagent1;Reagent2;Product1;Product2;Product3;A;n;E;T_reaction;type;neq_model;E_threshold;direction_forward;Reagent1_e;Reagent1_v;Reagent2_e;Reagent2_v;Product1_e;Product1_v;Product2_e;Product2_v;Product3_e;Product3_v
+N2(A) + N2(A) -> N2(B) + N2(X);Pintassilgo2009;N2;N2;N2;N2;;7.7e-17;;;;const;equilibrium;;;2;;2;;3;;1;;;
+N2(B) + N2 -> N2(X) + N2;Pintassilgo2009;N2;N2;N2;N2;;1.5e-18;;;;const;equilibrium;;;3;;1;;1;;1;;;
+N2(B) + N2 -> N(4S) + N(4S) + N2;Pintassilgo2009;N2;N2;N;N;N2;8.27e-46;0;6.9032e-21;;Arrhenius;equilibrium;;0;3;;1;;1;;1;;1;

@@ -51,14 +51,13 @@ for ind = 1:height(table_t)
         end
     end
     temp_react.particles    = new_reaction.particles;
-    temp_react.index = {{table_t.Reagent1_e(ind), ...
-                    convertCharsToStrings(table_t.Reagent1_v{ind})}, ...
-        {table_t.Reagent2_e(ind), ...
-                    convertCharsToStrings(table_t.Reagent2_v{ind})}, ...
-        {table_t.Product1_e(ind), ...
-                    convertCharsToStrings(table_t.Product1_v{ind})}, ...
-        {table_t.Product2_e(ind), ...
-                    convertCharsToStrings(table_t.Product2_v{ind})}};
+    R1v = index_convert_fun(table_t.Reagent1_v(ind));
+    R2v = index_convert_fun(table_t.Reagent2_v(ind));
+    P1v = index_convert_fun(table_t.Product1_v(ind));
+    P2v = index_convert_fun(table_t.Product2_v(ind));
+    temp_react.index = {{table_t.Reagent1_e(ind), R1v}, ...
+       {table_t.Reagent2_e(ind), R2v}, {table_t.Product1_e(ind), P1v}, ...
+                                        {table_t.Product2_e(ind), P2v}};
     temp_react.type = table_t.type{ind};
     temp_react_Starik = temp_react;
     temp_react_Starik.source = strcat(temp_react_Starik.source,'_Starik');
@@ -68,5 +67,24 @@ for ind = 1:height(table_t)
     new_reaction.data   = containers.Map(keySet, valueSet);
     Reactions(new_reaction.name) = new_reaction.data;
  end
+end
+end
+
+function Pv = index_convert_fun(Pv)
+if iscell(Pv)
+ switch class(Pv{1})
+     case 'char'
+        Pv = convertCharsToStrings(Pv{1});
+     case {'string', 'double'}
+        Pv = Pv{1};
+     otherwise
+         error("unsupported class")
+ end
+else
+    if isnan(Pv)
+        Pv = "all";
+    else
+        error("unsupported format")
+    end
 end
 end
