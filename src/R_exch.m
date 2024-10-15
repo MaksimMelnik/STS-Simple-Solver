@@ -64,6 +64,7 @@ switch reaction.neq_model    % choosing reaction type
   end
   kf = k_exch_Heaviside(Ms2{1}, Ms2{2}, Ms2{3}, Ms2{4}, ...
                                 n_M12, n_M22, n_M32, n_M42, T, coll);
+  % kf = k_exch_Heaviside(Ms{1}, Ms{3}, T, coll);
   size_kf = size(kf);
   kf = reshape(kf, size_kf(1), 1, size_kf(2));
   dE_fb = (repmat(Ms{3}.ev_i{1} + Ms{3}.ev_0(1), ...
@@ -228,7 +229,8 @@ Q = sum(R_exch_data(i_sum{1}, i_sum{2}, i_sum{3}, i_sum{4}) .* dE_Q, ...
 end
 
 
-function kf = k_exch_Heaviside(M1, M3, T, coll)
+% function kf = k_exch_Heaviside(M1, M3, T, coll)
+function kf = k_exch_Heaviside(M1, M2, M3, M4, n1, n2, n3, n4, T, coll)
 % parameters in Arrhenius law for reactuib in structure coll: ArrA, ArrN,
 % ArrE
 %(kd_eq=A*T^N*exp(-E/T))

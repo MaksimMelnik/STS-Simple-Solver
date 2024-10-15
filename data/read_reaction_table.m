@@ -87,6 +87,9 @@ if iscell(Pv)
      otherwise
          error("unsupported class")
  end
+ if Pv ~= "all"
+    error("not all indexes")
+ end
 else
     if isnan(Pv)
         Pv = "all";
