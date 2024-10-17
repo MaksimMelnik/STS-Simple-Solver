@@ -46,6 +46,9 @@ switch reaction.neq_model    % choosing reaction type
  case {"const", "ATn", "Arrhenius", "equal", "equilibrium"}
   kf = kf + k_equilibrium(reaction, T);
   dE_fb = Ms{3}.form_e + Ms{4}.form_e - Ms{1}.form_e - Ms{2}.form_e;
+  if ~reaction.direction_forward
+   dE_fb = - dE_fb;
+  end
  case "Heaviside"
   coll.ArrA = reaction.A(T);
   coll.ArrN = reaction.n(T);
@@ -74,6 +77,9 @@ switch reaction.neq_model    % choosing reaction type
                                     (Ms{1}.diss_e(1) - Ms{3}.diss_e(1));
   size_dE_fb = size(dE_fb);
   dE_fb = reshape(dE_fb, size_dE_fb(1), 1, size_dE_fb(2));
+  if ~reaction.direction_forward
+   dE_fb = - permute(dE_fb, [3 4 1 2]);
+  end
  case "Heaviside, avg"
   coll.ArrA = reaction.A(T);
   coll.ArrN = reaction.n(T);
@@ -86,7 +92,10 @@ switch reaction.neq_model    % choosing reaction type
   dE_fb = (repmat(Ms{3}.ev_0(1), Ms{1}.num_vibr_levels(1), 1) ...
     - repmat((Ms{1}.ev_i{1} + Ms{1}.ev_0(1))', 1, 1)) + ...
                                     (Ms{1}.diss_e(1) - Ms{3}.diss_e(1));
- case {"Starik_test", "A(T/d_T)^n"}
+  if ~reaction.direction_forward
+   dE_fb = - permute(dE_fb, [3 4 1 2]);
+  end
+ case {"Starik_test", "A(T/d_T)^n", "Starik"}
   kd_eq = k_equilibrium(reaction, T);
   Ps_r = {Ms{1}, Ms{2}};
   Ps_p = {Ms{3}, Ms{4}};

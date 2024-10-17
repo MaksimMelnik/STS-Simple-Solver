@@ -2,9 +2,9 @@ function [R_exch_data, Q] = ...
             R_exch_23(Ms, n_M1, n_M2, n_M3, n_M4, n_M5, T, reaction, n0)
 % The universal function for exchange reactions M1 + M2 -> M3 + M4 + M5. 
 % Ms are involved particles; M4 and M5 are currently atoms; 
-% n_Mi are number densities of Mi; T is the gas temperature; 
-% reaction is the reaction structure (see data/reactions_data_ini);
-% n0 is the characteristic number density.
+% n_Mi are number densities of Mi (dimentionless only); 
+% T is the gas temperature;  reaction is the reaction structure 
+% (see data/reactions_data_ini); n0 is the characteristic number density.
 % 08.08.2023 Maksim Melnik
 
     % constants
@@ -33,35 +33,46 @@ end
 
 kf = zeros(length(index{1}{2}), length(index{2}{2}), ...
         length(index{3}{2}), length(index{4}{2}), length(index{5}{2}));
+if ~reaction.direction_forward  % transposition for an inverted direction
+ kf = permute(kf, [3 4 5 1 2]);     
+end
 	% rate coefficient of backward (b) reaction
 kb = kf;
 
 switch reaction.neq_model    % choosing reaction type
- case {"const", "ATn", "Arrhenius", "equal"}
+ case {"const", "ATn", "Arrhenius", "equal", "equilibrium"}
   kf = kf + k_equilibrium(reaction, T);
   dE_fb = Ms{3}.form_e + Ms{4}.form_e + Ms{5}.form_e ...
                                             - Ms{1}.form_e - Ms{2}.form_e;
+  if ~reaction.direction_forward
+   dE_fb = - dE_fb;
+  end
  % case "A(T/d_T)^n"
  %  kf = kf + reaction.A * (T / reaction.d_T) ^ reaction.n;
  %  dE_fb = Ms{3}.form_e + Ms{4}.form_e + Ms{5}.form_e ...
  %                                            - Ms{1}.form_e - Ms{2}.form_e;
- case {"Starik_test", "A(T/d_T)^n"}
+ case {"Starik_test", "A(T/d_T)^n", "Starik"}
   kd_eq = k_equilibrium(reaction, T);
   Ps_r = {Ms{1}, Ms{2}};
   Ps_p = {Ms{3}, Ms{4}, Ms{5}};
   reaction2 = reaction;
   if ~reaction.direction_forward
-      error("isn't tested yet")
-   [Ps_p, Ps_r] = deal(Ps_r, Ps_p);     % swap
+   Ps_temp = Ps_p;
+   Ps_p = Ps_r;
+   Ps_r = Ps_temp;
    reaction2 = reaction;
    reaction2.index{1} = reaction.index{3};
    reaction2.index{2} = reaction.index{4};
-   reaction2.index{3} = reaction.index{1};
-   reaction2.index{4} = reaction.index{2};
+   reaction2.index{3} = reaction.index{5};
+   reaction2.index{4} = reaction.index{1};
+   reaction2.index{5} = reaction.index{2};
   end
   [kf, dE_fb] = k_exch_Starik(T, kd_eq, reaction2, Ps_r, Ps_p);
-  U = 3 * T;
+  % U = 3 * T;
   % [kf, dE_fb] = k_exch_Savelev(T, kd_eq, reaction2, Ps_r, Ps_p, U);
+  if ~reaction.direction_forward
+   dE_fb = - permute(dE_fb, [4 5 1 2 3]);
+  end
  otherwise
         error("Exchange reactions of this type are still not " + ...
             "implemented: " + reaction.type)    
@@ -69,8 +80,8 @@ end
    
     % if the reaction prceeds in the opposite direction
 if ~reaction.direction_forward
-  error(["Backward reactions in M + M -> M + A + A exchange are still" ...
-        " are still not implemented"])
+ kb = permute(kf, [4 5 1 2 3]);     % transposition
+ kf = kb * 0;
 end
 if reaction.reverse     % if backward reaction included
  Z_rot = zeros(1, length(Ms)) + 1;
@@ -92,8 +103,6 @@ if reaction.reverse     % if backward reaction included
  else
   kf = kb ./ Kfb / n0;
  end
-   % error(["Reverse reactions in M + M -> M + A + A exchange are still" ...
-   %      " are still not implemented"])
 end
 R_exch_data = zeros(length(n_M1), length(n_M2), length(n_M3), ...
                                             length(n_M4), length(n_M5));
