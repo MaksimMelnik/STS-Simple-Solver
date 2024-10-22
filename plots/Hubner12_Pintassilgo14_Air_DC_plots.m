@@ -176,10 +176,16 @@ end
 
 for ind = 1:5
 figure
-    plot(t*1e3, reshape(R_exch_data_full(ind, 1, :), [], 1), t*1e3, reshape(R_exch_data_full(ind, 2, :), [], 1), t*1e3, reshape(R_exch_data_full(ind, 3, :), [], 1), 'linewidth', 1.5);
-    title(strcat("\Omega exchange reactions, ", kinetics.Ps{ind}.name));
-    legend(Exch_reactions(1).name, Exch_reactions(2).name, Exch_reactions(3).name);
-    xlim([0 20]);
+hold on
+l = {};
+for ind_exch = 1:length(Exch_reactions)
+    plot(t*1e3, reshape(R_exch_data_full(ind, ind_exch, :), [], 1), 'linewidth', 1.5);
+    l{ind_exch} = Exch_reactions(ind_exch).name; 
+end
+title(strcat("\Omega exchange reactions, ", kinetics.Ps{ind}.name));
+xlim([0 20]);
+legend(l);
+hold off
 end
 
 % Free e
@@ -223,11 +229,17 @@ for ind_free_e = 1:length(Free_e_reactions)
 end
 
 for ind = 1:size(Ps, 2)
-figure
-    plot(t*1e3, reshape(R_free_e_data_full(ind, 1, :), [], 1), t*1e3, reshape(R_free_e_data_full(ind, 2, :), [], 1), t*1e3, reshape(R_free_e_data_full(ind, 3, :), [], 1), 'linewidth', 1.5);
+    figure
+    hold on
+    l = {};
+    for ind_exch = 1:length(Free_e_reactions)
+        plot(t*1e3, reshape(R_free_e_data_full(ind, ind_exch, :), [], 1), 'linewidth', 1.5);
+        l{ind_exch} = Free_e_reactions(ind_exch).name;
+    end
     title(strcat("\Omega free e reactions, ", Ps{ind}.name));
-    legend(Free_e_reactions(1).name, Free_e_reactions(2).name, Free_e_reactions(3).name);
+    legend(l);
     xlim([0 20]);
+    hold off
 end
 
 % elastic collisions e with particles
