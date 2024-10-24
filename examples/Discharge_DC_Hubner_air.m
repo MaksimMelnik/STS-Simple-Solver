@@ -11,12 +11,8 @@ function out = Discharge_DC_Hubner_air
 %  todo:
 % expand the kinetic scheme:
 %   N(4S) + N(4S) + N2 → N2(B) + N2
-%   e–V e + N2(X, v) ↔ e+N2(X, w) ?
+%   e–V e + N2(X, v) ↔ e+N2(X, w)
 %   N2(B) → N2(A) + hv
-%   N + wall → 1/2N2 ?
-%   e+O+2 → O+O ?
-%   N2(A) + O2 → N2(X) +O+O
-%   N2(B) + O2 → N2(X) +O+O
 %   N(4S) +O+N2 → NO(X) + N
 %   N(4S) +O+O2 → NO(X) + O2
 %       adding N2(B3Пg)
