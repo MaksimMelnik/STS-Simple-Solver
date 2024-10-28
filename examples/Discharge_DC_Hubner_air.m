@@ -11,7 +11,6 @@ function out = Discharge_DC_Hubner_air
 %  todo:
 % expand the kinetic scheme:
 %   N(4S) + N(4S) + N2 → N2(B) + N2
-%   e–V e + N2(X, v) ↔ e+N2(X, w)
 %   N2(B) → N2(A) + hv
 %   N(4S) +O+N2 → NO(X) + N
 %   N(4S) +O+O2 → NO(X) + O2
@@ -20,6 +19,7 @@ function out = Discharge_DC_Hubner_air
 %       - fix n_N2B and Q_R7 N2B + O2 -> N2X + O + O
 %       - plot N2B + N2 -> N2A + N2
 %       - e+N2(X)->e+N2(A3Su+,v=0-4),Excitation
+%   e–V e + N2(X, v) ↔ e+N2(X, w)
 % add  (R2)  e      + O2  → e+O2(A, C, c) → e+O(3P) + O(3P)
 % - add 11 processes and corresponding Qin:
 %   (2) Nitrogen and oxygen dissociation by electron
@@ -127,7 +127,7 @@ init_c = [% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
 for i_ini = 2           % choosing desired initial coonditions
  for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
                         %   2 is for D/6k; 3 is for 3T; 4 is for inf
-for i_scheme = 2 % [1 2] % chosing the kinetic scheme: 
+for i_scheme = 1 % [1 2] % chosing the kinetic scheme: 
                          % 1 is for actual non-equilibrium kinetic scheme
                          % 2 is for scheme from Pintassilgo2014
    T0         = init_c(i_ini, 4);         % K
@@ -236,6 +236,7 @@ for i_scheme = 2 % [1 2] % chosing the kinetic scheme:
        , 'Rec_wall' ...
        ..., 'Diss' ...
        , 'free_e' ...
+       , 'Radiation' ...
        };
    reacs_val  = {model_VT, model_VT ...
        , ...
@@ -244,6 +245,7 @@ for i_scheme = 2 % [1 2] % chosing the kinetic scheme:
        , 1 ...
        ..., Diss ...
        , Free_e ...
+       , 1 ... Radiation
        };
    kinetics.reactions = containers.Map(Reacs_keys, reacs_val);
    kinetics.index = indexes_for_Ps(kinetics.Ps);

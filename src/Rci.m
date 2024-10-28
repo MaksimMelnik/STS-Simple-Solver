@@ -14,6 +14,7 @@ R_VE_data   = zeros(kinetics.num_eq, 1);
 R_exch_data = zeros(kinetics.num_eq, 1);
 R_wall_data = zeros(kinetics.num_eq, 1);
 R_ET_data   = zeros(kinetics.num_eq, 1);
+R_radiation_data = zeros(kinetics.num_eq, 1);
 Qin = 0;
 
 for indM1 = 1:kinetics.num_Ps   % considering each particle
@@ -228,6 +229,32 @@ if isKey(kinetics.reactions, 'Exch') % exchange reactions universal attempt
  end
 end
 
-R = R_VT_data + R_VV_data + R_diss_data + R_VE_data + ... 
-                                    R_exch_data + R_wall_data + R_ET_data;
+if isKey(kinetics.reactions, 'Radiation')
+ Ps = kinetics.Ps;
+ for indP1 = 1:length(Ps)
+  if Ps{indP1}.name == "N2"
+   M1 = Ps{indP1};
+   i1 = kinetics.index{indP1};
+   ind_e = 2;
+   i1_e = i1(1+sum(M1.num_vibr_levels(1:ind_e-1)) : ...
+                                        sum(M1.num_vibr_levels(1:ind_e)));
+   ie2 = i1_e;
+   ind_e = 3;
+   i1_e = i1(1+sum(M1.num_vibr_levels(1:ind_e-1)) : ...
+                                        sum(M1.num_vibr_levels(1:ind_e)));
+   ie3 = i1_e;
+   [R_radiation_data_temp, Q_radiation] = ...
+                        R_radiation(Ps{indP1}, y(ie3), Ps{indP1}, y(ie2));
+   R_radiation_data_temp = R_radiation_data_temp / n0;
+   R_radiation_data_temp_3 = sum(R_radiation_data_temp, 2);
+   R_radiation_data_temp_2 = sum(R_radiation_data_temp, 1)';
+   R_radiation_data(ie3) = R_radiation_data(ie3) +R_radiation_data_temp_3;
+   R_radiation_data(ie2) = R_radiation_data(ie2) -R_radiation_data_temp_2;
+   Qin = Qin + Q_radiation / n0;
+  end
+ end
+end
+
+R = R_VT_data + R_VV_data + R_diss_data + R_VE_data + R_exch_data ... 
+                            + R_wall_data + R_ET_data + R_radiation_data;
 end
