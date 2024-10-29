@@ -69,6 +69,7 @@ for ind = 1:height(table_t)
     temp_react_Starik = temp_react;
     temp_react_Starik.source = strcat(temp_react_Starik.source,'_Starik');
     temp_react_Starik.neq_model = "Starik_test";
+    temp_react_Starik.reverse = true;
     keySet      = {temp_react.source, temp_react_Starik.source};
     valueSet    = {temp_react, temp_react_Starik};
     data        = containers.Map(keySet, valueSet);

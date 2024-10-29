@@ -10,10 +10,6 @@ function out = Discharge_DC_Hubner_air
 
 %  todo:
 % expand the kinetic scheme:
-%   N(4S) + N(4S) + N2 → N2(B) + N2
-%   N2(B) → N2(A) + hv
-%   N(4S) +O+N2 → NO(X) + N
-%   N(4S) +O+O2 → NO(X) + O2
 %       adding N2(B3Пg)
 %       - add N2(B3Пg) formation reaction
 %       - fix n_N2B and Q_R7 N2B + O2 -> N2X + O + O
@@ -188,11 +184,14 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
         React_N2A_O2_Pintassilgo2009    = React_N2A_O2("Pintassilgo2009");
         React_N2A_O2_Pintassilgo2009.neq_model = "Starik_test";
         React_N2A_O2_Pintassilgo2009.reverse   = true;
+        React_N2pX_O2X__O2pX_N2_KS ...
+                        = React_N2pX_O2X__O2pX_N2("Kossyi1992_Starik");
+        React_N2pX_O2X__O2pX_N2_KS.reverse = true;
         model_VT = 'FHO';
         % model_VT = 'SSH';
         Exch = [ReactZel_1("Savelev2018"), ReactZel_2("Savelev2018") ...
                 , React_N2A_O2_Pintassilgo2009 ...
-                , React_N2pX_O2X__O2pX_N2("Kossyi1992_Starik") ...
+                , React_N2pX_O2X__O2pX_N2_KS ...
                 , React_N2B_O2('Kossyi1992_Starik') ...
                 , React_N2B_N2__N2A_N2("Guerra1997_Starik") ...
                 , React_N2A_N2A__N2B_N2X("Pintassilgo2009_Starik") ...
