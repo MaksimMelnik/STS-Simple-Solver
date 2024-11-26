@@ -429,55 +429,62 @@ Q_VT_Ks = Q_VT ./ (n_g/N_a) ./ c_p_total;
 % Q_VT_wall_Ks = Q_VT_wall ./ (n_g/N_a) ./ c_p_total;
 legend_str1(1) = "VT N_2-O, Pintassilgo2014";
 legend_str2(1) = "VT N_2-O, code";
+linewidth_Q = 2;
 loglog(Pintassilgo2014_ag_Q_VT_N2_O(:, 1), ...
             Pintassilgo2014_ag_Q_VT_N2_O(:, 2), ...
-                        'color', [0 0 0.8], 'linewidth', 1.5) %#ok<USENS>
+                'color', [0 0 0.8], 'linewidth', linewidth_Q) %#ok<USENS>
 hold on
 if isKey(kinetics.reactions, 'Wall') && ...
                                     isKey(kinetics.reactions, 'Rec_wall')
  loglog(Pintassilgo2014_ag_Q_rec_O_wall(:, 1), ...
     Pintassilgo2014_ag_Q_rec_O_wall(:, 2), ...
-                        'color', [0.8 0 0], 'linewidth', 1.5) %#ok<USENS>
+                'color', [0.8 0 0], 'linewidth', linewidth_Q) %#ok<USENS>
  legend_str1 = [legend_str1, "O+wall rec, Pintassilgo2014"];
 end
 if isKey(kinetics.reactions, 'VV')
  loglog(Pintassilgo2014_ag_Q_VV_N2_N2(:, 1), ...
             Pintassilgo2014_ag_Q_VV_N2_N2(:, 2), ...
-                        'color', [0 0.7 0], 'linewidth', 1.5) %#ok<USENS>
+                'color', [0 0.7 0], 'linewidth', linewidth_Q) %#ok<USENS>
  legend_str1 = [legend_str1, "VV N2-N2, Pintassilgo2014"];
 end
 if isKey(kinetics.reactions, 'Exch')
  loglog(Pintassilgo2014_ag_Q_Zel_N2_O(:, 1), ...
             Pintassilgo2014_ag_Q_Zel_N2_O(:, 2), ...
-                       'color', [1 0.7 0], 'linewidth', 1.5) %#ok<USENS>
+               'color', [1 0.7 0], 'linewidth', linewidth_Q) %#ok<USENS>
  loglog(Pintassilgo2014_ag_Q_Zel_N_NO(:, 1), ...
             Pintassilgo2014_ag_Q_Zel_N_NO(:, 2), ...
-                       'color', [1 0.4 0], 'linewidth', 1.5) %#ok<USENS>
+               'color', [1 0.4 0], 'linewidth', linewidth_Q) %#ok<USENS>
  legend_str1 = [legend_str1, "Zel N2-O, Pintassilgo2014", ...
                                             "Zel N-NO, Pintassilgo2014"];
 end
-loglog(t_ag*1e3, Q_VT_Ks, ':', 'color', [0 0 0.8], 'linewidth', 1.5)
+loglog(t_ag*1e3, Q_VT_Ks, ':', 'color', [0 0 0.8], ...
+                                                'LineWidth', linewidth_Q)
 if isKey(kinetics.reactions, 'Wall') && ...
                                     isKey(kinetics.reactions, 'Rec_wall')
  Q_rec_wall_Ks = Q_rec_wall ./ (n_g/N_a) ./ c_p_total;
- loglog(t_ag*1e3, Q_rec_wall_Ks, ':', 'color', [0.8 0 0], 'linewidth',1.5)
+ loglog(t_ag*1e3, Q_rec_wall_Ks, ':', 'color', [0.8 0 0], ...
+                                                'LineWidth', linewidth_Q)
  legend_str2 = [legend_str2, "O+wall rec, code"];
 end
 if isKey(kinetics.reactions, 'VV')
  Q_VV_Ks = Q_VV ./ (n_g/N_a) ./ c_p_total;
- loglog(t_ag*1e3, Q_VV_Ks, ':', 'color', [0 0.7 0], 'linewidth', 1.5)
+ loglog(t_ag*1e3, Q_VV_Ks, ':', 'color', [0 0.7 0], ...
+                                                'LineWidth', linewidth_Q)
  legend_str2 = [legend_str2, "VV N_2-N_2, code"];
 end
 if isKey(kinetics.reactions, 'Exch')
  Q_exch_N2_O_Ks = Q_exch_N2_O ./ (n_g/N_a) ./ c_p_total;
+ if Exch_reactions(1).source == "Guerra95"
+     Q_exch_N2_O_Ks = - Q_exch_N2_O_Ks;
+ end
  loglog(t_ag*1e3, Q_exch_N2_O_Ks, ':', 'color', [1 0.7 0], ...
-                                                        'linewidth', 1.5)
+                                                'linewidth', linewidth_Q)
  Q_exch_N_NO_Ks = Q_exch_N_NO ./ (n_g/N_a) ./ c_p_total;
  loglog(t_ag*1e3, Q_exch_N_NO_Ks, ':', 'color', [1 0.4 0], ...
-                                                        'linewidth', 1.5)
+                                                'linewidth', linewidth_Q)
  legend_str2 = [legend_str2, "Zel N2-O, code", "Zel N-NO, code"];
 end
-%  loglog(t_ag*1e3, Q_VT_wall_Ks, 'linewidth', 1.5)
+%  loglog(t_ag*1e3, Q_VT_wall_Ks, 'linewidth', linewidth_Q)
 legend([legend_str1 legend_str2], 'location', 'best')
 title('Q_{in}')
 xlim([6e-3 1e2])
