@@ -474,9 +474,6 @@ if isKey(kinetics.reactions, 'VV')
 end
 if isKey(kinetics.reactions, 'Exch')
  Q_exch_N2_O_Ks = Q_exch_N2_O ./ (n_g/N_a) ./ c_p_total;
- if Exch_reactions(1).source == "Guerra95"
-     Q_exch_N2_O_Ks = - Q_exch_N2_O_Ks;
- end
  loglog(t_ag*1e3, Q_exch_N2_O_Ks, ':', 'color', [1 0.7 0], ...
                                                 'linewidth', linewidth_Q)
  Q_exch_N_NO_Ks = Q_exch_N_NO ./ (n_g/N_a) ./ c_p_total;

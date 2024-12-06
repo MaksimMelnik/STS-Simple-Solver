@@ -93,8 +93,10 @@ react3.source = 'Guerra95';
 react3.type = "const";
 react3.neq_model = "equal";
 react3.reverse = false;
+% react3.index = {{1, 1+13:N2.num_vibr_levels(1)}, {1, 1}, ...
+%                                                     {1, "all"}, {1, 1}};
 react3.index = {{1, 1+13:N2.num_vibr_levels(1)}, {1, 1}, ...
-                                                    {1, "all"}, {1, 1}};
+                                                        {1, 1}, {1, 1}};
 react3.A = 1e-13 / 1e6;
 react3.n = 0;
 react3.E = 0;
