@@ -5,11 +5,11 @@ function Hubner12_Pintassilgo14_Air_DC_plots(data)
 % [2] C D Pintassilgo et al Plasma Sources Sci. Technol. 23 (2014) 025006.
 % 26.07.2023 Maksim Melnik
 
-is_T_Tv_plot = false;
+is_T_Tv_plot = true;
 is_Q_plot = true;
-is_n_NO_N_O = true;
-is_VDF = false;
-is_Omega_plot = true;
+is_n_NO_N_O = false;
+is_VDF = true;
+is_Omega_plot = false;
 
     % constants
 N_a = 6.02214076e23;              % Avogadro constant
@@ -50,7 +50,11 @@ if isKey(kinetics.reactions, 'Exch')
 end
 
 n_g=sum(Y(:, 1:end-1), 2);
-n_N2=sum(Y(:, kinetics.index{1}), 2);
+n = {};
+for i = 1:length(kinetics.Ps)
+    n{i} = sum(Y(:, kinetics.index{i}), 2);
+end
+n_N2=n{1};
 t_ag=t-0.005;
 fsize = [200 50 900 550];
 
@@ -325,41 +329,48 @@ grid on
 
 %% VDF ag plot
 if is_VDF
-    figure('Position', fsize)
 time_ind0=1;
 [~, time_ind1]   = min( abs(t_ag*1e3 - 1) );
 [~, time_ind10]  = min( abs(t_ag*1e3 - 10) );
 % time_ind100=length(Y(:, 1));
 [~, time_ind100] = min( abs(t_ag*1e3 - 100) );
-lvls4plot=0:length(Y(1, kinetics.index{1}))-1;
-semilogy(Pintassilgo2014_N2_VDF_post_DC(:,1), ...
-            Pintassilgo2014_N2_VDF_post_DC(:,2), ...
-                           'color', [1 0 0] ,'linewidth', 1.5) %#ok<USENS>
-hold on
-semilogy(Pintassilgo2014_N2_VDF_ag_1ms(:,1), ...
-                            Pintassilgo2014_N2_VDF_ag_1ms(:,2), ...
-                'color', [0.75 0.2 0.25] ,'linewidth', 1.5) %#ok<USENS>
-semilogy(Pintassilgo2014_N2_VDF_ag_10ms(:,1), ...
-                            Pintassilgo2014_N2_VDF_ag_10ms(:,2), ...
-                'color', [0.25 0.4 0.75] ,'linewidth', 1.5) %#ok<USENS>
-semilogy(Pintassilgo2014_N2_VDF_ag_100ms(:,1), ...
+for i = 1:length(kinetics.Ps)
+if length(Y(1, kinetics.index{i}))-1 ~= 0
+    lvls4plot=0:length(Y(1, kinetics.index{i}))-1;
+    figure('Position', fsize)
+    semilogy(lvls4plot, Y(time_ind0, kinetics.index{i})/n{i}(time_ind0), ...
+                            '--', 'color', [1 0 0] ,'linewidth', 2.5)
+    hold on
+    semilogy(lvls4plot, Y(time_ind1, kinetics.index{i})/n{i}(time_ind1), ...
+                        '--', 'color', [0.75 0.2 0.25] ,'linewidth', 2.5)
+    semilogy(lvls4plot, Y(time_ind10, kinetics.index{i})/n{i}(time_ind10), ...
+                        '--', 'color', [0.25 0.4 0.75] ,'linewidth', 2.5)
+    semilogy(lvls4plot, ...
+            Y(time_ind100, kinetics.index{i})/n{i}(time_ind100), ...
+                            '--', 'color', [0 0.6 1] ,'linewidth', 2.5)
+    if i == 1
+        semilogy(Pintassilgo2014_N2_VDF_post_DC(:,1), ...
+                        Pintassilgo2014_N2_VDF_post_DC(:,2), ...
+                        'color', [1 0 0] ,'linewidth', 1.5) %#ok<USENS>
+        semilogy(Pintassilgo2014_N2_VDF_ag_1ms(:,1), ...
+                        Pintassilgo2014_N2_VDF_ag_1ms(:,2), ...
+                        'color', [0.75 0.2 0.25] ,'linewidth', 1.5) %#ok<USENS>
+        semilogy(Pintassilgo2014_N2_VDF_ag_10ms(:,1), ...
+                        Pintassilgo2014_N2_VDF_ag_10ms(:,2), ...
+                        'color', [0.25 0.4 0.75] ,'linewidth', 1.5) %#ok<USENS>
+        semilogy(Pintassilgo2014_N2_VDF_ag_100ms(:,1), ...
                         Pintassilgo2014_N2_VDF_ag_100ms(:,2), ...
                         'color', [0 0.6 1] ,'linewidth', 1.5) %#ok<USENS>
-semilogy(lvls4plot, Y(time_ind0, kinetics.index{1})/n_N2(time_ind0), ...
-                            '--', 'color', [1 0 0] ,'linewidth', 2.5)
-semilogy(lvls4plot, Y(time_ind1, kinetics.index{1})/n_N2(time_ind1), ...
-                        '--', 'color', [0.75 0.2 0.25] ,'linewidth', 2.5)
-semilogy(lvls4plot, Y(time_ind10, kinetics.index{1})/n_N2(time_ind10), ...
-                        '--', 'color', [0.25 0.4 0.75] ,'linewidth', 2.5)
-semilogy(lvls4plot, ...
-            Y(time_ind100, kinetics.index{1})/n_N2(time_ind100), ...
-                            '--', 'color', [0 0.6 1] ,'linewidth', 2.5)
- legend('0.1 ms, Pintassilgo2014', '1 ms, Pintassilgo2014', ...
-            '10 ms, Pintassilgo2014', '100 ms, Pintassilgo2014', ...
-            '0 ms, Maksim', '1 ms, Maksim', '10 ms, Maksim', ...
-                                    '100 ms, Maksim', 'location', 'best')
-xlim([0 30])
-ylim([1e-6 1])
+    end
+    hold off
+    title(kinetics.Ps{i}.name)
+    legend('0 ms, Maksim', '1 ms, Maksim', '10 ms, Maksim', '100 ms, Maksim', ...
+            '0.1 ms, Pintassilgo2014', '1 ms, Pintassilgo2014', ...
+            '10 ms, Pintassilgo2014', '100 ms, Pintassilgo2014', 'location', 'best')
+    xlim([0 30])
+    ylim([1e-6 1])
+end
+end
 end
 %% heating rates, K/s
 if is_Q_plot 
