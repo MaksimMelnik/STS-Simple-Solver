@@ -11,18 +11,16 @@ function out = Discharge_DC_Hubner_air
 %  todo:
 % expand the kinetic scheme:
 %       adding N2(B3Пg)
-%       - fix n_N2B and Q_R7 N2B + O2 -> N2X + O + O
 %       - plot N2B + N2 -> N2A + N2
 %       - e+N2(X)->e+N2(A3Su+,v=0-4),Excitation
 %   e–V e + N2(X, v) ↔ e+N2(X, w)
 % add  (R2)  e      + O2  → e+O2(A, C, c) → e+O(3P) + O(3P)
 % - add 11 processes and corresponding Qin:
-%   (2) Nitrogen and oxygen dissociation by electron
+%   (2) oxygen dissociation by electron
 %   (6) V–T energy exchanges in N2–N collisions involving multiquantum
 %   (9) Diffusion of molecular and atomic metastable states to the wall
 %   (11) Electron–ion recombination involving nitrogen or oxygen ions,Qe−i
 % electonic field equations
-% fix strange behaviour of 1st bachward Zeldovich reaction for Kossyi
 % remove Arrhenius subfunction in R_exch
 % change reaction initialization to tables
 % add VT switcher for different molecules
@@ -36,15 +34,13 @@ function out = Discharge_DC_Hubner_air
 %   e+N2(X)->e+e+N2(+,X),Ionization
 % add in R_exch in dE difference electronic energy (for detailed balance?)
 % turn on discharge
-% add N(4S) +O+N2 → NO(X) + N2
-% add N(4S) +O+O2 → NO(X) + O2
 % ions:
 %   O+
 %   NO+
 %   O-
 % add an array of electronic states taking into account for each particle
 % - add all particles:
-%   N2(B3Пg, B'3Σ−u, C3Пu, a'1Σ−u, a1Пg, w1Δu)
+%   N2(B'3Σ−u, C3Пu, a'1Σ−u, a1Пg, w1Δu)
 %   O2(a1Δg, b1Σ+g)
 % - include electronic states of O2 in the reaction 
 %       N2(A) + O2 -> N2(X) + O + O 
@@ -53,24 +49,17 @@ function out = Discharge_DC_Hubner_air
 %   NO(A2Σ+, B2П)
 %   NO2(X, A)
 %   O3
-%   N2+, N4+, O2+, O+, NO+, O−
-%   e-
+%   N4+, O+, NO+, O−
 % - add all 15 reactions:
 %   (R1)  e      + N2  → e+N∗2 → e+N(4S) + N(2D)
 %   (R3)  e      + O2  → e+O2(B) → e+O(3P) + O(1D)
-%   (R7)  N2(B)  + O2  → N2(X) + O + O
 %   (R8)  N2(a') + O2  → N2(X) + O + O
 %   (R9)  N2(a)  + O2  → N2(X) + O + O
 %   (R10) N2(w)  + O2  → N2(X) + O + O
 %   (R11) N2(A)  + O   → NO(X) + N(2D)
-%   (R12) N2(B)  + N2  → N2(A) + N2
-%   (R13) e      + N+2 → N(4S) + N(4S)
-%   (R14) e+O+2 → O(3P) + O(3P)
 %   (R15) e + NO+ → N(4S) + O(3P)
 % add VT rates from V. Guerra works and fix the VT fluxes
 % - N2-N    % first five transitions, same as i->i-1
-% Consider the second Zeldovich reaction. It's not included in 
-%   prof. Guerra's works, but it affects
 % rewrite Aliat dissociation for cases if electronicaly excited states have
 %   no vibrations
 
@@ -130,7 +119,8 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
    f_O2_0     = init_c(i_ini, 2);
    f_NO_0     = init_c(i_ini, 3);
    T3         = init_c(i_ini, 5) /T0;
-   % T3         = 440 / T0;
+   % T3         = 460 / T0;
+   % T3         = 500 / T0;
    f_O_3      = init_c(i_ini, 6);
    f_N_3      = init_c(i_ini, 8);
    f_NO_3     = init_c(i_ini, 7);
@@ -190,10 +180,11 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
         model_VT = 'FHO';
         % model_VT = 'SSH';
         model_VV = model_VT;
+        % model_VV = 'SSH';
         % model_VV = 'Guerra';
         Exch = [ReactZel_1("Savelev2018") ...
-            ...ReactZel_1("Guerra95"), ...
-            ...ReactZel_1("Guerra95_reverse") ...
+                ...ReactZel_1("Guerra95"), ...
+                ...ReactZel_1("Guerra95_reverse") ...
                 , ReactZel_2("Savelev2018") ...
                 , React_N2A_O2_Pintassilgo2009 ...
                 , React_N2pX_O2X__O2pX_N2_KS ...
@@ -209,6 +200,9 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
                     , React_e_O2pX__O_O("Kossyi1992_Starik") ...
                     , React_e_N2X__e_N4S_N4S("LoKI-B steady Starik")
                     ];
+        % for i_db = 1: length(Exch)
+        %     Exch(i_db).reverse = false;
+        % end
        case 2   % Portuguese kinetic scheme
 	    model_VT = 'Guerra';
         % model_VT = 'FHO';
@@ -295,6 +289,7 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
    f_O2_3 = ((2-f_O_3-f_N_3)*(f_O2_0+f_NO_0/2) - f_O_3 - f_NO_3)/2;
    f_N2_3 = 1 - f_O2_3 - f_NO_3 - f_O_3 - f_N_3 - f_N2A_3 - f_N2B_3;
    n_N2 = n_N2 * f_N2_3 * (1 - ion_degree);
+   % n_N2 = distribution_Boltzmann(Tv1, f_N2_3 * (1 - ion_degree), N2, 1)';
    n_O2 = distribution_Boltzmann(Tv1/8, f_O2_3 * (1 - ion_degree),O2, 1)';
    n_NO = distribution_Boltzmann(Tv1,   f_NO_3,                   NO, 1)';
    n_N2A = distribution_Boltzmann(Tv1, f_N2A_3, N2, 2)';

@@ -29,6 +29,8 @@ if isKey(kinetics.reactions, 'free_e') %processes involving free electrons
  Re = Re * kinetics.n0 * kinetics.t0;
  Qin_e = Qin_e * kinetics.n0^2;
  Qe = Qe * kinetics.n0^2;
+ % Qe = Qe * 10;
+ % Re = Re * 10;
  R = [R; 0] + Re;
 end
 Q_total = Q + Qin_e;
@@ -39,6 +41,7 @@ Q_total = Q + Qin_e;
 lambdaN2 = (1.717 + 0.084*T - 1.948e-5*T^2)/1e3;  % W / m / K
 lambdaO2 = (1.056 + 0.087*T - 8.912e-6*T^2)/1e3;  % W / m / K
 lambda = lambdaN2 * 0.8 + lambdaO2 * 0.2;         % W / m / K (kg*m/s3/K)
+% lambda = lambda *(1-1/(15/4+2));
 % n_m = sum(y(1:end-1)) * kinetics.n0 / N_a;        % molar density, mol/m3
     % molar density, mol/m3
 n_m = sum(y(1:kinetics.index{end}(end))) * kinetics.n0 / N_a;

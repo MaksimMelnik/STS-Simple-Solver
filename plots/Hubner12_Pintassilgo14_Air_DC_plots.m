@@ -391,9 +391,11 @@ Q_VV = zeros(length(t), 1);
 Q_exch_N2_O = zeros(length(t), 1);
 Q_exch_N_NO = zeros(length(t), 1);
 for i_out = 1:length(t)
-[~, Q_VT_data] = R_VT(N2, Y(i_out, i1_N2)', O, ...
+if isKey(kinetics.reactions, 'VT')
+    [~, Q_VT_data] = R_VT(N2, Y(i_out, i1_N2)', O, ...
                 Y(i_out, iO(1)), T(i_out), 1, kinetics.reactions('VT'));
-Q_VT(i_out) = Q_VT_data;
+    Q_VT(i_out) = Q_VT_data;
+end
 if isKey(kinetics.reactions, 'Wall') 
 %  [~, Q_VT_wall_data] = ...
 %                     R_VT_wall(N2, Y(i_out, i1_N2)', T(i_out), kinetics);

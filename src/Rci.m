@@ -147,6 +147,7 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
                                         R_rec_wall_data_temp/kinetics.n0;
      RW_target = 1; % recombination on the wall target state
      % RW_target = M1.num_vibr_levels(1); % recombination on the wall target state
+     % RW_target = 18;
 	 R_wall_data(i1(RW_target)) = R_wall_data(i1(RW_target)) - ...
                                    0.5 * R_rec_wall_data_temp/kinetics.n0;
 	 Qin = Qin + Q_rec_wall/kinetics.n0;
