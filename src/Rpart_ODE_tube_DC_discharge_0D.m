@@ -41,7 +41,7 @@ lambdaO2 = (1.056 + 0.087*T - 8.912e-6*T^2)/1e3;  % W / m / K
 lambda = lambdaN2 * 0.8 + lambdaO2 * 0.2;         % W / m / K (kg*m/s3/K)
 % n_m = sum(y(1:end-1)) * kinetics.n0 / N_a;        % molar density, mol/m3
     % molar density, mol/m3
-n_m = sum(y(1:length(kinetics.Ps))) * kinetics.n0 / N_a;
+n_m = sum(y(1:kinetics.index{end}(end))) * kinetics.n0 / N_a;
 cp_N2 = c_p(kinetics.Ps{1}, T);
 cp_O2 = c_p(kinetics.Ps{2}, T);
 c_p_total = 0.8 * cp_N2 + 0.2 * cp_O2;      % molar heat capacity, J/mol/K
