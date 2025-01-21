@@ -42,7 +42,6 @@ lambdaN2 = (1.717 + 0.084*T - 1.948e-5*T^2)/1e3;  % W / m / K
 lambdaO2 = (1.056 + 0.087*T - 8.912e-6*T^2)/1e3;  % W / m / K
 lambda = lambdaN2 * 0.8 + lambdaO2 * 0.2;         % W / m / K (kg*m/s3/K)
 % lambda = lambda *(1-1/(15/4+2));
-% n_m = sum(y(1:end-1)) * kinetics.n0 / N_a;        % molar density, mol/m3
     % molar density, mol/m3
 n_m = sum(y(1:kinetics.index{end}(end))) * kinetics.n0 / N_a;
 cp_N2 = c_p(kinetics.Ps{1}, T);
@@ -61,10 +60,7 @@ if isKey(kinetics.reactions, 'free_e')
     end
     dT = dT + 2*(Te-T)*fr*ne*me*kb*kinetics.n0;
 end
-dT = dT / (n_m*c_p_total) / kinetics.T0 * kinetics.t0;
-% dT = (8*lambda*(kinetics.Tw - T)/kinetics.tube_R^2 + Q_total ...
-%                 + 2*(Te-T)*fr*ne*me*kb*kinetics.n0) ...
-%                 /(n_m*c_p_total) /kinetics.T0*kinetics.t0; % dimentionless
+dT = dT / (n_m*c_p_total) / kinetics.T0 * kinetics.t0; % dimentionless
 dTe = [];
     % Te equation
 if isKey(kinetics.reactions, 'free_e')

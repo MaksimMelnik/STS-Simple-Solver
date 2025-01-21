@@ -42,26 +42,6 @@ function out = Discharge_DC_Hubner_air
 % - add all particles:
 %   N2(B'3Σ−u, C3Пu, a'1Σ−u, a1Пg, w1Δu)
 %   O2(a1Δg, b1Σ+g)
-% - include electronic states of O2 in the reaction 
-%       N2(A) + O2 -> N2(X) + O + O 
-% - add all particles:
-%   N(2D, 2P)
-%   NO(A2Σ+, B2П)
-%   NO2(X, A)
-%   O3
-%   N4+, O+, NO+, O−
-% - add all 15 reactions:
-%   (R1)  e      + N2  → e+N∗2 → e+N(4S) + N(2D)
-%   (R3)  e      + O2  → e+O2(B) → e+O(3P) + O(1D)
-%   (R8)  N2(a') + O2  → N2(X) + O + O
-%   (R9)  N2(a)  + O2  → N2(X) + O + O
-%   (R10) N2(w)  + O2  → N2(X) + O + O
-%   (R11) N2(A)  + O   → NO(X) + N(2D)
-%   (R15) e + NO+ → N(4S) + O(3P)
-% add VT rates from V. Guerra works and fix the VT fluxes
-% - N2-N    % first five transitions, same as i->i-1
-% rewrite Aliat dissociation for cases if electronicaly excited states have
-%   no vibrations
 
 warning("The present test case is unfinished")
 warning('Thermal average velocity in R_VT_wall should be recheckerd')
@@ -290,7 +270,9 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
    f_N2_3 = 1 - f_O2_3 - f_NO_3 - f_O_3 - f_N_3 - f_N2A_3 - f_N2B_3;
    n_N2 = n_N2 * f_N2_3 * (1 - ion_degree);
    % n_N2 = distribution_Boltzmann(Tv1, f_N2_3 * (1 - ion_degree), N2, 1)';
+   n_O2 = distribution_Boltzmann(Tv1, f_O2_3 * (1 - ion_degree),O2, 1)';
    n_O2 = distribution_Boltzmann(Tv1/8, f_O2_3 * (1 - ion_degree),O2, 1)';
+   n_O2 = distribution_Boltzmann(Tv1/7, f_O2_3 * (1 - ion_degree),O2, 1)';
    n_NO = distribution_Boltzmann(Tv1,   f_NO_3,                   NO, 1)';
    n_N2A = distribution_Boltzmann(Tv1, f_N2A_3, N2, 2)';
    n_N2B = distribution_Boltzmann(Tv1, f_N2B_3, N2, 3)';

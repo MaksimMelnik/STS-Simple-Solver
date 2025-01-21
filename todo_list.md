@@ -20,3 +20,20 @@
 - add a possibility to vary an oscillator for vibrations
 - add FHO-FR
 - stop using symbolic calculations
+- rewrite Aliat dissociation model for cases if electronicaly excited states have no vibrations
+- add multiquantum VT transition rates from prof. V. Guerra works for N2-N for postdischarge problem
+- include electronic states of O2 in the reaction N2(A) + O2 -> N2(X) + O + O 
+- add the following electronicaly excited particles for postdischarge/discharge problems
+	- N(2D, 2P)
+	- NO(A2Σ+, B2П)
+	- NO2(X, A)
+	- O3
+	- N4+, O+, NO+, O−
+- add the following reactions for postdischarge/discharge problems
+	- (R1)  e      + N2  → e+N∗2 → e+N(4S) + N(2D)
+	- (R3)  e      + O2  → e+O2(B) → e+O(3P) + O(1D)
+	- (R8)  N2(a') + O2  → N2(X) + O + O
+	- (R9)  N2(a)  + O2  → N2(X) + O + O
+	- (R10) N2(w)  + O2  → N2(X) + O + O
+	- (R11) N2(A)  + O   → NO(X) + N(2D)
+	- (R15) e + NO+ → N(4S) + O(3P)
