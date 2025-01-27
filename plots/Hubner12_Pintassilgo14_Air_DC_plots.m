@@ -10,6 +10,7 @@ is_Q_plot = true;
 is_n_NO_N_O = false;
 is_VDF = true;
 is_Omega_plot = false;
+is_Pintassilgo2014_T = true;
 
     % constants
 N_a = 6.02214076e23;              % Avogadro constant
@@ -286,12 +287,18 @@ tH = Hubner_2012_T(:, 1);
 TH = Hubner_2012_T(:, 2);
 hold on
 plot(tH, TH, 'sq', 'MarkerEdgeColor', '#5A5A5A', 'linewidth', 1.5);
-plot(t*1e3, T, t*1e3, Tv, '-.', 'linewidth', 1.5); %#ok<USENS>
+plot(t*1e3, T, 'linewidth', 1.5);
+legend_str = ["T_{exp}, Hubner 2012", "T"];
+if is_Pintassilgo2014_T
+    plot(Pintassilgo2014_T(:, 1), Pintassilgo2014_T(:, 2), ':', ...
+                                                        'LineWidth', 1.5)
+    legend_str = [legend_str, "T, Pintassilgo 2014"];
+end
 err = 30*ones(size(TH(5:5:end)))';
 errorbar(tH(5:5:end), TH(5:5:end),...
                      err, 's', 'color', '#5A5A5A', 'linewidth', 1);
-hold off 
-legend('T_{exp}, Hubner 2012', 'T', 'Tv', 'location', 'best')
+hold off
+legend(legend_str, 'location', 'best')
 xlabel('t, ms')
 xlim([-2 14])
 ylim([250 620])

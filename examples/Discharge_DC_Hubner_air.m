@@ -79,7 +79,7 @@ O2p.num_elex_levels = 1;
     % f_M_i are fractions of particle M at the moment i (i=0 is initial,
     %   i=3 is when the discharge is off. Fractions_3 are approximate.
 init_c = [% p0, Pa; f_O2_0; f_NO_0; T0, K; T3, K; f_O_3; f_NO_3; f_N_3;
-            133     0.2     0.008   300    440    1.2e-1 3.8e-3  2e-3 ...
+            133     0.2     0.008   300    436    1.2e-1 3.8e-3  2e-3 ...
         ... f_N2A_3 f_N2B_3 ion degree
             5.8e-5  7e-6    1e-6
           % modified T3, f_NO_3, f_N_3
