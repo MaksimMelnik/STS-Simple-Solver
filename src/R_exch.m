@@ -9,6 +9,10 @@ function [R_exch_data, Q, R_exch_data_1, R_exch_data_2, ...
 % Electronic excitaion is not taken into account.
 % 22.07.2023 Maksim Melnik
 
+if length(reaction.particles) ~= 4
+    error("The number of particles is not correct.")
+end
+
     % constants
 k = 1.380649e-23;         % Boltzmann constant, J/K
 c = 299792458;            % speed of light
