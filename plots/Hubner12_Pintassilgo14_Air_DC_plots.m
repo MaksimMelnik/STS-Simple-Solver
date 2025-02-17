@@ -142,6 +142,19 @@ end
 
 %Exch
 R_exch_data_full = zeros(length(kinetics.Ps), length(Exch_reactions), length(t));
+Exch_colors = [
+                41, 128, 185
+                192, 57, 43
+                39, 174, 96
+                243, 156, 18
+                241, 196, 15
+                142, 68, 173
+                26, 188, 156
+                234, 76, 137
+                65, 0, 147
+                160, 82, 45
+                50, 205, 50
+                ]/255;
 for ind_exch = 1:length(Exch_reactions)
     reaction = Exch_reactions(ind_exch);
     
@@ -275,7 +288,8 @@ figure
 hold on
 l = {};
 for ind_exch = 1:length(Exch_reactions)
-    plot(t*1e3, reshape(R_exch_data_full(ind, ind_exch, :), [], 1), 'linewidth', 1.5);
+    plot(t*1e3, reshape(R_exch_data_full(ind, ind_exch, :), [], 1), ...
+                    'linewidth', 1.5, 'Color', Exch_colors(ind_exch, :));
     l{ind_exch} = Exch_reactions(ind_exch).name; 
 end
 title(strcat("\Omega exchange reactions, ", kinetics.Ps{ind}.name));

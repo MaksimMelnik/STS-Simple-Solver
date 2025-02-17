@@ -262,7 +262,7 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
                         Pintassilgo2014_N2_VDF_post_DC(:, 2), i_vec, ...
                                         'spline', 'extrap');%#ok<USENS>
    N2_VDF(N2_VDF<0) = 0;
-   n_N2 = N2.ev_i{1}*0;
+   n_N2 = N2.ev_i{1}*0;     % initialization of the length
    n_N2(i_vec+1) = N2_VDF/sum(N2_VDF);
    n_N2 = n_N2';
    Tv1 = N2.ev_i{1}(2)./(k*log(n_N2(1)./n_N2(2)));
@@ -270,9 +270,12 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
    f_N2_3 = 1 - f_O2_3 - f_NO_3 - f_O_3 - f_N_3 - f_N2A_3 - f_N2B_3;
    n_N2 = n_N2 * f_N2_3 * (1 - ion_degree);
    % n_N2 = distribution_Boltzmann(Tv1, f_N2_3 * (1 - ion_degree), N2, 1)';
-   n_O2 = distribution_Boltzmann(Tv1, f_O2_3 * (1 - ion_degree),O2, 1)';
-   n_O2 = distribution_Boltzmann(Tv1/8, f_O2_3 * (1 - ion_degree),O2, 1)';
+   % n_O2 = distribution_Boltzmann(Tv1, f_O2_3 * (1 - ion_degree),O2, 1)';
+   % n_O2 = distribution_Boltzmann(Tv1/8, f_O2_3 * (1 - ion_degree),O2, 1)';
    n_O2 = distribution_Boltzmann(Tv1/7, f_O2_3 * (1 - ion_degree),O2, 1)';
+   % n_O2 = O2.ev_i{1}*0;
+   % n_O2(i_vec+1) = N2_VDF/sum(N2_VDF) * f_O2_3 * (1 - ion_degree);
+   % n_O2 = n_O2';
    n_NO = distribution_Boltzmann(Tv1,   f_NO_3,                   NO, 1)';
    n_N2A = distribution_Boltzmann(Tv1, f_N2A_3, N2, 2)';
    n_N2B = distribution_Boltzmann(Tv1, f_N2B_3, N2, 3)';
