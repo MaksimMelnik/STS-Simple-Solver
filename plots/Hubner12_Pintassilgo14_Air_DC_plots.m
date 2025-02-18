@@ -60,17 +60,20 @@ n_N2=n{1};
 t_ag=t-0.005;
 fsize = [200 50 900 550];
 Exch_colors = [
-                41, 128, 185
+                41, 128, 200
                 192, 57, 43
                 39, 174, 96
                 243, 156, 18
                 241, 196, 15
                 142, 68, 173
-                26, 188, 156
+                26, 188, 200
                 234, 76, 137
                 65, 0, 147
                 160, 82, 45
                 50, 205, 50
+                255, 127, 80
+                0, 100, 0
+                119, 136, 153
                 ]/255;
 
 %%  Omega
@@ -657,19 +660,8 @@ if is_Q_plot2
  end
 end
 
-Q_VT = zeros(1, length(t));
-for i_out = 1:length(t)
- if isKey(kinetics.reactions, 'VT')
-    [~, Q_VT_data] = R_VT(N2, Y(i_out, i1_N2)', O, ...
-                Y(i_out, iO(1)), T(i_out), 1, kinetics.reactions('VT'));
-    Q_VT(i_out) = Q_VT_data;
- end
-end
-
-Q_VT = Q_VT ./ (n_g'/N_a) ./ c_p_total';
-
 Q_data = Q_data ./ (n_g'/N_a) ./ c_p_total';
-figure
+figure('Position', fsize)
 % hold on
 title("Q_2")
 l = {};
@@ -679,6 +671,51 @@ for ind_exch = 1:length(Exch_reactions)
     hold on
     l{ind_exch} = Exch_reactions(ind_exch).name; 
 end
+
+Q_VT = zeros(1, length(t));
+if isKey(kinetics.reactions, 'VT')
+ for i_out = 1:length(t)
+    [~, Q_VT_data] = R_VT(N2, Y(i_out, i1_N2)', O, ...
+                Y(i_out, iO(1)), T(i_out), 1, kinetics.reactions('VT'));
+    Q_VT(i_out) = Q_VT_data;
+ end
+ Q_VT = Q_VT ./ (n_g'/N_a) ./ c_p_total';
+ ind_exch = ind_exch + 1;
+ loglog(t_ag*1e3, Q_VT, ...
+                    'linewidth', 1.5, 'Color', Exch_colors(ind_exch, :));
+ l{end + 1} = "VT N2-O"; 
+end
+
+Q_VV = zeros(1, length(t));
+if isKey(kinetics.reactions, 'VV')
+ for i_out = 1:length(t)
+  [~, Q_VV_data] = R_VV(N2, Y(i_out, i1_N2)', N2, Y(i_out, i1_N2)', ...
+                             T(i_out), 1, 1, kinetics.reactions('VV'));
+  Q_VV(i_out) = Q_VV_data;
+ end
+ Q_VV = Q_VV ./ (n_g'/N_a) ./ c_p_total';
+ ind_exch = ind_exch + 1;
+ loglog(t_ag*1e3, Q_VV, ...
+                    'linewidth', 1.5, 'Color', Exch_colors(ind_exch, :));
+ l{end + 1} = "VV N2-N2";
+end
+
+Q_rec_wall = zeros(1, length(t));
+if isKey(kinetics.reactions, 'Wall')
+ if isKey(kinetics.reactions, 'Rec_wall')
+  for i_out = 1:length(t)
+   [~, Q_rec_wall_data] = R_rec_wall(O, Y(i_out, kinetics.index{5}), ...
+                                                    T(i_out), kinetics);
+   Q_rec_wall(i_out) = Q_rec_wall_data;
+  end
+  Q_rec_wall = Q_rec_wall ./ (n_g'/N_a) ./ c_p_total';
+  ind_exch = ind_exch + 1;
+  loglog(t_ag*1e3, Q_rec_wall, ...
+                    'linewidth', 1.5, 'Color', Exch_colors(ind_exch, :));
+ l{end + 1} = "wall recombination of O2";
+ end
+end
+
 % xlim([0 20]);
 legend(l);
 xlim([6e-3 1e2])
