@@ -9,6 +9,7 @@ is_T_Tv_plot = true;
 is_Q_plot = true;
 is_n_NO_N_O = false;
 is_VDF = true;
+is_Q_plot2 = true;
 is_Omega_plot = false;
 is_Pintassilgo2014_T = true;
 
@@ -58,6 +59,19 @@ end
 n_N2=n{1};
 t_ag=t-0.005;
 fsize = [200 50 900 550];
+Exch_colors = [
+                41, 128, 185
+                192, 57, 43
+                39, 174, 96
+                243, 156, 18
+                241, 196, 15
+                142, 68, 173
+                26, 188, 156
+                234, 76, 137
+                65, 0, 147
+                160, 82, 45
+                50, 205, 50
+                ]/255;
 
 %%  Omega
 if is_Omega_plot
@@ -142,19 +156,6 @@ end
 
 %Exch
 R_exch_data_full = zeros(length(kinetics.Ps), length(Exch_reactions), length(t));
-Exch_colors = [
-                41, 128, 185
-                192, 57, 43
-                39, 174, 96
-                243, 156, 18
-                241, 196, 15
-                142, 68, 173
-                26, 188, 156
-                234, 76, 137
-                65, 0, 147
-                160, 82, 45
-                50, 205, 50
-                ]/255;
 for ind_exch = 1:length(Exch_reactions)
     reaction = Exch_reactions(ind_exch);
     
@@ -225,8 +226,7 @@ for ind_exch = 1:length(Exch_reactions)
        ie_5 = reaction.index{5}{1};
        [R_exch_temp, ~] = R_exch_23({M1, M2, M3, M4, M5}, ...
             Y(i_out, indM1)', Y(i_out, indM2)', Y(i_out, indM3)', ...
-            Y(i_out, indM4)', Y(i_out, indM5)', T(i_out), reaction, ...
-            1);
+            Y(i_out, indM4)', Y(i_out, indM5)', T(i_out), reaction, 1);
         if M1.num_vibr_levels(ie_1) > 1
             i1_e = (1+sum(M1.num_vibr_levels(1:ie_1 - 1)) : ...
                                         sum(M1.num_vibr_levels(1:ie_1)));
@@ -618,6 +618,72 @@ title('Q_{in}')
 xlim([6e-3 1e2])
 ylim([6e0 1e5])
 end
+
+%% heating rates 2
+if is_Q_plot2
+ Q_data = zeros(length(Exch_reactions), length(t));
+ for ind_exch = 1:length(Exch_reactions)
+  reaction = Exch_reactions(ind_exch);
+  IOM_M1 = IndexOfMolecules(reaction.particles(1));
+  IOM_M2 = IndexOfMolecules(reaction.particles(2));
+  IOM_M3 = IndexOfMolecules(reaction.particles(3));
+  IOM_M4 = IndexOfMolecules(reaction.particles(4));
+  M1 = kinetics.Ps{IOM_M1};
+  M2 = kinetics.Ps{IOM_M2};
+  M3 = kinetics.Ps{IOM_M3};
+  M4 = kinetics.Ps{IOM_M4};
+  indM1 = kinetics.index{IOM_M1};
+  indM2 = kinetics.index{IOM_M2};
+  indM3 = kinetics.index{IOM_M3};
+  indM4 = kinetics.index{IOM_M4};
+  for i_out = 1:length(t)
+   switch length(reaction.particles)
+    case 4
+     [~, Q_temp] = R_exch({M1, M2, M3, M4}, Y(i_out, indM1)', ...
+           Y(i_out, indM2)', Y(i_out, indM3)', Y(i_out, indM4)', ...
+           T(i_out), reaction);
+    case 5
+     IOM_M5 = IndexOfMolecules(reaction.particles(5));
+     indM5  = kinetics.index{IOM_M5};
+     M5 = kinetics.Ps{IOM_M5};
+     [~, Q_temp] = R_exch_23({M1, M2, M3, M4, M5}, ...
+            Y(i_out, indM1)', Y(i_out, indM2)', Y(i_out, indM3)', ...
+            Y(i_out, indM4)', Y(i_out, indM5)', T(i_out), reaction, 1);
+    otherwise
+     error("The number of particles is not 4 or 5.")
+   end
+   Q_data(ind_exch, i_out) = Q_temp;
+  end
+ end
+end
+
+Q_VT = zeros(1, length(t));
+for i_out = 1:length(t)
+ if isKey(kinetics.reactions, 'VT')
+    [~, Q_VT_data] = R_VT(N2, Y(i_out, i1_N2)', O, ...
+                Y(i_out, iO(1)), T(i_out), 1, kinetics.reactions('VT'));
+    Q_VT(i_out) = Q_VT_data;
+ end
+end
+
+Q_VT = Q_VT ./ (n_g'/N_a) ./ c_p_total';
+
+Q_data = Q_data ./ (n_g'/N_a) ./ c_p_total';
+figure
+% hold on
+title("Q_2")
+l = {};
+for ind_exch = 1:length(Exch_reactions)
+    loglog(t_ag*1e3, Q_data(ind_exch, :), ...
+                    'linewidth', 1.5, 'Color', Exch_colors(ind_exch, :));
+    hold on
+    l{ind_exch} = Exch_reactions(ind_exch).name; 
+end
+% xlim([0 20]);
+legend(l);
+xlim([6e-3 1e2])
+ylim([6e0 1e5])
+hold off
 %% N2(A), N2(a'), N2(B) and N2(w) ag plot
 if N2.num_elex_levels > 1
  i2_N2 = iN2(1 + N2.num_vibr_levels(1):...
