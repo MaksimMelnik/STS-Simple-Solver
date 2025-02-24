@@ -1,4 +1,4 @@
-function [R, Q] = R_rec_wall(M, n_a, T, kinetics)
+function [R, Q] = R_rec_wall(M, n_a, T, kinetics, vibr_energy)
 % Universal function for calculation of R_rec recombination terms on 
 % the wall of the tube with radius R. The equations were taken from [1].
 % 2 M + wall -> M2(X, 0)
@@ -6,7 +6,8 @@ function [R, Q] = R_rec_wall(M, n_a, T, kinetics)
 % Q is the energy flux of recombination.
 % M is the molecule under consideration; n_a is the atom M's number 
 % density; T is the gas temperature;
-% kinetics is the big structure with all kinetics.
+% kinetics is the big structure with all kinetics;
+% vibr_energy is the vibrational energy of target vibrational state.
 % 22.06.2023 Maksim Melnik
 % [1] C D Pintassilgo et al Plasma Sources Sci. Technol. 23 (2014) 025006
 
@@ -27,5 +28,6 @@ nu_w = gamma * v_th / 2 / kinetics.tube_R;
 R = - n_a .* nu_w;
 beta = 0.5;
     % Q of recombination and rotational energy flow
+dE = dE - vibr_energy;
 Q = - sum(R) * dE * (1-beta) + sum(R)/2 * k*T;
 end

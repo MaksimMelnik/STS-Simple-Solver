@@ -141,15 +141,16 @@ for indM1 = 1:kinetics.num_Ps   % considering each particle
      end
      iP1 = kinetics.index{indP1};
      nP1 = y(iP1(1));
-     [R_rec_wall_data_temp, Q_rec_wall] = ...
-                        R_rec_wall(kinetics.Ps{indP1}, nP1, T, kinetics);
+     % RW_target = 1; % recombination on the wall target state
+     % RW_target = M1.num_vibr_levels(1); % recombination on the wall target state
+     % RW_target = 17;  % 16th level
+     Rec_wall_target = kinetics.reactions("Rec_wall");
+     [R_rec_wall_data_temp, Q_rec_wall] = R_rec_wall(...
+       kinetics.Ps{indP1}, nP1, T, kinetics, M1.ev_i{1}(Rec_wall_target));
 	 R_wall_data(iP1(1)) = R_wall_data(iP1(1)) + ...
                                         R_rec_wall_data_temp/kinetics.n0;
-     RW_target = 1; % recombination on the wall target state
-     % RW_target = M1.num_vibr_levels(1); % recombination on the wall target state
-     % RW_target = 18;
-	 R_wall_data(i1(RW_target)) = R_wall_data(i1(RW_target)) - ...
-                                   0.5 * R_rec_wall_data_temp/kinetics.n0;
+	 R_wall_data(i1(Rec_wall_target)) = R_wall_data(...
+            i1(Rec_wall_target)) - 0.5 * R_rec_wall_data_temp/kinetics.n0;
 	 Qin = Qin + Q_rec_wall/kinetics.n0;
     end
    end
