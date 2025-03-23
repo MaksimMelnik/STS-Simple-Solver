@@ -57,23 +57,6 @@ tic                             % measuring computing time
     % constants
 k = 1.380649e-23;               % Boltzmann constant, J/K
 addpath('../src/')
-load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO', 'N2p', 'O2p')
-    % electronic excitation
-N2.num_elex_levels = 1;         % N2(X1Σg+)
-N2.num_elex_levels = 2;         % N2(X1Σg+, A3Σu+)
-% N2.num_vibr_levels(2) = 1;  N2.ev_0(2) = 0;  N2.ev_i{2} = 0;
-N2.num_elex_levels = 3;         % N2(X1Σg+, A3Σu+, B3Пg)
-% N2.num_vibr_levels(3) = 1;  N2.ev_0(3) = 0;  N2.ev_i{3} = 0;
-    % no electronic excitation
-O2.num_elex_levels  = 1;         
-O.num_elex_levels   = 1;
-N.num_elex_levels   = 1;
-NO.num_elex_levels  = 1;
-N2p.num_elex_levels = 1;
-O2p.num_elex_levels = 1;
-    % no vibrational excitation
-% NO.num_vibr_levels(1) = 1;  NO.ev_0(1) = 0;  NO.ev_i{1} = 0;
-% O2.num_vibr_levels(1) = 1;  O2.ev_0(1) = 0;  O2.ev_i{1} = 0;
 
     % initial conditions
     % f_M_i are fractions of particle M at the moment i (i=0 is initial,
@@ -94,13 +77,26 @@ for i_ini = 2           % choosing desired initial coonditions
 for i_scheme = 1 % [1 2] % chosing the kinetic scheme: 
                          % 1 is for actual non-equilibrium kinetic scheme
                          % 2 is for scheme from Pintassilgo2014
+   load('../data/particles.mat', 'N2', 'O2', 'N', 'O', 'NO', 'N2p', 'O2p')
+        % electronic excitation
+   % N2.num_elex_levels = 1;         % N2(X1Σg+)
+   % N2.num_elex_levels = 2;         % N2(X1Σg+, A3Σu+)
+   N2.num_elex_levels = 3;         % N2(X1Σg+, A3Σu+, B3Пg)
+        % no electronic excitation
+   O2.num_elex_levels  = 1;         
+   O.num_elex_levels   = 1;
+   N.num_elex_levels   = 1;
+   NO.num_elex_levels  = 1;
+   N2p.num_elex_levels = 1;
+   O2p.num_elex_levels = 1;
+
    T0         = init_c(i_ini, 4);         % K
    n0         = init_c(i_ini, 1)/k/T0;    % m-3
    f_O2_0     = init_c(i_ini, 2);
    f_NO_0     = init_c(i_ini, 3);
    T3         = init_c(i_ini, 5) /T0;
    % T3         = 460 / T0;
-   % T3         = 500 / T0;
+   T3         = 500 / T0;
    f_O_3      = init_c(i_ini, 6);
    f_N_3      = init_c(i_ini, 8);
    f_NO_3     = init_c(i_ini, 7);
@@ -113,11 +109,6 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
    sigma0 = pi*N2.diameter^2;
    Delta = 1 / sqrt(2) / n0 / sigma0; % characteristic length, m
    t0    = 1 / (4 * n0 * N2.diameter^2 * sqrt(pi * k * T0 / N2.mass));
-
-   Ps = {N2, O2, NO, N, O, N2p, O2p};
-   % Ps = {N2, O2, NO, N, O};
-   kinetics.Ps = Ps;
-   kinetics.num_Ps = length(kinetics.Ps);
    
    Diss.Arrhenius='Park';
    Diss.rec=true;
@@ -159,7 +150,9 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
         React_N2pX_O2X__O2pX_N2_KS.reverse = true;
         model_VT = 'FHO';
         % model_VT = 'SSH';
+        % model_VT = 'Guerra';
         model_VV = model_VT;
+        % model_VV = 'FHO';
         % model_VV = 'SSH';
         % model_VV = 'Guerra';
         Exch = [ReactZel_1("Savelev2018") ...
@@ -184,9 +177,20 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
         %     Exch(i_db).reverse = false;
         % end
        case 2   % Portuguese kinetic scheme
+            % no vibrational excitation
+        N2.num_vibr_levels(2) = 1;  N2.ev_0(2) = 0;  N2.ev_i{2} = 0;
+        N2.num_vibr_levels(3) = 1;  N2.ev_0(3) = 0;  N2.ev_i{3} = 0;
+        NO.num_vibr_levels(1) = 1;  NO.ev_0(1) = 0;  NO.ev_i{1} = 0;
+        O2.num_vibr_levels(1) = 1;  O2.ev_0(1) = 0;  O2.ev_i{1} = 0;
+
+        % model_VT = 'FHO';
+        % model_VT = 'SSH';
 	    model_VT = 'Guerra';
         % model_VT = 'FHO';
         model_VV = model_VT;
+        % model_VV = 'FHO';
+        % model_VV = 'SSH';
+        % model_VV = 'Guerra';
         Exch = [ReactZel_1("Guerra95"), ...
             ReactZel_1("Guerra95_reverse") ...
                 , React_N2A_O2("Pintassilgo2009") ...
@@ -204,6 +208,12 @@ for i_scheme = 1 % [1 2] % chosing the kinetic scheme:
                     , React_e_N2X__e_N4S_N4S("LoKI-B steady")
                     ];
    end
+
+   Ps = {N2, O2, NO, N, O, N2p, O2p};
+   % Ps = {N2, O2, NO, N, O};
+   kinetics.Ps = Ps;
+   kinetics.num_Ps = length(kinetics.Ps);
+
    N2A_diff = Reactions("N2(A) + wall -> N2(X) + wall");
    ET_diff_c    = cell(1, kinetics.num_Ps);
                     % N2(X),          N2(A)

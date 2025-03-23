@@ -42,6 +42,8 @@ lambdaN2 = (1.717 + 0.084*T - 1.948e-5*T^2)/1e3;  % W / m / K
 lambdaO2 = (1.056 + 0.087*T - 8.912e-6*T^2)/1e3;  % W / m / K
 lambda = lambdaN2 * 0.8 + lambdaO2 * 0.2;         % W / m / K (kg*m/s3/K)
 % lambda = lambda *(1-1/(15/4+2));
+% lambda = lambda * 0.9;
+% lambda = lambda * 1.1;
     % molar density, mol/m3
 n_m = sum(y(1:kinetics.index{end}(end))) * kinetics.n0 / N_a;
 cp_N2 = c_p(kinetics.Ps{1}, T);

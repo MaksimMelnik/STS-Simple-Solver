@@ -408,8 +408,10 @@ errorbar(tH(5:5:end), TH(5:5:end),...
 hold off
 legend(legend_str, 'location', 'best')
 xlabel('t, ms')
-xlim([-2 14])
+xlim([-2 14])   % whole experiment
 ylim([250 620])
+xlim([4 14])    % only afterglow
+ylim([270 550])
 %% Te plot
 if isKey(kinetics.reactions, 'free_e')
         figure
