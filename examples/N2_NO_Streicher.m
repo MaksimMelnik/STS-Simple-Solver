@@ -304,10 +304,10 @@ for i_rel=2 %[1 2]
     n_boltz_NO=density_f_exc(T0buf, n1*f, NO);
     y0_1(kinetics.index{IndexOfMolecules("NO")})=n_boltz_NO;
     if (i_ini<=6)
-        n_boltz_N2=density_f_exc(T0, n1*(1-f), N2);
+        n_boltz_N2=density_f_exc(T0buff, n1*(1-f), N2);
         y0_1(kinetics.index{IndexOfMolecules("Ar")})=0;
     else
-        n_boltz_N2=density_f_exc(T0, n1*(1-f)/2, N2);
+        n_boltz_N2=density_f_exc(T0buff, n1*(1-f)/2, N2);
         y0_1(kinetics.index{IndexOfMolecules("Ar")})=n1*(1-f)/2;
     end
     y0_1(kinetics.index{IndexOfMolecules("N2")})=n_boltz_N2;

@@ -21,12 +21,12 @@ dat(2,4,12,3)=tmp;
 tmp1.time=0; tmp1.T=0; tmp1.TvCO=0; tmp1.TvN2=0; tmp1.ni_CO=0;
 tmp1.ni_N2=0; tmp1.p=0; tmp1.nCO=0; tmp1.nN2=0;
 tmp1.nAr=0;
-dat1(2,4,12,2,3)=tmp1;
+dat1(2,3,2)=tmp1;
 
 clear tmp tmp1;
 addpath('../src/')
 addpath('../data/')
-load('particles.mat', "CO", "N2", "Ar");
+load('particles.mat', "CO", "N2", "Ar", "C", "O", "N");
 load('../data/reactions.mat'); %load reaction data
 
 CO.num_elex_levels=1;       % CO electronic excitation
@@ -42,7 +42,7 @@ init_c= [ % f;  p0, Pa;   v0, m/s;   T0, K;   v0_1
 
 dbg = 1;
 
-for i_ini=3 % [1 2 3]
+for i_ini=1 % [1 2 3]
     %choosing testcase
 
     for i_vibr=2 %[1 2]
@@ -70,7 +70,7 @@ for i_ini=3 % [1 2 3]
 
             sigma0 = pi*CO.diameter^2;
             Delta = 1 / sqrt(2) / n0 / sigma0; %free path length
-            Ps = {CO, N2, Ar};
+            Ps = {CO, N2, Ar, C, O, N};
 
             switch i_vibr
                 case 1
@@ -80,8 +80,14 @@ for i_ini=3 % [1 2 3]
             end
 
             %without exchange and diss-rec reactions, since this can be neglected
-            Reacs_keys={'VT', 'VV'};
-            reacs_val={model_VT, model_VT};
+            Reacs_keys={'Diss', 'VT', 'VV'};
+            load('../data/reactions.mat'); %load reaction data
+
+            Diss.Arrhenius='Park';
+            Diss.rec=true;
+            Diss.NEmodel='MT';
+            Diss.U='D/6k';
+            reacs_val={Diss, model_VT, model_VT};
             kinetics.Ps = Ps;
             kinetics.num_Ps=length(kinetics.Ps);
             kinetics.index = indexes_for_Ps(Ps);
@@ -213,7 +219,7 @@ for i_ini=3 % [1 2 3]
             n_boltz_CO=density_f_exc(T0buf, n1*fCO, CO);
             y0_1(kinetics.index{IndexOfMolecules("CO")})=n_boltz_CO;
             y0_1(kinetics.index{IndexOfMolecules("Ar")})=n1*fAr;
-            n_boltz_N2=density_f_exc(T0, n1*fN2, N2);
+            n_boltz_N2=density_f_exc(T0buf, n1*fN2, N2);
             y0_1(kinetics.index{IndexOfMolecules("N2")})=n_boltz_N2;
         end
         y0_1(end-1)=v1;
@@ -295,7 +301,7 @@ plot(time_ms_1/1e3, Tv_N2, time_ms_1/1e3, Tv_N2, 'linewidth', 1.5)
 %%
 %if you want to save your data in .mat file, uncomment following raws
 % save('..\data\CO_N2 Streicher experiment\CO_N2_betweenSWs_output.mat', 'dat');
-% save('..\data\CO_N2 Streicher experiment\CO_N2_behindRSW_output.mat', 'dat1');
+save('..\data\CO_N2_Ar Hong experiment\CO_N2_Ar_behindRSW_output.mat', 'dat1');
 rmpath('../src/')
 rmpath('../data/')
 toc
