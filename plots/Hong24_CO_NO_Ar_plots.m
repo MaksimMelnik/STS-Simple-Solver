@@ -10,16 +10,22 @@ for experiment=[1 2 3]
     exp_time = cleanData.TimeMs;
     exp_TvCO = cleanData.TvibMeanK;
 
-    for kinetic_model = [2] % [SSH, FHO]
-        Tv_CO = SimulatedData(kinetic_model,experiment,2).TvCO;
-        time_ms = SimulatedData(kinetic_model,experiment,2).time/1e3;
-        figure
+    figure;
+    hold on;
+    plot(exp_time, exp_TvCO, 'linewidth', 1.5, 'DisplayName', 'Экспериментальные данные');
 
-        plot(time_ms, Tv_CO, exp_time, exp_TvCO, 'linewidth', 1.5);
-        xlabel('Время / мс');
-        ylabel('T, K');
-        title(['CO-T_{vib}', ' for Mixture ', num2str(experiment)]);
-        if save_flag
-        end
+    Tv_CO_SSH = SimulatedData(1,experiment,2).TvCO;
+    time_ms_SSH = SimulatedData(1,experiment,2).time/1e3;
+    plot(time_ms_SSH, Tv_CO_SSH, 'linewidth', 1.5, 'DisplayName', 'SSH');
+
+    Tv_CO_FHO = SimulatedData(2,experiment,2).TvCO;
+    time_ms_FHO = SimulatedData(2,experiment,2).time/1e3;
+    plot(time_ms_FHO, Tv_CO_FHO, 'linewidth', 1.5, 'DisplayName', 'FHO');
+
+    xlabel('Время / мс');
+    ylabel('T, K');
+    title(['CO-T_{vib}', ' для смеси ', num2str(experiment)]);
+    legend();
+    if save_flag
     end
 end

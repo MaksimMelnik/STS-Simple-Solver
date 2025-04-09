@@ -42,10 +42,10 @@ init_c= [ % f;  p0, Pa;   v0, m/s;   T0, K;   v0_1
 
 dbg = 1;
 
-for i_ini=1 % [1 2 3]
+for i_ini=[1 2 3]
     %choosing testcase
 
-    for i_vibr=2 %[1 2]
+    for i_vibr=[1 2]
         % choosing desired vibrational energy exchange model 1 for SSH; 2 for FHO
 
         for i_rel=2 %[1 2]
@@ -79,15 +79,10 @@ for i_ini=1 % [1 2 3]
                     model_VT='FHO';
             end
 
-            %without exchange and diss-rec reactions, since this can be neglected
-            Reacs_keys={'Diss', 'VT', 'VV'};
-            load('../data/reactions.mat'); %load reaction data
+            % without exchange and diss-rec reactions, since this can be neglected
+            Reacs_keys={'VT', 'VV'};
+            reacs_val={model_VT, model_VT};
 
-            Diss.Arrhenius='Park';
-            Diss.rec=true;
-            Diss.NEmodel='MT';
-            Diss.U='D/6k';
-            reacs_val={Diss, model_VT, model_VT};
             kinetics.Ps = Ps;
             kinetics.num_Ps=length(kinetics.Ps);
             kinetics.index = indexes_for_Ps(Ps);
