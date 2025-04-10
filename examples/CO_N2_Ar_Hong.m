@@ -171,7 +171,7 @@ for i_ini=[1 2 3]
         end
         if i_rel==2
             disp('Conservation laws check behind ISW')
-            check_CL_SW([rhov0 rhov2p0 Ep0], Y, kinetics, 1);
+            check_CL_SW([rhov0 rhov2p0 Ep0], Y, kinetics, 0);
         end
 
         %% REFL
@@ -259,7 +259,7 @@ for i_ini=[1 2 3]
             + k*T0*n_CO(end) + k*T0*n_N2(end)  + 1.5*n0*k*T0;
         Ep0_1=(En0_1+n0*k*T0)/rho0+0.5*v0^2;       % (E0+p0)/rho0+v0^2/2
         disp('Conservation laws check behind RSW')
-        check_CL_SW([rhov0_1 rhov2p0_1 Ep0_1], Y_1, kinetics, 1);
+        check_CL_SW([rhov0_1 rhov2p0_1 Ep0_1], Y_1, kinetics, 0);
 
         %This is where the output data is stored.
         % They contain the evolution of temperatures, number densities,
