@@ -26,7 +26,7 @@ dat1(2,3,2)=tmp1;
 clear tmp tmp1;
 addpath('../src/')
 addpath('../data/')
-load('particles.mat', "CO", "N2", "Ar", "C", "O", "N");
+load('particles.mat', "CO", "N2", "Ar");
 load('../data/reactions.mat'); %load reaction data
 
 CO.num_elex_levels=1;       % CO electronic excitation
@@ -70,7 +70,7 @@ for i_ini=[1 2 3]
 
             sigma0 = pi*CO.diameter^2;
             Delta = 1 / sqrt(2) / n0 / sigma0; %free path length
-            Ps = {CO, N2, Ar, C, O, N};
+            Ps = {CO, N2, Ar};
 
             switch i_vibr
                 case 1
@@ -165,7 +165,9 @@ for i_ini=[1 2 3]
             for ind_e=1:N2.num_elex_levels
                 e_i_N2=[e_i_N2, N2.ev_i{ind_e}+N2.ev_0(ind_e)+N2.e_E(ind_e)];
             end
-            En0=n0*e_i_CO*n_boltz_CO/n1 + n0*e_i_N2*n_boltz_N2/n1 + n0*k*T0 + 1.5*n0*k*T0;
+            En0=n0*e_i_CO*n_boltz_CO/n1 + n0*e_i_N2*n_boltz_N2/n1 + ...
+                fMol*n0*k*T0 + ...
+                1.5*n0*k*T0 + n0*CO.form_e*fCO + n0*N2.form_e*fN2;
             Ep0=(En0+n0*k*T0)/rho0+0.5*v0^2;
             % (E0+p0)/rho0+v0^2/2
         end
@@ -254,9 +256,10 @@ for i_ini=[1 2 3]
 
         rhov0_1=rho0 * v0;                    % rho0*v0
         rhov2p0_1=rho0* v0^2 + n0*k*T0;      % rho0*v0^2+p0
-        En0_1=n0*e_i_CO*y0_1(kinetics.index{IndexOfMolecules("CO")})/n1 +...
+        En0_1=n0*e_i_CO*y0_1(kinetics.index{IndexOfMolecules("CO")})/n1 + ...
             n0*e_i_N2*y0_1(kinetics.index{IndexOfMolecules("N2")})/n1 ...
-            + k*T0*n_CO(end) + k*T0*n_N2(end)  + 1.5*n0*k*T0;
+            + k*T0*n_CO(end) + k*T0*n_N2(end) + 1.5*n0*k*T0 + ...
+            n_CO(end)*CO.form_e + n_N2(end)*N2.form_e;
         Ep0_1=(En0_1+n0*k*T0)/rho0+0.5*v0^2;       % (E0+p0)/rho0+v0^2/2
         disp('Conservation laws check behind RSW')
         check_CL_SW([rhov0_1 rhov2p0_1 Ep0_1], Y_1, kinetics, 0);
