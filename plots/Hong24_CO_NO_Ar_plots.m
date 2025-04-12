@@ -28,7 +28,7 @@ for experiment=[1 2 3]
     title(['CO-T_{vib}', ' для смеси ', num2str(experiment)]);
     legend('Location', 'southeast');
 
-    lbound = 0.02;
+    lbound = 0.01;
     max_err(exp_time(exp_time>lbound), exp_TvCO(exp_time>lbound), ...
         time_ms_FHO(time_ms_FHO>lbound), Tv_CO_FHO((time_ms_FHO>lbound)), ...
         'FHO', experiment)
@@ -55,12 +55,12 @@ abs_errors = abs(interp1_values1 - interp1_values2);
 
 % Find maximum error
 [max_error, max_idx] = max(abs_errors);
-fprintf('Experiment %d %s maximum abs error is %.4f at time %.2f\n', experiment, model, ...
+fprintf('Experiment %d %s maximum abs error is %.1f at time %.2f\n', experiment, model, ...
     max_error, common_time(max_idx));
 
 rel_errors = abs(interp1_values2 ./ interp1_values1);
 % Find maximum error
 [max_error, max_idx] = max((1 - rel_errors)*100);
-fprintf('Experiment %d %s maximum rel error is %.2f%% at time %.2f\n', experiment, model, ...
+fprintf('Experiment %d %s maximum rel error is %.1f%% at time %.2f\n', experiment, model, ...
     max_error, common_time(max_idx));
 end
