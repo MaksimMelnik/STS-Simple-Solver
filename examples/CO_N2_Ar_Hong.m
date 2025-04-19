@@ -21,7 +21,7 @@ dat(2,4,12,3)=tmp;
 tmp1.time=0; tmp1.T=0; tmp1.TvCO=0; tmp1.TvN2=0; tmp1.ni_CO=0;
 tmp1.ni_N2=0; tmp1.p=0; tmp1.nCO=0; tmp1.nN2=0;
 tmp1.nAr=0;
-dat1(2,3,2)=tmp1;
+dat1(2,3,3)=tmp1;
 
 clear tmp tmp1;
 addpath('../src/')
@@ -39,17 +39,34 @@ init_c= [ % f;  p0, Pa;   v0, m/s;   T0, K;   v0_1
     0.01 0.05 0.94 2430 1101 298 573     % 1% CO; 5% N2; 94% Ar
     0.01 0.01 0.98 3410 1015 298 551    % 1% CO; 1% N2; 98% Ar
     ];
-
+Tvib_exp = [804.19766 861.23332 737.56027];
 dbg = 1;
 
 for i_ini=[1 2 3]
     %choosing testcase
-
+    fprintf('\n\t\tЭксперимент %d\n', i_ini);
     for i_vibr=[1 2]
         % choosing desired vibrational energy exchange model 1 for SSH; 2 for FHO
-
-        for i_rel=2 %[1 2]
-            % 1 -relaxation off; 2 - relaxation on
+        switch i_vibr
+            case 1
+                kinetics_model = 'SSH';
+            case 2
+                kinetics_model = 'FHO';
+        end
+        fprintf('\t%s\n', kinetics_model);
+        for i_rel=[1 2 3]
+            switch i_rel
+                case 1
+                    model_name = 'Модель замороженной релаксации';
+                case 2
+                    model_name = 'Модель частичной релаксации';
+                case 3
+                    model_name = 'Модель 3';
+            end
+            disp(model_name);
+            % 1 - relaxation off;
+            % 2 - relaxation on;
+            % 3 - start with Tvib at t = 0
 
             fCO=init_c(i_ini, 1); %molar fraction of CO
             fN2=init_c(i_ini, 2); %molar fraction of N2
@@ -113,7 +130,7 @@ for i_ini=[1 2 3]
             y0(end)=T1;
             %initial distribution of vibrational level populations - Boltzmann
             %distribution for CO molecules
-            n_boltz_CO=density_f_exc(T0, n1*fCO, CO);
+            n_boltz_CO=density_f_exc(T0, n1*fCO, CO);  % <---- Tvib
             y0(kinetics.index{IndexOfMolecules("CO")})=n_boltz_CO;
 
             %and for N2 molecules in accordance with their mole fractions
@@ -142,7 +159,7 @@ for i_ini=[1 2 3]
                 T=Y(:, end);
                 p=(n_CO +n_Ar + n_N2).*k.*T;
                 time_ms=X./v0*1e6;
-            elseif i_rel==1
+            elseif i_rel==1 || i_rel==3
                 %if relaxation between SWs is off, than using the R-H relation
                 Y=y0*n0;
                 Y(end)=y0(end)*T0;
@@ -170,127 +187,138 @@ for i_ini=[1 2 3]
                 1.5*n0*k*T0 + n0*CO.form_e*fCO + n0*N2.form_e*fN2;
             Ep0=(En0+n0*k*T0)/rho0+0.5*v0^2;
             % (E0+p0)/rho0+v0^2/2
-        end
-        if i_rel==2
-            disp('Conservation laws check behind ISW')
-            check_CL_SW([rhov0 rhov2p0 Ep0], Y, kinetics, 0);
-        end
+            if i_rel==2
+                disp('Conservation laws check behind ISW')
+                check_CL_SW([rhov0 rhov2p0 Ep0], Y, kinetics, 1);
+            end
 
-        %% REFL
-        Reacs_keys={'VT', 'VV'};
-        reacs_val={model_VT, model_VT};
-        kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
-        if i_rel==2
-            n0=sum(Y(end, 1:end-2),2);   % m-3
-            v0=v0+v0_r-Y(end, end-1);   % m/s
-            T0=Y(end, end);   % K
-            rho0=n_N2(end)*N2.mass + n_CO(end)*CO.mass + n_Ar(end)*Ar.mass;
-        elseif i_rel==1
-            n0=sum(Y(1:end-2));
-            v0=v0+v0_r-Y(end-1);
-            T0=Y(end);
-            rho0=n0*(fN2*N2.mass + fAr*Ar.mass + fCO*CO.mass);
-        end
-        [n1, v1, T1]=in_con_SW(n0, v0, T0, rho0, fMol);
+            %% REFL
+            Reacs_keys={'VT', 'VV'};
+            reacs_val={model_VT, model_VT};
+            kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
+            if i_rel==2
+                n0=sum(Y(end, 1:end-2),2);   % m-3
+                v0=v0+v0_r-Y(end, end-1);   % m/s
+                T0=Y(end, end);   % K
+                rho0=n_N2(end)*N2.mass + n_CO(end)*CO.mass + n_Ar(end)*Ar.mass;
+            elseif i_rel==1
+                n0=sum(Y(1:end-2));
+                v0=v0+v0_r-Y(end-1);
+                T0=Y(end);
+                rho0=n0*(fN2*N2.mass + fAr*Ar.mass + fCO*CO.mass);
+            elseif i_rel==3
+                n0=sum(Y(1:end-2));
+                v0=v0+v0_r-Y(end-1);
+                T0=Y(end);
+                rho0=n0*(fN2*N2.mass + fAr*Ar.mass + fCO*CO.mass);
+            end
+            [n1, v1, T1]=in_con_SW(n0, v0, T0, rho0, fMol);
 
-        kinetics.n0=n0;
-        kinetics.v0=v0;
-        kinetics.T0=T0;
-        kinetics.Delta=Delta;
-        %time interval of calculation behind RSW
-        timewave=400*1e-6;
-        x_w=v0_r*timewave;
-        xspan=[0 x_w]./Delta;
-        y0_1=zeros(kinetics.num_eq+2, 1);
+            kinetics.n0=n0;
+            kinetics.v0=v0;
+            kinetics.T0=T0;
+            kinetics.Delta=Delta;
+            %time interval of calculation behind RSW
+            timewave=400*1e-6;
+            x_w=v0_r*timewave;
+            xspan=[0 x_w]./Delta;
+            y0_1=zeros(kinetics.num_eq+2, 1);
 
-        %the vector of initial values тАЛтАЛfor modeling a reflected SW,
-        %in the case of taking into account relaxation, is taken from the
-        %vector obtained when solving the problem of an incident SW,
-        %but taking into account new dimensionaless with respect
-        %to the new number density
-        if i_rel==2
-            y0_1(1:end)=Y(end, :).*((1/n0)*n1);
-            % in case without intermediate relaxation it's filled in the
-            % same way as y0 before an incident SW
-        elseif i_rel==1
-            n_boltz_CO=density_f_exc(T0buf, n1*fCO, CO);
-            y0_1(kinetics.index{IndexOfMolecules("CO")})=n_boltz_CO;
-            y0_1(kinetics.index{IndexOfMolecules("Ar")})=n1*fAr;
-            n_boltz_N2=density_f_exc(T0buf, n1*fN2, N2);
-            y0_1(kinetics.index{IndexOfMolecules("N2")})=n_boltz_N2;
-        end
-        y0_1(end-1)=v1;
-        y0_1(end)=T1;
-        if dbg == 0
-            % great for an accurate simulation
-            options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-25, ...
-                'NonNegative', 1:kinetics.num_eq+2);
-        else
-            % enough for debugging
-            options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
-                'NonNegative', 1:kinetics.num_eq+2);
-        end
-        [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
-            xspan, y0_1, options_s);
+            %the vector of initial values for modeling a reflected SW,
+            %in the case of taking into account relaxation, is taken from the
+            %vector obtained when solving the problem of an incident SW,
+            %but taking into account new dimensionaless with respect
+            %to the new number density
+            if i_rel==2
+                y0_1(1:end)=Y(end, :).*((1/n0)*n1);
+                % in case without intermediate relaxation it's filled in the
+                % same way as y0 before an incident SW
+            elseif i_rel==1
+                n_boltz_CO=density_f_exc(T0buf, n1*fCO, CO);
+                y0_1(kinetics.index{IndexOfMolecules("CO")})=n_boltz_CO;
+                y0_1(kinetics.index{IndexOfMolecules("Ar")})=n1*fAr;
+                n_boltz_N2=density_f_exc(T0buf, n1*fN2, N2);
+                y0_1(kinetics.index{IndexOfMolecules("N2")})=n_boltz_N2;
+            elseif i_rel==3
+                n_boltz_CO=density_f_exc(Tvib_exp(i_ini), n1*fCO, CO);
+                y0_1(kinetics.index{IndexOfMolecules("CO")})=n_boltz_CO;
+                y0_1(kinetics.index{IndexOfMolecules("Ar")})=n1*fAr;
+                n_boltz_N2=density_f_exc(Tvib_exp(i_ini), n1*fN2, N2);
+                y0_1(kinetics.index{IndexOfMolecules("N2")})=n_boltz_N2;
+            end
+            y0_1(end-1)=v1;
+            y0_1(end)=T1;
+            if dbg == 0
+                % great for an accurate simulation
+                options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-25, ...
+                    'NonNegative', 1:kinetics.num_eq+2);
+            else
+                % enough for debugging
+                options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
+                    'NonNegative', 1:kinetics.num_eq+2);
+            end
+            [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
+                xspan, y0_1, options_s);
 
 
-        X_1=X_1*Delta;
-        Y_1(:, 1:end-2)=Y_1(:, 1:end-2)*n0;
-        Y_1(:, end-1)=Y_1(:, end-1)*v0;
-        Y_1(:, end)=Y_1(:, end)*T0;
-        T_1=Y_1(:, end);
-        n_Ar_1=Y_1(:, kinetics.index{IndexOfMolecules("Ar")});
-        n_CO_1=sum(Y_1(:, kinetics.index{IndexOfMolecules("CO")}), 2);
-        n_N2_1=sum(Y_1(:, kinetics.index{IndexOfMolecules("N2")}), 2);
-        p_1=(n_CO_1 + n_Ar_1 + n_N2_1)*k.*T_1 /Torr;
-        Tv_CO=CO.ev_i{1}(2)./(k*log(Y_1(:, ...
-            kinetics.index{IndexOfMolecules("CO")}(1))./...
-            Y_1(:,kinetics.index{IndexOfMolecules("CO")}(2))));
-        Tv_N2=N2.ev_i{1}(2)./(k*log(Y_1(:, ...
-            kinetics.index{IndexOfMolecules("N2")}(1))./...
-            Y_1(:,kinetics.index{IndexOfMolecules("N2")}(2))));
-        time_ms_1=X_1./v0_r*1e6;
-        if i_rel==2
-            rho0=n_CO(end)*CO.mass + n_N2(end)*N2.mass + n_Ar(end)*Ar.mass;
-        end
+            X_1=X_1*Delta;
+            Y_1(:, 1:end-2)=Y_1(:, 1:end-2)*n0;
+            Y_1(:, end-1)=Y_1(:, end-1)*v0;
+            Y_1(:, end)=Y_1(:, end)*T0;
+            T_1=Y_1(:, end);
+            n_Ar_1=Y_1(:, kinetics.index{IndexOfMolecules("Ar")});
+            n_CO_1=sum(Y_1(:, kinetics.index{IndexOfMolecules("CO")}), 2);
+            n_N2_1=sum(Y_1(:, kinetics.index{IndexOfMolecules("N2")}), 2);
+            p_1=(n_CO_1 + n_Ar_1 + n_N2_1)*k.*T_1 /Torr;
+            Tv_CO=CO.ev_i{1}(2)./(k*log(Y_1(:, ...
+                kinetics.index{IndexOfMolecules("CO")}(1))./...
+                Y_1(:,kinetics.index{IndexOfMolecules("CO")}(2))));
+            Tv_N2=N2.ev_i{1}(2)./(k*log(Y_1(:, ...
+                kinetics.index{IndexOfMolecules("N2")}(1))./...
+                Y_1(:,kinetics.index{IndexOfMolecules("N2")}(2))));
+            time_ms_1=X_1./v0_r*1e6;
+            if i_rel==2
+                rho0=n_CO(end)*CO.mass + n_N2(end)*N2.mass + n_Ar(end)*Ar.mass;
+            end
 
-        rhov0_1=rho0 * v0;                    % rho0*v0
-        rhov2p0_1=rho0* v0^2 + n0*k*T0;      % rho0*v0^2+p0
-        En0_1=n0*e_i_CO*y0_1(kinetics.index{IndexOfMolecules("CO")})/n1 + ...
-            n0*e_i_N2*y0_1(kinetics.index{IndexOfMolecules("N2")})/n1 ...
-            + k*T0*n_CO(end) + k*T0*n_N2(end) + 1.5*n0*k*T0 + ...
-            n_CO(end)*CO.form_e + n_N2(end)*N2.form_e;
-        Ep0_1=(En0_1+n0*k*T0)/rho0+0.5*v0^2;       % (E0+p0)/rho0+v0^2/2
-        disp('Conservation laws check behind RSW')
-        check_CL_SW([rhov0_1 rhov2p0_1 Ep0_1], Y_1, kinetics, 0);
+            rhov0_1=rho0 * v0;                    % rho0*v0
+            rhov2p0_1=rho0* v0^2 + n0*k*T0;      % rho0*v0^2+p0
+            En0_1=n0*e_i_CO*y0_1(kinetics.index{IndexOfMolecules("CO")})/n1 + ...
+                n0*e_i_N2*y0_1(kinetics.index{IndexOfMolecules("N2")})/n1 ...
+                + k*T0*n_CO(end) + k*T0*n_N2(end) + 1.5*n0*k*T0 + ...
+                n_CO(end)*CO.form_e + n_N2(end)*N2.form_e;
+            Ep0_1=(En0_1+n0*k*T0)/rho0+0.5*v0^2;       % (E0+p0)/rho0+v0^2/2
+            disp('Conservation laws check behind RSW')
+            check_CL_SW([rhov0_1 rhov2p0_1 Ep0_1], Y_1, kinetics, 1);
 
-        %This is where the output data is stored.
-        % They contain the evolution of temperatures, number densities,
-        % and pressure between the SWs and behind the reflected SW
+            %This is where the output data is stored.
+            % They contain the evolution of temperatures, number densities,
+            % and pressure between the SWs and behind the reflected SW
 
-        if i_rel==2
-            resSt.time=time_ms;
-            resSt.T=T;
-            resSt.Tv=ones(length(time_ms),1)*NaN;
-            resSt.nCO=n_CO;
-            resSt.nAr=n_Ar;
-            resSt.nN2=n_N2;
-            resSt.p=p;
-            resSt.ni_CO = Y(:, kinetics.index{IndexOfMolecules("CO")});
+            if i_rel==2
+                resSt.time=time_ms;
+                resSt.T=T;
+                resSt.Tv=ones(length(time_ms),1)*NaN;
+                resSt.nCO=n_CO;
+                resSt.nAr=n_Ar;
+                resSt.nN2=n_N2;
+                resSt.p=p;
+                resSt.ni_CO = Y(:, kinetics.index{IndexOfMolecules("CO")});
+                resSt_1.ni_N2=Y_1(:, kinetics.index{IndexOfMolecules("N2")});
+                dat(i_vibr,i_ini)=resSt;
+            end
+            resSt_1.time=time_ms_1;
+            resSt_1.T=T_1;
+            resSt_1.TvCO=Tv_CO;
+            resSt_1.TvN2=Tv_N2;
+            resSt_1.ni_CO=Y_1(:, kinetics.index{IndexOfMolecules("CO")});
             resSt_1.ni_N2=Y_1(:, kinetics.index{IndexOfMolecules("N2")});
-            dat(i_vibr,i_ini)=resSt;
+            resSt_1.p=p_1;
+            resSt_1.nCO=n_CO_1/Na;
+            resSt_1.nN2=n_N2_1/Na;
+            resSt_1.nAr=n_Ar_1/Na;
+            dat1(i_vibr,i_ini,i_rel)=resSt_1;
         end
-        resSt_1.time=time_ms_1;
-        resSt_1.T=T_1;
-        resSt_1.TvCO=Tv_CO;
-        resSt_1.TvN2=Tv_N2;
-        resSt_1.ni_CO=Y_1(:, kinetics.index{IndexOfMolecules("CO")});
-        resSt_1.ni_N2=Y_1(:, kinetics.index{IndexOfMolecules("N2")});
-        resSt_1.p=p_1;
-        resSt_1.nCO=n_CO_1/Na;
-        resSt_1.nN2=n_N2_1/Na;
-        resSt_1.nAr=n_Ar_1/Na;
-        dat1(i_vibr,i_ini,i_rel)=resSt_1;
     end
 end
 figure
