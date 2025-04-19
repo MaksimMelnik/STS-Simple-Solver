@@ -1,10 +1,9 @@
-% The main function for the macroparameters calculation behind reflected SW
-% for Streicher's experiment conditions in CO-Ar mixture.
-%[1] J. Streicher, A. Krish, R. Hanson, High-temperature vibrational
-%relaxation and decomposition of shock-heated nitric oxide: II. Nitrogen
-%dilution from 1900 to 8200 K, Physics of Fluids 34 (11) (2022) 116123.
-%doi:10.1063/5.0122787
-%06.04.2023 Denis Kravchenko
+%The main function for the macroparameters calculation behind reflected SW
+%for Hong's experiment conditions in CO-NO-Ar mixture.
+%[1]He D. et al. Vibrational energy relaxation in shock-heated CO/N2/Ar mixtures
+%The Journal of Chemical Physics. – 2024. – Т. 160. – №. 22.
+%https://pubs.aip.org/aip/jcp/article-abstract/160/22/224308/3298204/Vibrational-energy-relaxation-in-shock-heated-CO
+%20.04.2025 Semyon Zernov. This program inspired by Denis Kravchenko's code
 
 tic
 clearvars;
