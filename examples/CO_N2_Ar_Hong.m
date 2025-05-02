@@ -60,7 +60,7 @@ for i_ini=[1 2 3]
                 case 2
                     model_name = 'Модель частичной релаксации';
                 case 3
-                    model_name = 'Модель 3';
+                    model_name = 'Верификационный метод';
             end
             disp(model_name);
             % 1 - relaxation off;
@@ -218,7 +218,7 @@ for i_ini=[1 2 3]
             kinetics.T0=T0;
             kinetics.Delta=Delta;
             %time interval of calculation behind RSW
-            timewave=400*1e-6;
+            timewave=500*1e-6;
             x_w=v0_r*timewave;
             xspan=[0 x_w]./Delta;
             y0_1=zeros(kinetics.num_eq+2, 1);
