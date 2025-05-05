@@ -1,14 +1,19 @@
 save_flag=false;
 drawFlag=false;
 
-SimulatedData = load('../data/CO_N2_Ar Hong experiment/CO_N2_Ar_behindRSW_output.mat').dat1;
-
 err = [75 82 64];
+vt_only = false;
+dbg = false;
 
+if vt_only
+    SimulatedData = load('../data/CO_N2_Ar Hong experiment/CO_N2_Ar_behindRSW_output_VT.mat').dat1;
+else
+    SimulatedData = load('../data/CO_N2_Ar Hong experiment/CO_N2_Ar_behindRSW_output_VT_VV.mat').dat1;
+end
 
-for experiment=[1 2 3]
+for experiment=[1 2 3] % [1 2 3]
     fprintf('\n\t\tЭксперимент %d\n', experiment);
-    for model = [1 2 3]
+    for model = [1 2 3] %[1 2 3]
         switch model
             case 1
                 model_name = 'Модель замороженной релаксации';
@@ -68,27 +73,57 @@ for experiment=[1 2 3]
             'SSH', experiment)
 
         threshold = 0.95;
-        print_vibr_relax_time(threshold, exp_time, exp_TvCO, Tv_CO_FHO, time_ms_FHO, 'FHO')
-        print_vibr_relax_time(threshold, exp_time, exp_TvCO, Tv_CO_SSH, time_ms_SSH, 'SSH')
+        print_vibr_relax_time(threshold, exp_time, exp_TvCO, Tv_CO_FHO, time_ms_FHO, 'FHO', experiment)
+        print_vibr_relax_time(threshold, exp_time, exp_TvCO, Tv_CO_SSH, time_ms_SSH, 'SSH', experiment)
     end
 end
 
-function print_vibr_relax_time(threshold_const, exp_time, exp, simdata, simtime, model)
-    maxT = max(exp);
+function print_vibr_relax_time(threshold_const, exp_time, exp_T, sim_T, sim_time, model, exp1_idx)
+    global dbg;
+    maxT = max(exp_T);
     lower_bound = threshold_const * maxT;
-    valid_T = exp(exp > lower_bound & exp <= maxT);
-    average_T = mean(valid_T);
-    exp_idx = find(exp >= average_T, 1, 'first');
-    fprintf('Exp vibr relax time = %.2f\n', exp_time(exp_idx));
-    idx = find(simdata >= average_T, 1, 'first');  % Index of first occurrence
-    if isempty(idx)
-        fprintf('%s vibr relax time > %.2f\n', model, max(simtime))
-    else
-        vibr_t = simtime(idx);  % Time corresponding to that index
-        fprintf('%s vibr relax time = %.2f\n', model, vibr_t)
-        tv_exp = exp_time(exp_idx);
-        fprintf('%s vibr relax time error = %.2f%%\n', model, 100*abs((vibr_t-tv_exp)/tv_exp))
+    T_valid = exp_T(exp_T > lower_bound & exp_T <= maxT);
+    T_v_eq = mean(T_valid);
+    exp_idx = find(exp_T >= T_v_eq, 1, 'first');
+    idx = find(sim_T >= T_v_eq, 1, 'first');  % Index of first occurrence
+
+    if dbg == true
+        fprintf('Exp full equilibrium relaxation time = %.2f\n', exp_time(exp_idx));
+        if isempty(idx)
+            fprintf('%s Full equilibrium time > %.2f\n', model, max(sim_time))
+        else
+            vibr_t = sim_time(idx);  % Time corresponding to that index
+            fprintf('%s Full equilibrium time = %.2f\n', model, vibr_t)
+            tv_exp = exp_time(exp_idx);
+            fprintf('%s Full equilibrium time error = %.2f%%\n', model, 100*abs((vibr_t-tv_exp)/tv_exp))
+        end
     end
+
+    switch exp1_idx
+        case 1
+            correct_Tv_0_idx = 4;
+        case 2
+            correct_Tv_0_idx = 100;
+        case 3
+            correct_Tv_0_idx = 88;
+    end
+    T_0_exp = exp_T(correct_Tv_0_idx);
+    T_relax_exp = (1/exp(1)) * T_0_exp + (1 - 1/exp(1)) * T_v_eq;
+    [~, idx_tau_exp] = min(abs(exp_T - T_relax_exp));
+    tau_exp = exp_time(idx_tau_exp);
+    fprintf('Exp tau = %.4f\n', tau_exp);
+
+    maxT = max(sim_T);
+    lower_bound = threshold_const * maxT;
+    T_valid = sim_T(sim_T > lower_bound & sim_T <= maxT);
+    T_v_eq = mean(T_valid);
+
+    T_0_model = sim_T(1);
+    T_relax_model = (1/exp(1)) * T_0_model + (1 - 1/exp(1)) * T_v_eq;
+    [~, idx_tau_model] = min(abs(sim_T - T_relax_model));
+    tau_model = sim_time(idx_tau_model);
+    fprintf('%s tau = %.4f\n', model, tau_model); 
+    fprintf('%s tau error= %.4f%%\n', model, 100 * abs(tau_exp - tau_model)/tau_exp);
 end
 
 function max_err(time1, values1, time2, values2, model, experiment)
@@ -101,7 +136,8 @@ common_time = union(time1, time2);
 % Interpolate both datasets to common time points
 interp1_values1 = interp1(time1, values1, common_time, 'linear', 'extrap');
 if experiment == 2 || experiment == 3 % fix for [0.4 0.5] time interval
-    interp1_values1(end-4:end) = interp1_values1(end-9:end-5);
+    [max_val, max_idx] = max(interp1_values1);
+    interp1_values1(max_idx+1:end) = max_val;
 end
 interp1_values2 = interp1(time2, values2, common_time, 'linear', 'extrap');
 

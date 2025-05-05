@@ -39,7 +39,8 @@ init_c= [ % f;  p0, Pa;   v0, m/s;   T0, K;   v0_1
     0.01 0.01 0.98 3410 1015 298 551    % 1% CO; 1% N2; 98% Ar
     ];
 Tvib_exp = [804.19766 861.23332 737.56027];
-dbg = 1;
+dbg = 0; 
+vt_only = false;
 
 for i_ini=[1 2 3]
     %choosing testcase
@@ -94,10 +95,15 @@ for i_ini=[1 2 3]
                 case 2
                     model_VT='FHO';
             end
-
-            % without exchange and diss-rec reactions, since this can be neglected
-            Reacs_keys={'VT', 'VV'};
-            reacs_val={model_VT, model_VT};
+            
+            if vt_only
+                Reacs_keys={'VT'};
+                reacs_val={model_VT};
+            else
+                % without exchange and diss-rec reactions, since this can be neglected
+                Reacs_keys={'VT', 'VV'};
+                reacs_val={model_VT, model_VT};
+            end
 
             kinetics.Ps = Ps;
             kinetics.num_Ps=length(kinetics.Ps);
@@ -192,8 +198,14 @@ for i_ini=[1 2 3]
             end
 
             %% REFL
-            Reacs_keys={'VT', 'VV'};
-            reacs_val={model_VT, model_VT};
+            if vt_only
+                Reacs_keys={'VT'};
+                reacs_val={model_VT};
+            else
+                % without exchange and diss-rec reactions, since this can be neglected
+                Reacs_keys={'VT', 'VV'};
+                reacs_val={model_VT, model_VT};
+            end
             kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
             if i_rel==2
                 n0=sum(Y(end, 1:end-2),2);   % m-3
@@ -320,13 +332,12 @@ for i_ini=[1 2 3]
         end
     end
 end
-figure
-plot(time_ms_1/1e3, Tv_N2, time_ms_1/1e3, Tv_N2, 'linewidth', 1.5)
 
-%%
-%if you want to save your data in .mat file, uncomment following raws
-% save('..\data\CO_N2 Streicher experiment\CO_N2_betweenSWs_output.mat', 'dat');
-save('..\data\CO_N2_Ar Hong experiment\CO_N2_Ar_behindRSW_output.mat', 'dat1');
+if vt_only
+    save('..\data\CO_N2_Ar Hong experiment\CO_N2_Ar_behindRSW_output_VT.mat', 'dat1');
+else
+    save('..\data\CO_N2_Ar Hong experiment\CO_N2_Ar_behindRSW_output_VT_VV.mat', 'dat1');
+end
 rmpath('../src/')
 rmpath('../data/')
 toc
