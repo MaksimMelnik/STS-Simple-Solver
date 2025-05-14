@@ -1,129 +1,156 @@
-save_flag=false;
-drawFlag=false;
+save_flag=true;
+drawFlag=true;
 
 err = [75 82 64];
 vt_only = false;
 dbg = false;
 
 if vt_only
-    SimulatedData = load('../data/CO_N2_Ar Hong experiment/CO_N2_Ar_behindRSW_output_VT.mat').dat1;
+    SimulatedData = load('../data/CO_N2_Ar Hong experiment/CO_N2_Ar_behindRSW_output_VT.mat').result;
 else
-    SimulatedData = load('../data/CO_N2_Ar Hong experiment/CO_N2_Ar_behindRSW_output_VT_VV.mat').dat1;
+    SimulatedData = load('../data/CO_N2_Ar Hong experiment/CO_N2_Ar_behindRSW_output_VT_VV.mat').result;
 end
 
-for experiment=[1 2 3] % [1 2 3]
-    fprintf('\n\t\tЭксперимент %d\n', experiment);
-    for model = [1 2 3] %[1 2 3]
-        switch model
-            case 1
-                model_name = 'Модель замороженной релаксации';
-            case 2
-                model_name = 'Модель частичной релаксации';
-            case 3
-                model_name = 'Верификационный метод';
-        end
-        fprintf('\t%s\n', model_name);
-        mixture_name = sprintf('Mixture%d.csv', experiment);
-        path = sprintf('../data/CO_N2_Ar Hong experiment/%s', mixture_name);
-        warning('off', 'MATLAB:table:ModifiedAndSavedVarnames');
-        data = readtable(path);  % Reads CSV into a table
-        cleanData = rmmissing(data);        % Remove rows with any NaN
+for mixture=1:3
+    fprintf('\n\t\t\tСмесь %d\n', mixture);
 
-        
-        exp_time = cleanData.TimeMs;
-        exp_TvCO = cleanData.TvibMeanK;
-        err_index = find(abs(exp_time - 0.1) < 1e-3, 1);
-        
-
-        Tv_CO_SSH = SimulatedData(1,experiment, model).TvCO;
-        time_ms_SSH = SimulatedData(1,experiment, model).time/1e3;
-        
-
-        Tv_CO_FHO = SimulatedData(2,experiment, model).TvCO;
-        time_ms_FHO = SimulatedData(2,experiment, model).time/1e3;
-
-        if drawFlag == true
-            figure;
-            hold on;
-            plot(exp_time, exp_TvCO, 'linewidth', 1.5, ...
-                'DisplayName', 'Экспериментальные данные');
-            errorbar(0.1, exp_TvCO(err_index), err(experiment), 'linewidth', 1.5, ...
-                'Color', "#0072BD", ...
-                'DisplayName', 'Ошибка в эксперименте');
-            plot(time_ms_SSH, Tv_CO_SSH, 'g:', 'linewidth', 2, 'DisplayName', 'SSH');
-            plot(time_ms_FHO, Tv_CO_FHO, 'r--', 'linewidth', 2, 'DisplayName', 'FHO');
-            xlabel('Время / мс');
-            ylabel('CO-T_{vib}, K');
-            %title(['CO-T_{vib}', ' для смеси ', num2str(experiment), '. ', model_name]);
-            title(model_name);
-            legend('Location', 'southeast');
-        end
-
-        if save_flag == true
-            filename = sprintf('CO_NO_Ar_Exp%d_Model%d.png', experiment, model);
-            exportgraphics(gcf, filename, 'Resolution', 300);
-        end
-
-        lbound = 0.06;
-        max_err(exp_time(exp_time>lbound), exp_TvCO(exp_time>lbound), ...
-            time_ms_FHO(time_ms_FHO>lbound), Tv_CO_FHO((time_ms_FHO>lbound)), ...
-            'FHO', experiment)
-        max_err(exp_time(exp_time>lbound), exp_TvCO(exp_time>lbound), ...
-            time_ms_SSH(time_ms_SSH>lbound), Tv_CO_SSH((time_ms_SSH>lbound)), ...
-            'SSH', experiment)
-
-        threshold = 0.95;
-        print_vibr_relax_time(threshold, exp_time, exp_TvCO, Tv_CO_FHO, time_ms_FHO, 'FHO', experiment)
-        print_vibr_relax_time(threshold, exp_time, exp_TvCO, Tv_CO_SSH, time_ms_SSH, 'SSH', experiment)
+    max_exp = 10;
+    if mixture == 3
+        max_exp = 14;
     end
+
+    for experiment=1:max_exp
+        fprintf('\t\tЭксперимент %d\n', experiment);
+        for model = [1 2 3] %[1 2 3]
+            switch model
+                case 1
+                    model_name = 'Модель замороженной релаксации';
+                case 2
+                    model_name = 'Модель частичной релаксации';
+                case 3
+                    model_name = 'Верификационный метод';
+            end
+            fprintf('\t%s\n', model_name);
+            path = sprintf('../data/CO_N2_Ar Hong experiment/Mixture%d/Experiment%d', mixture, experiment);
+
+            opts = detectImportOptions(path);
+            opts.VariableNamesLine = 11;
+            opts.DataLines = [12, Inf];
+            warning('off', 'MATLAB:table:ModifiedAndSavedVarnames');
+            data = readtable(path, opts);  % Reads CSV into a table
+            cleanData = rmmissing(data);        % Remove rows with any NaN
+
+
+            exp_time = cleanData.TimeMs;
+            exp_TvCO = cleanData.TvibMeanK;
+            err_index = find(abs(exp_time - 0.1) < 1e-3, 1);
+
+
+            Tv_CO_SSH = SimulatedData(mixture,experiment,model,1).TvCO;
+            time_ms_SSH = SimulatedData(mixture,experiment,model,1).time/1e3;
+
+
+            Tv_CO_FHO = SimulatedData(mixture,experiment,model,2).TvCO;
+            time_ms_FHO = SimulatedData(mixture,experiment,model,2).time/1e3;
+
+            if drawFlag == true
+                fig = figure('Visible', 'off');
+                hold on;
+                plot(exp_time, exp_TvCO, 'linewidth', 1.5, ...
+                    'DisplayName', 'Экспериментальные данные');
+                % errorbar(0.1, exp_TvCO(err_index), err(experiment), 'linewidth', 1.5, ...
+                %     'Color', "#0072BD", ...
+                %     'DisplayName', 'Ошибка в эксперименте');
+                plot(time_ms_SSH, Tv_CO_SSH, 'g:', 'linewidth', 2, 'DisplayName', 'SSH');
+                plot(time_ms_FHO, Tv_CO_FHO, 'r--', 'linewidth', 2, 'DisplayName', 'FHO');
+                xlabel('Время / мс');
+                ylabel('CO-T_{vib}, K');
+                %title(['CO-T_{vib}', ' для смеси ', num2str(experiment), '. ', model_name]);
+                title(model_name);
+                legend('Location', 'southeast');
+            end
+
+            if save_flag == true
+                filename = sprintf('../data/CO_N2_Ar Hong experiment/Mixture%d/CO_NO_Ar_Exp%d_Model%d.png', mixture, experiment, model);
+                exportgraphics(fig, filename, 'Resolution', 300);
+            end
+
+            if calc_errors(mixture, experiment)
+                lbound = 0.01;
+                max_err(exp_time(exp_time>lbound), exp_TvCO(exp_time>lbound), ...
+                    time_ms_FHO(time_ms_FHO>lbound), Tv_CO_FHO((time_ms_FHO>lbound)), ...
+                    'FHO', experiment)
+                max_err(exp_time(exp_time>lbound), exp_TvCO(exp_time>lbound), ...
+                    time_ms_SSH(time_ms_SSH>lbound), Tv_CO_SSH((time_ms_SSH>lbound)), ...
+                    'SSH', experiment)
+
+                threshold = 0.95;
+                print_vibr_relax_time(threshold, exp_time, exp_TvCO, Tv_CO_FHO, time_ms_FHO, 'FHO', experiment)
+                print_vibr_relax_time(threshold, exp_time, exp_TvCO, Tv_CO_SSH, time_ms_SSH, 'SSH', experiment)
+            end
+        end
+    end
+end
+
+function [flag] = calc_errors(mixture, experiment)
+flag = false;
+if mixture == 1 && experiment == 8
+    flag = true;
+end
+if mixture == 2 && experiment == 9
+    flag = true;
+end
+if mixture == 3 && experiment == 4
+    flag = true;
+end
 end
 
 function print_vibr_relax_time(threshold_const, exp_time, exp_T, sim_T, sim_time, model, exp1_idx)
-    global dbg;
-    maxT = max(exp_T);
-    lower_bound = threshold_const * maxT;
-    T_valid = exp_T(exp_T > lower_bound & exp_T <= maxT);
-    T_v_eq = mean(T_valid);
-    exp_idx = find(exp_T >= T_v_eq, 1, 'first');
-    idx = find(sim_T >= T_v_eq, 1, 'first');  % Index of first occurrence
+global dbg;
+maxT = max(exp_T);
+lower_bound = threshold_const * maxT;
+T_valid = exp_T(exp_T > lower_bound & exp_T <= maxT);
+T_v_eq = mean(T_valid);
+exp_idx = find(exp_T >= T_v_eq, 1, 'first');
+idx = find(sim_T >= T_v_eq, 1, 'first');  % Index of first occurrence
 
-    if dbg == true
-        fprintf('Exp full equilibrium relaxation time = %.2f\n', exp_time(exp_idx));
-        if isempty(idx)
-            fprintf('%s Full equilibrium time > %.2f\n', model, max(sim_time))
-        else
-            vibr_t = sim_time(idx);  % Time corresponding to that index
-            fprintf('%s Full equilibrium time = %.2f\n', model, vibr_t)
-            tv_exp = exp_time(exp_idx);
-            fprintf('%s Full equilibrium time error = %.2f%%\n', model, 100*abs((vibr_t-tv_exp)/tv_exp))
-        end
+if dbg == true
+    fprintf('Exp full equilibrium relaxation time = %.2f\n', exp_time(exp_idx));
+    if isempty(idx)
+        fprintf('%s Full equilibrium time > %.2f\n', model, max(sim_time))
+    else
+        vibr_t = sim_time(idx);  % Time corresponding to that index
+        fprintf('%s Full equilibrium time = %.2f\n', model, vibr_t)
+        tv_exp = exp_time(exp_idx);
+        fprintf('%s Full equilibrium time error = %.2f%%\n', model, 100*abs((vibr_t-tv_exp)/tv_exp))
     end
+end
 
-    switch exp1_idx
-        case 1
-            correct_Tv_0_idx = 4;
-        case 2
-            correct_Tv_0_idx = 100;
-        case 3
-            correct_Tv_0_idx = 88;
-    end
-    T_0_exp = exp_T(correct_Tv_0_idx);
-    T_relax_exp = (1/exp(1)) * T_0_exp + (1 - 1/exp(1)) * T_v_eq;
-    [~, idx_tau_exp] = min(abs(exp_T - T_relax_exp));
-    tau_exp = exp_time(idx_tau_exp);
-    fprintf('Exp tau = %.4f\n', tau_exp);
+switch exp1_idx
+    case 8
+        correct_Tv_0_idx = 4;
+    case 9
+        correct_Tv_0_idx = 100;
+    case 4
+        correct_Tv_0_idx = 88;
+end
+T_0_exp = exp_T(correct_Tv_0_idx);
+T_relax_exp = (1/exp(1)) * T_0_exp + (1 - 1/exp(1)) * T_v_eq;
+[~, idx_tau_exp] = min(abs(exp_T - T_relax_exp));
+tau_exp = exp_time(idx_tau_exp);
+%fprintf('Exp tau = %.3f\n', tau_exp);
 
-    maxT = max(sim_T);
-    lower_bound = threshold_const * maxT;
-    T_valid = sim_T(sim_T > lower_bound & sim_T <= maxT);
-    T_v_eq = mean(T_valid);
+maxT = max(sim_T);
+lower_bound = threshold_const * maxT;
+T_valid = sim_T(sim_T > lower_bound & sim_T <= maxT);
+T_v_eq = mean(T_valid);
 
-    T_0_model = sim_T(1);
-    T_relax_model = (1/exp(1)) * T_0_model + (1 - 1/exp(1)) * T_v_eq;
-    [~, idx_tau_model] = min(abs(sim_T - T_relax_model));
-    tau_model = sim_time(idx_tau_model);
-    fprintf('%s tau = %.4f\n', model, tau_model); 
-    fprintf('%s tau error= %.4f%%\n', model, 100 * abs(tau_exp - tau_model)/tau_exp);
+T_0_model = sim_T(1);
+T_relax_model = (1/exp(1)) * T_0_model + (1 - 1/exp(1)) * T_v_eq;
+[~, idx_tau_model] = min(abs(sim_T - T_relax_model));
+tau_model = sim_time(idx_tau_model);
+%fprintf('%s tau = %.3f\n', model, tau_model);
+%fprintf('%s tau error = %.1f%%\n', model, 100 * abs(tau_exp - tau_model)/tau_exp);
 end
 
 function max_err(time1, values1, time2, values2, model, experiment)
