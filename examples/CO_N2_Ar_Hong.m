@@ -14,7 +14,7 @@ k=1.380649e-23;  % Boltzmann constant, J/K
 Torr=133.322368;
 Na=6.02214076e23;
 
-dbg = 1;
+dbg = 0;
 vt_only = false;
 
 tmp.time=0;
@@ -42,6 +42,7 @@ times_table = [
     ];
 
 init_c_1 = [
+%   p Pa; v_i m/s; T K; v_r m/s;
     3180 1030.23 297.35 526.83
     2630 1074.14 297.25 544
     2210 1113.68 297.75 559.7
@@ -100,7 +101,7 @@ mixture = [
     0.01 0.01 0.98 % 1% CO; 1% N2; 98% Ar
     ];
 
-for i_mixture=1:3
+for i_mixture=1%:3
     fprintf('\n\t\t\t\t\tСмесь %d\n', i_mixture);
     fCO=mixture(i_mixture, 1); % molar fraction of CO
     fN2=mixture(i_mixture, 2); % molar fraction of N2
@@ -119,10 +120,10 @@ for i_mixture=1:3
             Tvib_exp = Tvib_exp3;
     end
 
-    for i_ini=1:length(init_c)
+    for i_ini=1%:length(init_c)
         fprintf('\t\t\tЭксперимент %d\n', i_ini);
 
-        for i_vibr=1:2
+        for i_vibr=1%:2
             % choosing desired vibrational energy exchange model 1 for SSH; 2 for FHO
             switch i_vibr
                 case 1
@@ -131,7 +132,7 @@ for i_mixture=1:3
                     kinetics_model = 'FHO';
             end
             fprintf('\t\t%s\n', kinetics_model);
-            for i_rel=1:3
+            for i_rel=1%:3
                 switch i_rel
                     case 1
                         model_name = 'Модель замороженной релаксации';
@@ -146,7 +147,7 @@ for i_mixture=1:3
                 % 3 - start with Tvib at t = 0
 
 
-                p0=init_c(i_ini, 1); %initial pressure in shock tube
+                p0=init_c(i_ini, 1); %initial pressure in shock tube, Pa
                 v0=init_c(i_ini, 2);   % velocity of incident SW, m/s
                 v0_i=v0;
                 v0_r=init_c(i_ini, 4); %velocity of reflected SW, m/s
@@ -209,7 +210,7 @@ for i_mixture=1:3
                 y0(end)=T1;
                 %initial distribution of vibrational level populations - Boltzmann
                 %distribution for CO molecules
-                n_boltz_CO=density_f_exc(T0, n1*fCO, CO);  % <---- Tvib
+                n_boltz_CO=density_f_exc(T0, n1*fCO, CO);
                 y0(kinetics.index{IndexOfMolecules("CO")})=n_boltz_CO;
 
                 %and for N2 molecules in accordance with their mole fractions
@@ -236,7 +237,7 @@ for i_mixture=1:3
                     n_Ar=Y(:, kinetics.index{IndexOfMolecules("Ar")});
                     n_CO=sum(Y(:, kinetics.index{IndexOfMolecules("CO")}), 2);
                     T=Y(:, end);
-                    p=(n_CO +n_Ar + n_N2).*k.*T;
+                    p=(n_CO + n_Ar + n_N2).*k.*T;
                     time_ms=X./v0*1e6;
                 elseif i_rel==1 || i_rel==3
                     %if relaxation between SWs is off, than using the R-H relation
@@ -281,16 +282,16 @@ for i_mixture=1:3
                     reacs_val={model_VT, model_VT};
                 end
                 kinetics.reactions=containers.Map(Reacs_keys, reacs_val);
-                if i_rel==2
-                    n0=sum(Y(end, 1:end-2),2);   % m-3
-                    v0=v0+v0_r-Y(end, end-1);   % m/s
-                    T0=Y(end, end);   % K
-                    rho0=n_N2(end)*N2.mass + n_CO(end)*CO.mass + n_Ar(end)*Ar.mass;
-                elseif i_rel==1
+                if i_rel==1
                     n0=sum(Y(1:end-2));
                     v0=v0+v0_r-Y(end-1);
                     T0=Y(end);
-                    rho0=n0*(fN2*N2.mass + fAr*Ar.mass + fCO*CO.mass);
+                    rho0=n0*(fN2*N2.mass + fAr*Ar.mass + fCO*CO.mass);      
+                elseif i_rel==2
+                    n0=sum(Y(end, 1:end-2),2);   % m-3
+                    v0=v0+v0_r-Y(end, end-1);   % m/s
+                    T0=Y(end, end);   % K
+                    rho0=n_N2(end)*N2.mass + n_CO(end)*CO.mass + n_Ar(end)*Ar.mass;    
                 elseif i_rel==3
                     n0=sum(Y(1:end-2));
                     v0=v0+v0_r-Y(end-1);
@@ -355,7 +356,7 @@ for i_mixture=1:3
                 n_Ar_1=Y_1(:, kinetics.index{IndexOfMolecules("Ar")});
                 n_CO_1=sum(Y_1(:, kinetics.index{IndexOfMolecules("CO")}), 2);
                 n_N2_1=sum(Y_1(:, kinetics.index{IndexOfMolecules("N2")}), 2);
-                p_1=(n_CO_1 + n_Ar_1 + n_N2_1)*k.*T_1 /Torr;
+                p_1=(n_CO_1 + n_Ar_1 + n_N2_1)*k.* T_1;
                 Tv_CO=CO.ev_i{1}(2)./(k*log(Y_1(:, ...
                     kinetics.index{IndexOfMolecules("CO")}(1))./...
                     Y_1(:,kinetics.index{IndexOfMolecules("CO")}(2))));

@@ -15,6 +15,8 @@ new_header = ['Time ms', 'Tvib mean K', 'Trot mean K',
 # Обрабатываем каждый лист
 for i, sheet_name in enumerate(sheet_names, start=1):
     df = pd.read_excel(xlsx_file, sheet_name=sheet_name, header=None)
+    df.replace('--', float('nan'), inplace=True)
+    df.dropna(how='all', inplace=True)
 
     # Создаем директорию для листа
     dir_name = f"Mixture{i}"
