@@ -19,6 +19,8 @@ C.num_vibr_levels=1;                % actually atom has no vibr levels
 C.e_E=0;                            % electronic excitation energy
 C.fr_deg_c=3;                       % freedom degree for room temperature
 C.EM=71.4;                          % Parameter ε/k (Lennard-Jones), К
+C.BMbeta=3.37;                      % beta parameter of Born-Mayer potential, A^-1
+
 
 
 O.name='O';
@@ -106,6 +108,7 @@ CO.mA_mAB=0.42880501528003884;  CO.mB_mAB=0.5711949847199612;  % FHO param
 CO.fr_deg_c=5;                      % freedom degree for room temperature
 CO.EM=98.1;                         % Parameter ε/k (Lennard-Jones), К
 CO.r_e=1.128323e-10;                % internuclear distance, r_e, m
+CO.BMbeta=3.654;                    % beta parameter of Born-Mayer potential, A^-1
 
 
 C2.name='C2';
