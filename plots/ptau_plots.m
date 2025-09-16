@@ -3,6 +3,7 @@
 % 15.09.2025 by Maksim Melnik
 
 addpath('../src/')
+load("../data/particles.mat", "O2", "O")
 
 % данные из каппы
 gg=[
@@ -43,6 +44,28 @@ gg=[
 1	0	19000	3.74167e-16	2.94873e-16	1.11387e-16	8.91694e-18	2.85449e-16	
 1	0	20000	4.21652e-16	3.16127e-16	1.1809e-16	9.0388e-18	2.90941e-16	
 ];
+
+ptau_Torres = [
+% # --O2-O:Minnesota PES# -------combined-----# T p*tau_rot p*tau_vib
+% # [K] [atm*s] [atm*s]
+2000 2.16e-09 2.62e-08
+3000 3.02e-09 2.32e-08
+4000 3.80e-09 2.19e-08
+5000 4.49e-09 2.22e-08
+6000 5.41e-09 2.19e-08
+8000 6.90e-09 2.19e-08
+10000 8.12e-09 2.19e-08
+12000 9.42e-09 2.21e-08
+15000 1.09e-08 2.15e-08
+20000 1.20e-08 2.06e-08
+30000 1.39e-08 2.00e-08
+40000 1.57e-08 2.03e-08
+50000 1.79e-08 2.08e-08
+60000 1.99e-08 2.25e-08
+80000 2.51e-08 2.45e-08
+100000 3.01e-08 2.68e-08    
+];
+
 shatalov=[
     0.040679	4.446e-08
 0.04735	4.048e-08
@@ -71,6 +94,16 @@ kiefer=[
 Tkiefer=(1500:200:3300)';
 kiefer=[Tkiefer.^(-1/3) 4.35e-8-7.75e-12*Tkiefer];
 
+ptau_Grover = [%x  ptau_Grover
+2975.4  2.0018e-08
+4973.2  2.0463e-08
+5986.5  2.1335e-08
+7998.6  2.2489e-08
+9996.5  2.2756e-08
+11994.3  2.3026e-08
+15019.8  2.6362e-08
+];
+
 h = 6.6261*10^(-34);
 k = 1.3807e-23;
 c = 2.99*10^10;
@@ -79,32 +112,47 @@ nu=c*we;
 theta=h*nu/k;
 T=gg(:,3);
 
+M1 = O2;
+M2 = O;
+kvt10_ssh = zeros(length(T), 1);
+kvt10_fho = zeros(length(T), 1);
+kvt10_Billing = zeros(length(T), 1);
+kvt10_Esposito = zeros(length(T), 1);
+for i_T = 1:length(T)
+    kvt_temp = kvt_ssh(T(i_T), M1, M2, 1, 1);
+    kvt10_ssh(i_T) = kvt_temp(1);
+    kvt_temp = kvt_fho_old(T(i_T), M1, M2, 1);
+    kvt10_fho(i_T) = kvt_temp(1);
+    kvt_temp = kvt_billing(T(i_T), M1, M2, 1, 1);
+    kvt10_Billing(i_T) = kvt_temp(1);
+    kvt_temp = kvt_Esposito(T(i_T));
+    kvt10_Esposito(i_T) = kvt_temp(1);
+end
+ptau_SSH = 1.363e-22 * T ./ (kvt10_ssh * 1e6 .* (1 - exp(- theta ./ T)));
+ptau_FHO = 1.363e-22 * T ./ (kvt10_fho * 1e6 .* (1 - exp(- theta ./ T)));
+ptau_Billing = 1.363e-22 * T ./ (kvt10_Billing * 1e6 ...
+                                            .* (1 - exp(- theta ./ T)));
+ptau_Esposito = 1.363e-22 * T ./ (kvt10_Esposito  ...
+                                            .* (1 - exp(- theta ./ T)));
+
+
 mu=1/(1/32+1/16);
 mw=10.^(5e-4*mu^0.5*theta^(4/3).*(T.^(-1/3)-0.015*mu^0.25)-8);
-
-k10=gg(:,8)*1e6;
-k10A=k10/10;
-k10T=k10A/10;
-pt=1.363e-22*T./(k10.*(1-exp(-theta./T)));
-ptA=pt*10;
-ptT=pt*100;
 
 k10FHO=gg(:,5)*1e6;
 ptFHO=1.363e-22*T./(k10FHO.*(1-exp(-theta./T)));
 
-k10SSH=gg(:,4)*1e6;
-ptSSH=1.363e-22*T./(k10SSH.*(1-exp(-theta./T)));
-
-k10P4E=gg(:,7)*1e6;
-ptP4E=1.363e-22*T./(k10P4E.*(1-exp(-theta./T)));
 
 figure('Units', 'normalized', 'OuterPosition', [0 0 0.6 0.7]);
-semilogy(T.^(-1/3),pt, ':','Color', [255,193,7]/255, 'LineWidth', 2)
+semilogy(T.^(-1/3), ptau_Billing, ':','Color', [255,193,7]/255, ...
+                                                        'LineWidth', 2)
 hold on;
-
 semilogy(T.^(-1/3),ptFHO,'-.','Color', [0 0 0],'LineWidth', 1.5)
-semilogy(T.^(-1/3),ptSSH,'--','Color', [76,175,80]/255,  'LineWidth', 3)
-semilogy(T.^(-1/3),ptP4E,'Color', [0,188,212]/255, 'LineWidth', 2)
+semilogy(T.^(-1/3), ptau_FHO, ':','Color', [0 30 0]/255,'LineWidth', 1.5)
+semilogy(T.^(-1/3), ptau_SSH, ':','Color', [76,175,80]/255,  ...
+    'LineWidth', 3)
+semilogy(T.^(-1/3), ptau_Esposito, 'Color', [0,188,212]/255, ...
+                                                        'LineWidth', 2)
 semilogy(kiefer(:,1),kiefer(:,2),'o','LineWidth', 1.8, ...
     'color', [33,150,243]/255, 'markerfacecolor',[3,169,244]/255)
 semilogy(breen(:,1),breen(:,2),'x','Color', [0.7 0 0.1],'LineWidth', 2,...
@@ -115,12 +163,17 @@ semilogy(kalogerakis(1),kalogerakis(2),'^','LineWidth', 1.5,...
 semilogy(shatalov(:,1),shatalov(:,2),'*','Color', [63,81,181]/255,...
     'LineWidth', 1, 'markersize', 7)
 semilogy(T.^(-1/3), mw, 'LineWidth', 1, 'color', [156,39,176]/255)
-legend('Billing','FHO RS','FHO VSS','SSH','P4E', ...
+semilogy(ptau_Torres(:, 1).^(-1/3), ptau_Torres(:, 3), ...
+                            'Color', [239, 71, 111]/255, 'linewidth', 2)
+semilogy(ptau_Grover(:, 1).^(-1/3), ptau_Grover(:, 2), ...
+                    'sq', 'Color', [17, 138, 178]/255, 'linewidth', 2)
+legend('Billing', 'FHO RS', 'FHO 2', 'SSH', 'Esposito', ...
     'Kiefer & Lutz, 1967','Breen\it et. al.\rm, 1973',...
     'Kalogerakis\it et. al.\rm, 2005',...
-    'Ibraguimova\it et. al.\rm, 2013', 'Millikan-White', 'Location', 'east')
-ylim([1e-9 2e-3])
-xlim([0.035 0.153])
+    'Ibraguimova\it et. al.\rm, 2013', 'Millikan-White', 'Torres', ...
+    'Grover, 2019', 'Location', 'east')
+% ylim([1e-9 2e-3])
+% xlim([0.035 0.153])
 % xlim([0.03 0.15])
 ylabel('\it{}p\rm\tau, \rmатм \cdot c');
 xlabel('\it{}T\rm ^{-1/3}, K');
