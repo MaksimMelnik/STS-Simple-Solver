@@ -1,10 +1,17 @@
 % Old ptau (pressure * vibrational relaxation time) plot for O2-O
 % original 22.05.2020
 % 15.09.2025 by Maksim Melnik
+%% Content:
+% 1) p*tau for O2-O
+% 2) p*tau for NO-NO
 
 addpath('../src/')
-load("../data/particles.mat", "O2", "O")
+load("../data/particles.mat", "O2", "O", "NO")
+h = 6.6261*10^(-34);
+k = 1.3807e-23;
+c = 2.99*10^10;
 
+%% 1) p*tau for O2-O
 % данные из каппы
 gg=[
 1	0	300		3.20193e-23	2.87047e-18	3.5954e-18	3.91896e-18	9.94356e-18	
@@ -83,6 +90,7 @@ breen=[
 0.099927	2.9525e-08];
 Tbreen=(1000:200:3400)';
 breen=[Tbreen.^(-1/3) Tbreen./Tbreen*3e-8];
+
 kalogerakis=[
     0.146734	1.3918e-08];
 
@@ -104,9 +112,6 @@ ptau_Grover = [%x  ptau_Grover
 15019.8  2.6362e-08
 ];
 
-h = 6.6261*10^(-34);
-k = 1.3807e-23;
-c = 2.99*10^10;
 we=1580.19;
 nu=c*we;
 theta=h*nu/k;
@@ -182,5 +187,74 @@ set(gca, 'FontSize', 12, 'FontName', 'Times New Roman');
 
 % set(gcf, 'color', 'none');
 %  set(gca, 'color', 'none');
+
+%% 2) p*tau for NO-NO
+we = NO.we(1)/100;
+nu = c * we;
+theta = h * nu / k;
+T = gg(:, 3);
+
+M1 = NO;
+M2 = NO;
+kvt10_ssh = zeros(length(T), 1);
+kvt10_fho = zeros(length(T), 1);
+for i_T = 1:length(T)
+    kvt_temp = kvt_ssh(T(i_T), M1, M2, 1, 1);
+    kvt10_ssh(i_T) = kvt_temp(1);
+    kvt_temp = kvt_fho_old(T(i_T), M1, M2, 1);
+    kvt10_fho(i_T) = kvt_temp(1);
+end
+ptau_SSH = 1.363e-22 * T ./ (kvt10_ssh * 1e6 .* (1 - exp(- theta ./ T)));
+ptau_FHO = 1.363e-22 * T ./ (kvt10_fho * 1e6 .* (1 - exp(- theta ./ T)));
+
+ptau_Torres = [
+% to fill
+];
+
+ptau_Streicher = 1.1e-3 * exp(70 * T.^(-1/3)) / 1e6;
+
+
+mu=1/(1/30.01+1/30.01);
+mw=10.^(5e-4*mu^0.5*theta^(4/3).*(T.^(-1/3)-0.015*mu^0.25)-8);
+
+
+figure('Units', 'normalized', 'OuterPosition', [0 0 0.6 0.7]);
+semilogy(T.^(-1/3), ptau_FHO, ':','Color', [0 30 0]/255,'LineWidth', 1.5)
+hold on;
+semilogy(T.^(-1/3), ptau_SSH, ':','Color', [76,175,80]/255,  ...
+    'LineWidth', 3)
+semilogy(T.^(-1/3), ptau_Streicher, ':','Color', [255, 209, 102]/255, ...
+    'LineWidth', 1.5)
+% semilogy(kiefer(:,1),kiefer(:,2),'o','LineWidth', 1.8, ...
+    % 'color', [33,150,243]/255, 'markerfacecolor',[3,169,244]/255)
+% semilogy(breen(:,1),breen(:,2),'x','Color', [0.7 0 0.1],'LineWidth', 2,...
+    % 'markersize', 8)
+% semilogy(kalogerakis(1),kalogerakis(2),'^','LineWidth', 1.5,...
+    % 'color', [211,84,0]/255,'markerfacecolor', [230,126,34]/255,...
+    % 'markersize', 9)
+% semilogy(shatalov(:,1),shatalov(:,2),'*','Color', [63,81,181]/255,...
+    % 'LineWidth', 1, 'markersize', 7)
+% semilogy(T.^(-1/3), mw, 'LineWidth', 1, 'color', [156,39,176]/255)
+% semilogy(ptau_Torres(:, 1).^(-1/3), ptau_Torres(:, 3), ...
+                            % 'Color', [239, 71, 111]/255, 'linewidth', 2)
+% semilogy(ptau_Grover(:, 1).^(-1/3), ptau_Grover(:, 2), ...
+                    % 'sq', 'Color', [17, 138, 178]/255, 'linewidth', 2)
+legend('FHO', 'SSH', 'Streicher', ...
+    ...'Kiefer & Lutz, 1967','Breen\it et. al.\rm, 1973',...
+    ...'Kalogerakis\it et. al.\rm, 2005',...
+    ...'Ibraguimova\it et. al.\rm, 2013', 'Millikan-White', 'Torres', ...
+    'Location', 'east')
+ylim([1e-9 1e1])
+% xlim([0.035 0.153])
+% xlim([0.03 0.15])
+ylabel('\it{}p\rm\tau, \rmатм \cdot c');
+xlabel('\it{}T\rm ^{-1/3}, K');
+grid on;
+set(gca, 'FontSize', 12, 'FontName', 'Times New Roman');
+
+% set(gcf, 'color', 'none');
+%  set(gca, 'color', 'none');
+
+%%
 
 rmpath('../src/')
