@@ -112,6 +112,46 @@ ptau_Grover = [%x  ptau_Grover
 15019.8  2.6362e-08
 ];
 
+ptau_Oblapenko = [ % T^(-1/3)  ptau (Oblapenko)
+0.030013  1.416e-06
+0.03169  1.0664e-06
+0.033451  8.116e-07
+0.035072  6.583e-07
+0.037064  5.149e-07
+0.038962  4.1762e-07
+0.041092  3.3263e-07
+0.043176  2.7476e-07
+0.045398  2.249e-07
+0.047019  1.9442e-07
+0.048824  1.6504e-07
+0.051046  1.4138e-07
+0.053453  1.2222e-07
+0.056184  1.0188e-07
+0.058313  9.217e-08
+0.060766  8.114e-08
+0.063172  7.144e-08
+0.065578  6.703e-08
+0.068956  5.901e-08
+0.072057  5.148e-08
+0.075434  4.532e-08
+0.078303  4.1754e-08
+0.081773  3.7433e-08
+0.085891  3.3867e-08
+0.090564  2.9277e-08
+0.094127  2.6248e-08
+0.098152  2.4184e-08
+0.102084  2.2281e-08
+0.105831  2.0906e-08
+0.110088  1.9616e-08
+0.115454  1.7747e-08
+0.123504  1.5482e-08
+0.12961  1.4395e-08
+0.1353  1.2788e-08
+0.140389  1.1783e-08
+0.145015  1.0856e-08
+0.149873  1.0002e-08    
+];
+
 we=1580.19;
 nu=c*we;
 theta=h*nu/k;
@@ -172,11 +212,13 @@ semilogy(ptau_Torres(:, 1).^(-1/3), ptau_Torres(:, 3), ...
                             'Color', [239, 71, 111]/255, 'linewidth', 2)
 semilogy(ptau_Grover(:, 1).^(-1/3), ptau_Grover(:, 2), ...
                     'sq', 'Color', [17, 138, 178]/255, 'linewidth', 2)
+semilogy(ptau_Oblapenko(:, 1), ptau_Oblapenko(:, 2), ...
+                            'Color', [6, 214, 160]/255, 'linewidth', 2)
 legend('Billing', 'FHO RS', 'FHO 2', 'SSH', 'Esposito', ...
     'Kiefer & Lutz, 1967','Breen\it et. al.\rm, 1973',...
     'Kalogerakis\it et. al.\rm, 2005',...
     'Ibraguimova\it et. al.\rm, 2013', 'Millikan-White', 'Torres', ...
-    'Grover, 2019', 'Location', 'east')
+    'Grover, 2019', 'Oblapenko, 2018', 'Location', 'east')
 % ylim([1e-9 2e-3])
 % xlim([0.035 0.153])
 % xlim([0.03 0.15])
@@ -207,11 +249,57 @@ end
 ptau_SSH = 1.363e-22 * T ./ (kvt10_ssh * 1e6 .* (1 - exp(- theta ./ T)));
 ptau_FHO = 1.363e-22 * T ./ (kvt10_fho * 1e6 .* (1 - exp(- theta ./ T)));
 
-ptau_Torres = [
-% to fill
+ptau_Torres_NONO = [ % T^-1/3	ptau_Torres_NONO
+0.0215946	2.0043e-07
+0.0231995	1.8574e-07
+0.0255894	1.791e-07
+0.0271945	1.7443e-07
+0.029317	1.7558e-07
+0.0322601	1.8029e-07
+0.0368979	2.0176e-07
+0.0405546	2.1988e-07
+0.0437119	2.4282e-07
+0.0464947	2.6994e-07
+0.0500806	3.336e-07
+0.0550406	5.0614e-07
+0.0585914	7.3072e-07
+0.0630349	1.3432e-06
 ];
 
-ptau_Streicher = 1.1e-3 * exp(70 * T.^(-1/3)) / 1e6;
+ptau_Oblapenko_NONO = [ % T^-1/3  ptau_Oblapenko_NO
+0.0299826  1.0629e-06
+0.0313449  9.386e-07
+0.0328886  8.417e-07
+0.0348259  7.205e-07
+0.0370959  6.262e-07
+0.0393961  5.528e-07
+0.0415749  5.113e-07
+0.0437539  4.62e-07
+0.0461445  4.272e-07
+0.0490494  3.9192e-07
+0.052529  3.7081e-07
+0.0567951  3.5075e-07
+0.0645701  3.5532e-07
+0.072678  3.5713e-07
+0.0793638  3.6757e-07
+0.0851724  3.7259e-07
+0.0933106  3.716e-07
+0.099089  3.709e-07
+0.1062293  3.4511e-07
+0.1125825  3.4439e-07
+0.1205093  3.279e-07
+0.1280427  3.1467e-07
+0.1345473  3.0917e-07
+0.140084  2.9689e-07
+0.1457416  2.8729e-07
+0.1501588  2.8029e-07
+];
+
+T_Streicher = [1900; T(10:23); 8600];
+ptau_Streicher = 1.1e-3 * exp(70 * T_Streicher.^(-1/3)) / 1e6;
+
+T_Kamimoto = T(7:12);
+ptau_KAMIMOTO = 10.^(6.1 * T_Kamimoto .^ (-1/3) - 1.1) / 1e6;
 
 
 mu=1/(1/30.01+1/30.01);
@@ -223,8 +311,14 @@ semilogy(T.^(-1/3), ptau_FHO, ':','Color', [0 30 0]/255,'LineWidth', 1.5)
 hold on;
 semilogy(T.^(-1/3), ptau_SSH, ':','Color', [76,175,80]/255,  ...
     'LineWidth', 3)
-semilogy(T.^(-1/3), ptau_Streicher, ':','Color', [255, 209, 102]/255, ...
-    'LineWidth', 1.5)
+semilogy(T_Streicher.^(-1/3), ptau_Streicher, '-.', ...
+    'Color', [255, 209, 102]/255, 'LineWidth', 2)
+semilogy(T_Kamimoto.^(-1/3), ptau_KAMIMOTO, '--', ...
+    'Color', [17, 138, 178]/255, 'LineWidth', 2)
+semilogy(ptau_Oblapenko_NONO(:, 1), ptau_Oblapenko_NONO(:, 2), ...
+    'Color', [6, 214, 160]/255, 'LineWidth', 1.5)
+semilogy(ptau_Torres_NONO(:, 1), ptau_Torres_NONO(:, 2), ...
+    'Color', [239, 71, 111]/255, 'LineWidth', 1.5)
 % semilogy(kiefer(:,1),kiefer(:,2),'o','LineWidth', 1.8, ...
     % 'color', [33,150,243]/255, 'markerfacecolor',[3,169,244]/255)
 % semilogy(breen(:,1),breen(:,2),'x','Color', [0.7 0 0.1],'LineWidth', 2,...
@@ -239,7 +333,8 @@ semilogy(T.^(-1/3), ptau_Streicher, ':','Color', [255, 209, 102]/255, ...
                             % 'Color', [239, 71, 111]/255, 'linewidth', 2)
 % semilogy(ptau_Grover(:, 1).^(-1/3), ptau_Grover(:, 2), ...
                     % 'sq', 'Color', [17, 138, 178]/255, 'linewidth', 2)
-legend('FHO', 'SSH', 'Streicher', ...
+legend('FHO', 'SSH', 'Streicher', 'Kamimoto', 'Oblapenko 2018', ...
+    'Torres, 2024', ...
     ...'Kiefer & Lutz, 1967','Breen\it et. al.\rm, 1973',...
     ...'Kalogerakis\it et. al.\rm, 2005',...
     ...'Ibraguimova\it et. al.\rm, 2013', 'Millikan-White', 'Torres', ...
