@@ -295,10 +295,92 @@ ptau_Oblapenko_NONO = [ % T^-1/3  ptau_Oblapenko_NO
 0.1501588  2.8029e-07
 ];
 
-ptau_Moser_NONO = [ % T^-1/3	ptau Moser
+ptau_Moser_NONO = [ % T^-1/3	ptau Moser (Oblapenko)
 0.0659486	2.2096e-06
 0.0737546	2.0239e-06
 0.0794428	1.8551e-06
+];
+
+ptau_Glanzer_1975_NONO = [ % T^-1/3  Glanzer_1975 (Oblapenko)
+0.071926  2.767e-07
+0.0748025  3.2952e-07
+0.0781564  3.4901e-07
+0.082332  2.7175e-07
+0.087458  3.0056e-07
+0.094224  2.8983e-07
+0.1036952  3.2641e-07
+];
+
+ptau_Glanzer_1977_NONO = [ % T^-1/3  Glanzer_1977 (Oblapenko)
+0.0694208  7.123e-07
+0.0705558  6.641e-07
+0.0717663  6.288e-07
+0.0731131  5.908e-07
+0.0745203  5.55e-07
+0.0760182  5.255e-07
+0.0776373  4.898e-07
+0.0794378  4.601e-07
+0.081435  4.322e-07
+0.0836138  4.0281e-07
+0.0860646  3.8719e-07
+0.0887728  3.608e-07
+0.0919043  3.454e-07
+0.0955047  3.3576e-07
+0.0997856  3.3014e-07
+0.1049741  3.3214e-07
+0.1114329  3.4586e-07
+0.1198577  3.8293e-07
+0.1315491  4.72e-07
+0.1498062  5.352e-07
+];
+
+ptau_Hancock_NONO = [ % T^-1/3  Hancock (Oblapenko)
+0.1502931  4.47e-08
+];
+
+ptau_Kamimoto_NONO_Oblapenko = [ % T^-1/3   Kamimoto (Oblapenko, wrong)
+0.0694388  4.762e-07
+0.07136  4.722e-07
+0.0734776  4.792e-07
+0.0758222  4.845e-07
+0.0785901  5.012e-07
+0.0817968  5.144e-07
+0.0855934  5.259e-07
+0.0902221  5.353e-07
+0.0960305  5.49e-07
+0.1036237  5.826e-07
+];
+
+ptau_Horiguchi_NONO = [ % T^-1/3  Horiguchi (Oblapenko)
+0.1503287  3.349e-08
+];
+
+ptau_Wray_NONO = [ % T^-1/3  Wray (Oblapenko)
+0.0501815  2.2215e-09
+0.0507812  2.3985e-09
+0.051441  2.5895e-09
+0.0521247  2.8129e-09
+0.0528685  3.0556e-09
+0.0536363  3.2989e-09
+0.0544519  3.6952e-09
+0.0553278  4.0262e-09
+0.0562393  4.566e-09
+0.0572469  5.161e-09
+0.0582905  5.907e-09
+0.0594662  6.697e-09
+0.0607497  7.807e-09
+0.0620932  9.156e-09
+0.0635808  1.0771e-08
+0.0652241  1.3349e-08
+0.0670836  1.6292e-08
+0.0691591  2.0189e-08
+0.0715225  2.5797e-08
+0.074222  3.3368e-08
+0.077426  4.198e-08
+0.0812543  5.215e-08
+0.0859233  6.339e-08
+0.0919493  7.287e-08
+0.1001125  8.346e-08
 ];
 
 T_Streicher = [1900; T(10:23); 8600];
@@ -313,7 +395,7 @@ ptau_Breshears = 3.48 * ...
 
 
 mu=1/(1/30.01+1/30.01);
-mw=10.^(5e-4*mu^0.5*theta^(4/3).*(T.^(-1/3)-0.015*mu^0.25)-8);
+mw_NONO=10.^(5e-4*mu^0.5*theta^(4/3).*(T.^(-1/3)-0.015*mu^0.25)-8);
 
 
 figure('Units', 'normalized', 'OuterPosition', [0 0 0.6 0.7]);
@@ -324,7 +406,7 @@ semilogy(T.^(-1/3), ptau_SSH, ':','Color', [76,175,80]/255,  ...
 semilogy(T_Streicher.^(-1/3), ptau_Streicher, '-.', ...
     'Color', [255, 209, 102]/255, 'LineWidth', 2)
 semilogy(T_Kamimoto.^(-1/3), ptau_KAMIMOTO, '--', ...
-    'Color', [17, 138, 178]/255, 'LineWidth', 2)
+    'Color', [17, 138, 178]/255, 'LineWidth', 3)
 semilogy(ptau_Oblapenko_NONO(:, 1), ptau_Oblapenko_NONO(:, 2), ...
     'Color', [6, 214, 160]/255, 'LineWidth', 1.5)
 semilogy(ptau_Torres_NONO(:, 1), ptau_Torres_NONO(:, 2), ...
@@ -333,24 +415,24 @@ semilogy(T_Breshears.^(-1/3), ptau_Breshears, ...
     'Color', [142, 68, 173]/255, 'LineWidth', 2)
 semilogy(ptau_Moser_NONO(:,1), ptau_Moser_NONO(:,2), 'o', ...
     'LineWidth', 1.8, ...
-    'color', [230, 126, 34]/255, 'markerfacecolor', [230, 126, 34]/255)
-% semilogy(breen(:,1),breen(:,2),'x','Color', [0.7 0 0.1],'LineWidth', 2,...
-    % 'markersize', 8)
-% semilogy(kalogerakis(1),kalogerakis(2),'^','LineWidth', 1.5,...
-    % 'color', [211,84,0]/255,'markerfacecolor', [230,126,34]/255,...
-    % 'markersize', 9)
-% semilogy(shatalov(:,1),shatalov(:,2),'*','Color', [63,81,181]/255,...
-    % 'LineWidth', 1, 'markersize', 7)
-% semilogy(T.^(-1/3), mw, 'LineWidth', 1, 'color', [156,39,176]/255)
-% semilogy(ptau_Torres(:, 1).^(-1/3), ptau_Torres(:, 3), ...
-                            % 'Color', [239, 71, 111]/255, 'linewidth', 2)
-% semilogy(ptau_Grover(:, 1).^(-1/3), ptau_Grover(:, 2), ...
-                    % 'sq', 'Color', [17, 138, 178]/255, 'linewidth', 2)
-legend('FHO', 'SSH', 'Streicher', 'Kamimoto', 'Oblapenko 2018', ...
-    'Torres, 2024', 'Breshears, 1969', 'Moser', ...
-    ...'Kiefer & Lutz, 1967','Breen\it et. al.\rm, 1973',...
-    ...'Kalogerakis\it et. al.\rm, 2005',...
-    ...'Ibraguimova\it et. al.\rm, 2013', 'Millikan-White', 'Torres', ...
+    'color', [251, 111, 146]/255, 'markerfacecolor', [251, 111, 146]/255)
+semilogy(ptau_Glanzer_1975_NONO(:, 1), ptau_Glanzer_1975_NONO(:, 2), ...
+    '^', 'LineWidth', 1.5, 'color', [211,84,0]/255, ...
+    'markerfacecolor', [230,126,34]/255, 'markersize', 6)
+semilogy(ptau_Glanzer_1977_NONO(:, 1), ptau_Glanzer_1977_NONO(:, 2), ...
+    'v', 'LineWidth', 1.5, 'color', [211,84,0]/255, ...
+    'markerfacecolor', [230,126,34]/255, 'markersize', 6)
+semilogy(ptau_Hancock_NONO(:, 1), ptau_Hancock_NONO(:, 2), 'x', ...
+    'Color', [0.7 0 0.1],'LineWidth', 2, 'markersize', 8)
+semilogy(ptau_Horiguchi_NONO(:,1), ptau_Horiguchi_NONO(:,2), '*', ...
+    'Color', [63,81,181]/255, 'LineWidth', 1, 'markersize', 7)
+semilogy(T.^(-1/3), mw_NONO, 'LineWidth', 1, 'color', [156,39,176]/255)
+semilogy(ptau_Wray_NONO(:, 1), ptau_Wray_NONO(:, 2), ...
+                    'sq', 'Color', [17, 138, 178]/255, 'linewidth', 2)
+legend('FHO', 'SSH', 'Streicher', 'Kamimoto, 1970', 'Oblapenko 2018', ...
+    'Torres, 2024', 'Breshears, 1969', 'Moser', 'Glanzer, 1975', ...
+    'Glanzer, 1977', 'Hancock', 'Horiguchi', ...'Kamimoto Oblapenko', ...
+    'Millikan-White', 'Wray', ...
     'Location', 'east')
 ylim([1e-9 1e1])
 % xlim([0.035 0.153])
