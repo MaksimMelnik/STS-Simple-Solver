@@ -4,9 +4,10 @@
 %% Content:
 % 1) p*tau for O2-O
 % 2) p*tau for NO-NO
+% 3) p*tau for CO-CO
 
 addpath('../src/')
-load("../data/particles.mat", "O2", "O", "NO")
+load("../data/particles.mat", "O2", "O", "NO", "CO")
 h = 6.6261*10^(-34);
 k = 1.3807e-23;
 c = 2.99*10^10;
@@ -495,6 +496,168 @@ set(gca, 'FontSize', 12, 'FontName', 'Times New Roman');
 % set(gcf, 'color', 'none');
 %  set(gca, 'color', 'none');
 
+%% 3) p*tau for CO-CO
+we = CO.we(1)/100;
+nu = c * we;
+theta = h * nu / k;
+T = gg(:, 3);
+
+M1 = CO;
+M2 = CO;
+kvt10_ssh = zeros(length(T), 1);
+kvt10_fho = zeros(length(T), 1);
+kvt10_DeLeon = zeros(length(T), 1);
+ptau_DeLeon_clear = zeros(length(T), 1);
+for i_T = 1:length(T)
+    kvt_temp = kvt_ssh(T(i_T), M1, M2, 1, 1);
+    kvt10_ssh(i_T) = kvt_temp(1);
+    kvt_temp = kvt_fho_old(T(i_T), M1, M2, 1);
+    kvt10_fho(i_T) = kvt_temp(1);
+    kvt_temp = kvt_DeLeon_CO(T(i_T), M1);
+    kvt10_DeLeon(i_T) = kvt_temp(1);
+    ptau_DeLeon_clear(i_T) = ptau_DeLeon_CO(T(i_T), M1) / 1e6;
+end
+ptau_SSH_COCO = 1.363e-22 * T ./ ...
+    (kvt10_ssh * 1e6 .* (1 - exp(- theta ./ T)));
+ptau_FHO_COCO = 1.363e-22 * T ./ ...
+    (kvt10_fho * 1e6 .* (1 - exp(- theta ./ T)));
+ptau_DeLeon_COCO = 1.363e-22 * T ./ ...
+    (kvt10_DeLeon * 1e6 .* (1 - exp(- theta ./ T)));
+
+Hooker=[
+1367.33	0.00030435
+1425.26	0.00024758
+1512.68	0.00020729
+1608.63	0.0002062
+1653	0.00017404
+1676.17	9.887e-05
+1722.45	0.000133967
+1854.69	0.00010608
+1968.04	9.9475e-05
+2049.17	7.5163e-05
+2101.39	6.3901e-05
+2205.29	4.0174e-05
+2371.8	3.0424e-05
+2372.3	3.4466e-05
+2633.89	2.2751e-05
+2647.06	1.9931e-05
+];
+Matthews=[
+2196.96	5.778e-05
+2293.85	2.7489e-05
+2414.03	3.2717e-05
+2791.1	1.59536e-05
+];
+Gaydon=[
+2184.1	4.3889e-05
+2336.46	2.4426e-05
+2422.24	2.209e-05
+2544.09	2.452e-05
+2632.94	2.9199e-05
+];
+Russo=[
+1432.41	0.0002091
+1602.18	0.000110108
+1842.69	6.1414e-05
+1942.64	3.8332e-05
+1958.56	4.0788e-05
+2231.65	3.0946e-05
+2425.71	1.9786e-05
+2534.91	1.7562e-05
+];
+
+deleon=[
+300  2.29395e-27
+400  1.66563e-26
+500  7.93763e-26
+600  2.85992e-25
+700  8.45683e-25
+800  2.15985e-24
+900  4.92759e-24
+1000  1.02796e-23
+1500  1.68518e-22
+2000  1.17309e-21
+2500  5.11471e-21
+3000  1.66278e-20
+3500  4.42349e-20
+4000  1.01777e-19
+4500  2.09846e-19
+5000  3.97179e-19
+5500  7.01963e-19
+6000  1.17305e-18
+6500  1.87107e-18
+7000  2.86943e-18
+7500  4.25519e-18
+8000  6.12989e-18
+8500  8.61021e-18
+9000  1.18286e-17
+9500  1.59338e-17
+10000  2.10914e-17
+11000  3.53112e-17
+12000  5.61595e-17
+13000  8.55938e-17
+14000  1.25862e-16
+15000  1.79505e-16
+16000  2.49355e-16
+17000  3.38537e-16
+18000  4.50463e-16
+19000  5.8883e-16
+20000  7.57616e-16];
+deleon(:,2)=deleon(:,2)*1e6;
+ptDL=1.363e-22*deleon(:,1)./(deleon(:,2).*(1-exp(-theta./deleon(:,1))));
+
+
+% Millikan−White
+mu=1/(1/28.01+1/28.01);
+mw_COCO = 10.^(5e-4*mu^0.5*theta^(4/3).*(T.^(-1/3)-0.015*mu^0.25)-8);
+
+% Park correction
+sigma_line = 1 * 1e-20; % A^2 -> m2
+m_cd = M1.mass * M2.mass / (M1.mass + M2.mass);
+ptau_MW_Park_COCO = sqrt(pi * m_cd ./ (4 * k .* T)) / sigma_line ...
+    * k .* T * 9.86923e-6;    % s * atm
+
+% Park 1993
+a = 198;
+b = 0.0290;
+ptau_Park_1994_COCO = exp(a * (T.^(-1/3) - b) - 18.42);
+
+figure('Units', 'normalized', 'OuterPosition', [0 0 0.6 0.7]);
+semilogy(T.^(-1/3), ptau_FHO_COCO, ':','Color', [0 30 0]/255, ...
+    'LineWidth', 1.5, DisplayName='FHO')
+hold on;
+semilogy(T.^(-1/3), ptau_SSH_COCO, ':','Color', [76,175,80]/255,  ...
+    'LineWidth', 3, DisplayName='SSH')
+semilogy(T.^(-1/3), ptau_DeLeon_COCO, ':','Color', [227, 178, 60]/255,  ...
+    'LineWidth', 3, DisplayName='DeLeon')
+% semilogy(deleon(:,1).^(-1/3), ptDL, 'Color', [227, 178, 60]/255, ...
+%     DisplayName='DeLeon')
+% semilogy(T.^(-1/3), ptau_DeLeon_clear, '--','Color', [227, 178, 60]/255,  ...
+%     'LineWidth', 3, DisplayName='DeLeon ptau')
+% hold on;
+semilogy(Hooker(:,1).^(-1/3), Hooker(:,2), '*', DisplayName='Hooker, exp')
+semilogy(Matthews(:,1).^(-1/3), Matthews(:,2), '^', ...
+    DisplayName='Matthews, exp')
+semilogy(Gaydon(:,1).^(-1/3), Gaydon(:,2), 'o', ...
+    DisplayName='Gaydon, exp')
+semilogy(Russo(:,1).^(-1/3), Russo(:,2), 'sq', DisplayName='Russo, exp')
+% semilogy(T.^(-1/3), mw_COCO, 'LineWidth', 1.5, ...
+%     'color', [156,39,176]/255, DisplayName='Millikan-White')
+% semilogy(T.^(-1/3), mw_COCO + ptau_MW_Park_COCO, '-.', 'LineWidth', 2, ...
+%     'color', [156,39,176]/255, DisplayName='MW + Park поправка')
+semilogy(T.^(-1/3), ptau_Park_1994_COCO, ':', 'LineWidth', 2, ...
+    'color', [156,39,176]/255, DisplayName='Park 1994')
+semilogy(T.^(-1/3), ptau_Park_1994_COCO + ptau_MW_Park_COCO, 'LineWidth', 2.5, ...
+    'color', [156,39,176]/255, DisplayName='Park 1994 + Park поправка')
+ % legend('FHO', 'SSH', 'DeLeon', 'Hooker, exp', 'Matthews, exp', ...
+ %     'Gaydon, exp', 'Russo, exp', 'Location','SouthEast')
+legend('Location','SouthEast')
+ylabel('p\tau, sec. atm')
+xlabel('T^{-1/3}, K')
+xlim([0.02 0.16])
+ylim([0.99e-7 1e1]);
+grid on;
+title('CO + CO');
 %%
 
 rmpath('../src/')
