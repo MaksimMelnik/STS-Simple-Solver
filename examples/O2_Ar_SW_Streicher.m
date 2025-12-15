@@ -14,7 +14,7 @@ Torr=133.322368;
 Na=6.02214076e23;           % Avogadro const
 addpath('../src/')
 addpath('../data/')
-load('particles.mat', 'O2', 'O', 'Ar');
+load('particles1.mat', 'O2', 'O', 'Ar');
 O2.num_elex_levels=1;       % no electronic excitation
 O.num_elex_levels=1;
 Ar.num_elex_levels=1;
@@ -39,12 +39,12 @@ init_c=[ %  f;  p0,     Torr;   v0, m/s;    T0, K;   v0_1
         1 0.07 2510 296 870     % pure O2
         1 0.05 2760 296 950     % pure O2
         ];
-for i_ini=9 % [1 2 3 4 5 6 7 8 9] % choosing desired initial coonditions
-for i_U=4 % [2 3 4]    % choosing desired U dissociation parameter model
+for i_ini=5 % [1 2 3 4 5 6 7 8 9] % choosing desired initial coonditions
+for i_U=3 % [2 3 4]    % choosing desired U dissociation parameter model
 % 2 is for D/6k; 3 is for 3T; 4 is for inf
 for i_vibr=2 % [1 2]  % choosing vibrational energy exchange model
 % 1 is for SSH; 2 is for FHO
-for rel= 2 %1:2     % if relaxation between incident and reflected waves 
+for rel= 1 %1:2     % if relaxation between incident and reflected waves 
 % frozen? 1 -relaxation off; 2 - relaxation on
     f=init_c(i_ini, 1); %molar fraction of O2
     p0=init_c(i_ini, 2)*Torr; %initial pressure in shock tube
@@ -195,9 +195,13 @@ for rel= 2 %1:2     % if relaxation between incident and reflected waves
     kinetics.v0=v0;
     kinetics.T0=T0;
     kinetics.Delta=Delta;
-    timewave=450*1e-6;
-    x_w=v0_r*timewave;
-    xspan=[0 x_w]./Delta;
+    %timewave=50*1e-6;
+    %x_w=v0_r*timewave;
+    %xspan=[0 x_w]./Delta;
+    num_points = 501;
+    time_microsec = linspace(0, 50, num_points);
+    x_w = time_microsec * 1e-6 * v0_r;
+    xspan = x_w ./ Delta;
     y0_1=zeros(kinetics.num_eq+2, 1);
     if rel==2 
     %if relaxation on then we recalculate distribution from previous
@@ -215,11 +219,11 @@ for rel= 2 %1:2     % if relaxation between incident and reflected waves
     y0_1(end-1)=v1;
     y0_1(end)=T1;
         % great for an accurate simulation
-    options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-15, ... 
-                                    'NonNegative', 1:kinetics.num_eq+2);
+    %options_s = odeset('RelTol', 3e-14, 'AbsTol', 1e-15, ... 
+                                   % 'NonNegative', 1:kinetics.num_eq+2);
         % enough for debugging
-    % options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
-    %                                 'NonNegative', 1:kinetics.num_eq+2); 
+     options_s = odeset('RelTol', 1e-5, 'AbsTol', 1e-8, ...
+                    'NonNegative', 1:kinetics.num_eq+2); 
     [X_1, Y_1]=ode15s(@(t, y) Rpart_ODE_SW(t, y, kinetics),...
         xspan, y0_1, options_s);
     X_1=X_1*Delta;
@@ -236,7 +240,8 @@ for rel= 2 %1:2     % if relaxation between incident and reflected waves
     end
     p_1=(n_O2_1+n_O_1+n_Ar_1)*k.*T_1 /Torr;
     Tv_1 = O2.ev_i{1}(2)./(k*log(Y_1(:,1)./Y_1(:,2)));
-    time_ms_1=X_1./v0_r*1e6;
+    %time_ms_1=X_1./v0_r*1e6;
+    time_ms_1 = time_microsec';
     rhov0_1=rho0_1 * v0;                    % rho0*v0
     rhov2p0_1=rho0_1* v0^2 + n0*k*T0;      % rho0*v0^2+p0
     e_i=[];
@@ -286,8 +291,8 @@ end
 end
 %%
 %if you want to save your data in .mat file, uncomment following raws
-% save('..\data\O2_Ar Streicher experiment\O2Ar_betweenSWs_output', 'dat');
-% save('..\data\O2_Ar Streicher experiment\O2Ar_behindRSW_output', 'dat1');
+ save('..\data\O2_Ar Streicher experiment\O2Ar_betweenSWs_output', 'dat');
+ save('..\data\O2_Ar Streicher experiment\O2Ar_behindRSW_output', 'dat1');
 
 rmpath('../src/')
 rmpath('../data/')
