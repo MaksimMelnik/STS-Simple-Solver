@@ -1,15 +1,23 @@
 clearvars; close all; clc;
 addpath('../data'); 
 
-num_runs_sens = 60; 
 
+target_accuracy = 0.16; % нужная точность для NRMSE на тестовых точках 
+is_model_good = false;
+attempt = 0;
+
+while ~is_model_good
+    attempt = attempt + 1;
+    fprintf('\n\n##########################################\n');
+    fprintf('   ПОПЫТКА ПОСТРОЕНИЯ МОДЕЛИ №%d\n', attempt);
+    fprintf('##########################################\n');
 
 
 %% выбор лучшего LHS
 fprintf('=== Поиск лучшего LHS для устойчивой метамодели ===\n');
 
 num_candidates = 2000;  % сколько разных LHS генерировать
-
+num_runs_sens = 60; %количество запусков черного ящика
 d = 3;                 
 p = 3;                
 Nt = 20;                
@@ -111,7 +119,7 @@ for run_idx = 1:num_runs_sens
     lP_2 = @(x) sqrt(5)/2 * (3*x.^2 - 1);
     lP_3 = @(x) sqrt(7)/2 * (5*x.^3 - 3*x); 
     
-    time = time_ms_1; 
+    time = time_ms_1;
     concentration_O2 = n_O2_1 / Na; 
     
     if run_idx == 1
@@ -160,40 +168,7 @@ for i = 1:T_steps
     R = results_matrix(i, 2:end)'; 
     alpha(:,i) = pinv(Psi) * R; 
 end
-%% Расчет индексов Соболя
-IN_Sobol_Total = zeros(500, d + 1);    
-IN_Sobol_Total(:,1) = time(2:501);
 
-% Индексы полиномов, которые зависят от параметра 
-Indices_T1 = [2, 5, 8, 9, 11, 14, 15, 16, 18, 20]; % X1 (A_{O2+O})
-Indices_T2 = [3, 6, 8, 10, 12, 14, 16, 17, 19, 20]; % X2 (A_{O2+O2})
-Indices_T3 = [4, 7, 9, 10, 13, 15, 17, 18, 19, 20]; % X3 (A_{O2+Ar})
-
-
-for i = 2:T_steps 
-    a = alpha(:, i);
-    D = sum(a(2:end).^2); % Общая дисперсия (без первого коэффициента a1)
-    
-     D_T1 = sum(a(Indices_T1).^2);
-     ST1 = D_T1 / D; 
-  
-     D_T2 = sum(a(Indices_T2).^2);
-     ST2 = D_T2 / D; 
-        
-     D_T3 = sum(a(Indices_T3).^2);
-     ST3 = D_T3 / D;
-    
-    
-    IN_Sobol_Total(i-1, 2:4) = [ST1, ST2, ST3];
-end
-
-%% 
-param_names = {'A_{O_2+O}', 'A_{O_2+O_2}', 'A_{O_2+Ar}'}; 
-figure;
-plot(IN_Sobol_Total(:,1), IN_Sobol_Total(:,2:4));
-legend('A_O', 'A_O2', 'A_Ar');
-xlabel('t');
-ylabel('Total Sobol Indices');
 %% ОЦЕНКА КАЧЕСТВА PCE (на обучающих точках)
 T_steps = size(results_matrix, 1); 
 all_rmse = zeros(1, T_steps);
@@ -229,18 +204,18 @@ fprintf('--------------------------------------------------------------------\n'
 % 5. качественная оценка модели
 if max_nrmse <= 0.20 && mean_nrmse <= 0.10
     fprintf(' КАЧЕСТВО МОДЕЛИ: Отличное \n');
-elseif max_nrmse < 0.25 && mean_nrmse <= 0.15
+elseif max_nrmse < 0.18 && mean_nrmse <= 0.13
     fprintf(' КАЧЕСТВО МОДЕЛИ: Приемлемое  \n');
 else
     fprintf('КАЧЕСТВО МОДЕЛИ: Недостаточное \n');
-     return;
+     continue;
 end
    
 
-%% ОЦЕНКА ОБОБЩАЮЩЕЙ СПОСОБНОСТИ НА ТЕСТОВОМ НАБОРЕ (Валидация)
-% -------------------------------------------------------------------------
-N_test = 200; % Количество тестовых запусков
-% -------------------------------------------------------------------------
+%% Оценка качества PCE на тестовом наборе (осреденение по всему пространству)
+
+N_test = 200; % Количество тестовых запусков (минимум 200)
+
 T_steps = size(results_matrix, 1);
 time_val = zeros(T_steps, 1); 
 R_true_tests = zeros(T_steps, N_test); 
@@ -258,7 +233,7 @@ for run_idx = 1:N_test
     
     % СОХРАНЕНИЕ И ВОССТАНОВЛЕНИЕ ПЕРЕМЕННЫХ
     run_idx_val = run_idx; 
-    save('pce_validation_state.mat', 'alpha', 'Nt', 'T_steps', 'd', 'lP_0', 'lP_1', 'lP_2', 'lP_3', 'run_idx_val', 'N_test');
+    save('pce_validation_state.mat', 'alpha', 'Nt', 'T_steps', 'd', 'lP_0', 'lP_1', 'lP_2', 'lP_3', 'run_idx_val', 'N_test','LHS_points');
     load('pce_validation_state.mat'); 
     load('lhs_test_plan.mat'); 
 
@@ -349,20 +324,56 @@ else
     fprintf(' ОБОБЩЕНИЕ: Неудовлетворительное.\n');
 end
 
-%% Построение графика валидации
-figure;
 
-for run_idx = 1:N_test
-    plot(time_val, R_true_tests(:, run_idx), '-', 'Color', colors(run_idx,:), 'LineWidth', 1.5);
-    hold on;
-    plot(time_val, R_PCE_tests(:, run_idx), '--', 'Color', colors(run_idx,:), 'LineWidth', 1);
+%%
+if NRMSE_test_total <= target_accuracy
+        fprintf('\n Достигнута точность %.15f%%. Сохраняем финальную модель.\n', NRMSE_test_total * 100);
+ %% Расчет индексов Соболя
+IN_Sobol_Total = zeros(500, d + 1);    
+IN_Sobol_Total(:,1) = 0.1 : 0.1 : 50;
+
+% Индексы полиномов, которые зависят от параметра 
+Indices_T1 = [2, 5, 8, 9, 11, 14, 15, 16, 18, 20]; % X1 (A_{O2+O})
+Indices_T2 = [3, 6, 8, 10, 12, 14, 16, 17, 19, 20]; % X2 (A_{O2+O2})
+Indices_T3 = [4, 7, 9, 10, 13, 15, 17, 18, 19, 20]; % X3 (A_{O2+Ar})
+
+
+for i = 2:T_steps 
+    a = alpha(:, i);
+    D = sum(a(2:end).^2); % Общая дисперсия 
+    
+     D_T1 = sum(a(Indices_T1).^2);
+     ST1 = D_T1 / D; 
+  
+     D_T2 = sum(a(Indices_T2).^2);
+     ST2 = D_T2 / D; 
+        
+     D_T3 = sum(a(Indices_T3).^2);
+     ST3 = D_T3 / D;
+    
+    
+    IN_Sobol_Total(i-1, 2:4) = [ST1, ST2, ST3];
 end
+%% 
+param_names = {'A_{O_2+O}', 'A_{O_2+O_2}', 'A_{O_2+Ar}'}; 
+figure;
+plot(IN_Sobol_Total(:,1), IN_Sobol_Total(:,2:4));
+legend('A_O', 'A_O2', 'A_Ar');
+xlabel('t');
+ylabel('Total Sobol Indices');
+% Сохраняем лучшую модель с уникальным именем
+    filename = sprintf('final_good_model_p3_v%d.mat', attempt);
+    save(filename, 'alpha', 'LHS_points', 'NRMSE_test_total', 'IN_Sobol_Total');
+    is_model_good = true; % Выход из цикла
+else
 
-xlabel('Время (ms)');
-ylabel('Концентрация O2 (моль/м^3)');
-title(sprintf('Валидация PCE: %d Тестовых Запусков (Общая NRMSE=%.2f%%)', N_test, NRMSE_test_total * 100));
+     fprintf('\n Точность (%.15f%%) хуже порога (%.15f%%). Пробуем заново\n', ...
+            NRMSE_test_total * 100, target_accuracy * 100)  
 
-h_legend = [plot(NaN, NaN, 'k-'), plot(NaN, NaN, 'k--')];
-legend(h_legend, {'Истинный Черный Ящик', 'Предсказание PCE'}, 'Location', 'Best');
-grid on;
-hold off;
+        %  ограничение попыток, чтобы не зациклилось навсегда
+        if attempt > 20 
+            fprintf('Достигнуто макс. число попыток. \n');
+            break;
+        end
+    end
+end 

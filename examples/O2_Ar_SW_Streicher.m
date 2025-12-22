@@ -7,7 +7,7 @@
 % 06.04.2023 Denis Kravchenko
 
 tic
-clearvars;
+clearvars -except target_accuracy attempt is_model_good NRMSE_test_total;
 % constants
 k=1.380649e-23;             % Boltzmann constant, J/K
 Torr=133.322368; 

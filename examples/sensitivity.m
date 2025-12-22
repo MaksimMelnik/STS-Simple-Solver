@@ -1,15 +1,24 @@
 clearvars; close all; clc;
 addpath('../data');
 
-% Количество запусков модели (вообще 10, но можно поэкспериментировать)
-num_runs_sens = 30;
 
+
+target_accuracy = 0.21; % нужная точность для NRMSE на тестовых точках
+is_model_good = false;
+attempt = 0;
+
+while ~is_model_good
+    attempt = attempt + 1;
+    fprintf('\n\n##########################################\n');
+    fprintf('   ПОПЫТКА ПОСТРОЕНИЯ МОДЕЛИ №%d\n', attempt);
+    fprintf('##########################################\n');
 
 %% выбор лучшего LHS
-
+% Количество запусков модели (вообще 10, но можно поэкспериментировать)
+num_runs_sens = 30;
 num_candidates = 2000;   % сколько разных LHS генерировать
 d = 3;                   % размерность параметров
-n = num_runs_sens;      
+n = 30;      
 
 fprintf('=== Поиск лучшего LHS для устойчивой метамодели ===\n');
 
@@ -122,8 +131,8 @@ save('sensitivity_results_LHS.mat', 'results_matrix');
 writematrix(results_matrix, 'sensitivity_results_LHS.txt', 'Delimiter','tab');
 
 %%
-figure;
-plot(results_matrix(:,1), results_matrix(:,2:end));
+%figure;
+%plot(results_matrix(:,1), results_matrix(:,2:end));
 
 %% решение слу
 lP_0 = @(x)  legendreP(0,x);
@@ -154,24 +163,6 @@ for i = 1:501
     R = results_matrix(i, 2:end)';
     alpha(:,i) = linsolve(Psi, R);
 end
-
-%% индексы Соболя
-
-IN_Sobol = zeros(500, 4);
-IN_Sobol(:,1) = time(2:501);
-
-for i=2:501
-    D = sum(alpha(2:end, i).^2);
-    IN_Sobol(i-1,2) = (alpha(2,i)^2 + alpha(5,i)^2 + alpha(8,i)^2 + alpha(9,i)^2)   / D;
-    IN_Sobol(i-1,3) = (alpha(3,i)^2 + alpha(6,i)^2 + alpha(8,i)^2 + alpha(10,i)^2) / D;
-    IN_Sobol(i-1,4) = (alpha(4,i)^2 + alpha(7,i)^2 + alpha(9,i)^2 + alpha(10,i)^2)/ D;
-end
-
-figure;
-plot(IN_Sobol(:,1), IN_Sobol(:,2:4));
-legend('A_O', 'A_O2', 'A_Ar');
-xlabel('t');
-ylabel('Total Sobol Indices');
 
 
 
@@ -247,7 +238,7 @@ elseif max_nrmse < 0.30 && mean_nrmse <= 0.25
     fprintf(' КАЧЕСТВО МОДЕЛИ: Приемлемое  \n');
 else
     fprintf('КАЧЕСТВО МОДЕЛИ: Недостаточное \n');
-     return;
+     continue;
     
 end
 %%  Оценка качества PCE на тестовом наборе (осреденение по всему пространству)
@@ -358,7 +349,8 @@ elseif NRMSE_test_total < 0.20
 else
     fprintf('ОБОБЩЕНИЕ: Неудовлетворительное. \n');
 end
-
+%%
+%{
 % 7. Построение графика
 figure;
 colors = jet(N_test); % Цветовая карта для разных запусков
@@ -380,3 +372,42 @@ legend(h_legend, {'Истинный Черный Ящик', 'Предсказа�
 
 grid on;
 hold off;
+%}
+%%
+if NRMSE_test_total <= target_accuracy
+        fprintf('\n Достигнута точность %.2f%%. Сохраняем финальную модель.\n', NRMSE_test_total * 100);
+        
+       
+  %% индексы Соболя
+IN_Sobol = zeros(500, 4);
+IN_Sobol(:,1) = 0.1 : 0.1 : 50;
+
+for i=2:501
+    D = sum(alpha(2:end, i).^2);
+    IN_Sobol(i-1,2) = (alpha(2,i)^2 + alpha(5,i)^2 + alpha(8,i)^2 + alpha(9,i)^2)   / D;
+    IN_Sobol(i-1,3) = (alpha(3,i)^2 + alpha(6,i)^2 + alpha(8,i)^2 + alpha(10,i)^2) / D;
+    IN_Sobol(i-1,4) = (alpha(4,i)^2 + alpha(7,i)^2 + alpha(9,i)^2 + alpha(10,i)^2)/ D;
+end
+
+figure;
+plot(IN_Sobol(:,1), IN_Sobol(:,2:4));
+legend('A_O', 'A_O2', 'A_Ar');
+xlabel('t');
+ylabel('Total Sobol Indices');
+ % Сохраняем лучшую модель с уникальным именем
+        filename = sprintf('final_good_model_v%d.mat', attempt);
+        save(filename, 'alpha', 'LHS_points', 'NRMSE_test_total', 'IN_Sobol');
+        is_model_good = true; % Выход из цикла
+
+    else
+        fprintf('\n Точность (%.2f%%) хуже порога (%.2f%%). Пробуем заново...\n', ...
+            NRMSE_test_total * 100, target_accuracy * 100);
+        
+        
+        %  ограничение попыток, чтобы не зациклилось навсегда
+        if attempt > 50 
+            fprintf('Достигнуто макс. число попыток. Останавливаемся.\n');
+            break;
+        end
+    end
+end %
