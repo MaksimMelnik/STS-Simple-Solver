@@ -403,7 +403,7 @@ for i_rel=2 %[1 2]
     resSt_1.nO2=n_O2_1/Na;
     resSt_1.nN2=n_N2_1/Na;
     resSt_1.nO=n_O_1/Na;
-    resSt_1.nN=n_O_1/Na;
+    resSt_1.nN=n_N_1/Na;
     resSt_1.nAr=n_Ar_1/Na;
     dat1(i_vibr,i_U,i_ini,i_rel, i_exch)=resSt_1;
 end

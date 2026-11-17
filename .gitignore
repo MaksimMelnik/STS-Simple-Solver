@@ -17,3 +17,5 @@ data/for comparison/shatalov.mat
 plots/Hubner12_Pintassilgo14_Air_DC_plots_congress.m
 data/Air Streicher experiment/Air_behindRSW_output.mat
 data/Air Streicher experiment/Air_betweenSWs_output.mat
+examples/N2_NO_Streicher.m.before_NO_II_run.bak
+examples/NO_Streicher.m.before_NO_I_run.bak
